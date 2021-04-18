@@ -5,7 +5,6 @@ const Util = Discord.Util;
 class ClusterClient{
    /**
    * @param {Client} client Client of the current cluster
-   * @param {ClusterManagerMode} mode Mode the cluster was spawned with
    */
    constructor(client, mode) {
     /**
@@ -18,14 +17,14 @@ class ClusterClient{
      * Mode the Cluster was spawned with
      * @type {ClusterManagerMode}
      */
-    this.mode = mode;
-
+    this.mode = this.info.CLUSTER_MANAGER_MODE;
+    mode = this.mode;
     /**
-     * Message port for the master process (only when {@link ShardClientUtil#mode} is `worker`)
+     * Message port for the master process (only when {@link ClusterClientUtil#mode} is `worker`)
      * @type {?MessagePort}
      */
      this.parentPort = null;
-
+     
      if (mode === 'process') {
         process.on('message', this._handleMessage.bind(this));
         client.on('ready', () => {
@@ -52,6 +51,14 @@ class ClusterClient{
       }
     
    }
+    /**
+   * cluster's id
+   * @type {number[]}
+   * @readonly
+   */
+    get id() {
+      return this.info.CLUSTER;
+    }
    /**
    * Array of shard IDs of this client
    * @type {number[]}
@@ -66,7 +73,27 @@ class ClusterClient{
    * @readonly
    */
    get count() {
-     return this.client.ws.shards.length;
+     return this.info.CLUSTER_COUNT;
+   }
+   /**
+   * Gets several Info like Cluster_Count, Number, Totalshards...
+   * @type {Object}
+   * @readonly
+   */
+   get info(){
+    let clustermode = process.env.CLUSTER_MANAGER_MODE;
+    if(!clustermode) return
+    if(clustermode !== "worker" && clustermode !== "process") throw new Error("NO CHILD/MASTER EXISTS OR SUPPLIED CLUSTER_MANAGER_MODE IS INCORRECT");
+    let data;
+    if(clustermode === "process"){ 
+      const shardlist = [];
+      let parseshardlist =  process.env.SHARD_LIST.split(",")
+      parseshardlist.forEach(c =>shardlist.push(Number(c)))
+      data = {SHARD_LIST: shardlist, TOTAL_SHARDS: Number(process.env.TOTAL_SHARDS), CLUSTER_COUNT: Number(process.env.CLUSTER_COUNT), CLUSTER: Number(process.env.CLUSTER), CLUSTER_MANAGER_MODE: clustermode}
+    }else{
+      data = require("worker_threads").workerData 
+    }
+    return data;
    }
    /**
    * Sends a message to the master process.
@@ -217,6 +244,25 @@ class ClusterClient{
       );
     }
     return this._singleton;
+  }
+  /**
+   * gets the total Internalshardcount and shard list.
+   * @returns {ClusterClientUtil}
+   */
+  static getinfo(){
+    let clustermode = process.env.CLUSTER_MANAGER_MODE;
+    if(!clustermode) return
+    if(clustermode !== "worker" && clustermode !== "process") throw new Error("NO CHILD/MASTER EXISTS OR SUPPLIED CLUSTER_MANAGER_MODE IS INCORRECT");
+    let data;
+    if(clustermode === "process"){ 
+      const shardlist = [];
+      let parseshardlist =  process.env.SHARD_LIST.split(",")
+      parseshardlist.forEach(c =>shardlist.push(Number(c)))
+      data = {SHARD_LIST: shardlist, TOTAL_SHARDS: Number(process.env.TOTAL_SHARDS), CLUSTER_COUNT: Number(process.env.CLUSTER_COUNT), CLUSTER: Number(process.env.CLUSTER), CLUSTER_MANAGER_MODE: clustermode}
+    }else{
+      data = require("worker_threads").workerData 
+    }
+    return data;
   }
  
 

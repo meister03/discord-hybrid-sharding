@@ -2,10 +2,10 @@
 <p align="center"><img src="https://img.shields.io/npm/v/discord-hybrid-sharding"> <img src="https://img.shields.io/github/repo-size/meister03/disord-hybrid-sharding"> <img src="https://img.shields.io/npm/l/discord-hybrid-sharding"> <img src="https://img.shields.io/github/contributors/discord-hybrid-sharding">  <a href="https://discord.gg/YTdNBHh"><img src="https://discordapp.com/api/guilds/697129454761410600/widget.png" alt="Discord server"/></a></p>
 
 # Discord-Hybrid-Sharding
-The first package which combines Sharding Manager & Internal Sharding to save a lot of ressources
+The first package which combines Sharding Manager & Internal Sharding to save a lot of resources
 
 ## Why?
-The Sharding Manager is very heavy and it uses more than 300mb for every shard on a light usage, during internal sharding just uses 20% of it. Internal Sharding reaches their limit on more than 14000 Guilds and it becomes slow when you bot gets bigger. Your only solution is convert to Sharding Manager. Thatsway this new Package will solve all your problems, because it spawns Shards, which has Internal Shards. **You can save up to 60% on resouces**
+The Sharding Manager is very heavy and it uses more than 300mb for every shard on a light usage, during internal sharding just uses 20% of it. Internal Sharding reaches their limit on more than 14000 Guilds and it becomes slow when you bot gets bigger. Your only solution is convert to Sharding Manager. Thatsway this new Package will solve all your problems, because it spawns Shards, which has Internal Shards. **You can save up to 60% on resources**
 
 **If you need help feel free to join our <a href="https://discord.gg/YTdNBHh">discord server</a>. We will provied you all help ☺**
 # Download
@@ -35,10 +35,10 @@ FileName: Bot.js //You can name your file after you wish
 ```js
 const Cluster = require("discord-hybrid-sharding");
 const client = new Discord.Client({
- 	shards: cluster.data.SHARD_LIST,        //  A Array of Shard list, which will get spawned
-	shardCount: cluster.data.TOTAL_SHARDS, // The Number of Total Shards
+ 	shards: Cluster.data.SHARD_LIST,        //  A Array of Shard list, which will get spawned
+	shardCount: Cluster.data.TOTAL_SHARDS, // The Number of Total Shards
 });
-client.cluster = new cluster.Client(client, cluster.data.CLUSTER_MANAGER_MODE); //So we can access broadcastEval...
+client.cluster = new Cluster.Client(client); //Init the CLient & So we can also access broadcastEval...
 client.login("Your_Token");
 ```
 
@@ -68,6 +68,12 @@ The Manager.spawn option are the same like Sharding Manager
 
 # Cluster Client Properties
 You have all properties like broadcasteval..., just replace client.shard with client.cluster
+Other Properties:
+| Property |  Description |
+| ------------- | -------------- |
+|client.cluster.count  | gives the amount of all clusters|
+|client.cluster.id  | gives the current cluster|
+|client.cluster.ids  | gives all internal shards of the cluster|
 
 **Have fun and feel free to contribute/suggest or contact me on my discord server or per dm on Meister#9667**
 

@@ -105,7 +105,7 @@ class ClusterManager extends EventEmitter {
       this.shardclusterlist = null;
       process.env.SHARD_LIST =  undefined;
       process.env.TOTAL_SHARDS = this.totalShards;
-      process.env.ClUSTER = undefined;
+      process.env.CLUSTER = undefined;
       process.env.CLUSTER_COUNT = this.totalClusters;
       process.env.CLUSTER_MANAGER = true;
       process.env.CLUSTER_MANAGER_MODE = this.mode;
