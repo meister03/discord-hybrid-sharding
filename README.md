@@ -23,7 +23,7 @@ let {token} = require("./config.json");
 const manager = new Cluster.Manager(`${__dirname}/bot.js`,{
                                        totalShards: 7 ,
                                        totalClusters: 2, 
-                                       mode: "worker" ,  ///We currently do not support process mode
+                                       mode: "worker" ,  //you can also choose process
                                        token: token
                                     })
 manager.on('clusterCreate', cluster => console.log(`Launched Cluster ${cluster.id}`));
