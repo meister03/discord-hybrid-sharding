@@ -1,0 +1,33 @@
+{
+  "name": "discord-hybrid-sharding",
+  "version": "1.0.1",
+  "description": "The first package which combines Sharding Manager & Internal Sharding to save a lot of ressources",
+  "main": "index.js",
+  "dependencies": {
+    "discord.js": "^12.5.2"
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/meister03/discord-hybrid-sharding.git"
+  },
+
+  "keywords": [
+    "discord",
+    "discord.js",
+    "bot",
+    "bots",
+    "discord-sharding",
+    "discord-clustering",
+    "cluster",
+    "hybrid-sharding",
+    "discord.js-hybrid-sharding",
+    "framework"
+  ],
+  "author": "meister03",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/meister03/discord-hybrid-sharding/issues"
+  },
+  "homepage": "https://github.com/meister03/discord-hybrid-sharding#readme"
+}
