@@ -17,6 +17,7 @@ class ClusterManager extends EventEmitter {
    * @param {string[]} [options.execArgv=[]] Arguments to pass to the clustered script executable when spawning
    * (only available when using the `process` mode)
    * @param {ClusterManagerMode} [options.mode='worker'] Which mode to use for clustering
+   * @param {number[]} [options.shardList] A Array of Internal Shards Ids, which should get spawned
    * @param {string} [options.token] Token to use for automatic internal shard count and passing to bot file
    */
     constructor(file, options = {}) {
@@ -28,6 +29,7 @@ class ClusterManager extends EventEmitter {
             shardArgs: [],
             execArgv: [],
             mode: 'worker',
+            shardList: 'auto',
             token: process.env.DISCORD_TOKEN,
           },
           options,
@@ -92,6 +94,30 @@ class ClusterManager extends EventEmitter {
      * @type {string[]}
      */
      this.execArgv = options.execArgv;
+
+    /**
+    * List of internal shard ids this cluster manager spawns
+    * @type {string|number[]}
+    */
+    this.shardList = options.shardList || 'auto';
+    if (this.shardList !== 'auto') {
+      if (!Array.isArray(this.shardList)) {
+        throw new TypeError('CLIENT_INVALID_OPTION', 'shardList', 'an array.');
+      }
+      this.shardList = [...new Set(this.shardList)];
+      if (this.shardList.length < 1) throw new RangeError('CLIENT_INVALID_OPTION', 'shardList', 'at least 1 ID.');
+      if (
+        this.shardList.some(
+          shardID => typeof shardID !== 'number' || isNaN(shardID) || !Number.isInteger(shardID) || shardID < 0,
+        )
+      ) {
+        throw new TypeError('CLIENT_INVALID_OPTION', 'shardList', 'an array of positive integers.');
+      }
+    }
+
+
+
+
       /**
       * Token to use for obtaining the automatic internal shards count, and passing to bot script
       * @type {?string}
@@ -144,15 +170,24 @@ class ClusterManager extends EventEmitter {
         throw new TypeError('CLIENT_INVALID_OPTION', 'Amount of Clusters', 'an integer.');
       }
     }
-    let calclist = Math.ceil(this.totalShards / this.totalClusters);
-    let totalshards = calclist * this.totalClusters;
-    this.shardclusterlist = new Array(this.totalClusters).fill(0).map((_, i) => new Array(calclist).fill(0).map((_, x) => i * calclist + x ));
-    
-    for (let i = 0; i < clusteramount ; i++) {
+   
+      if(this.shardList === "auto")  this.shardList = [...Array(amount).keys()];
+      this.shardclusterlist = this.shardList.chunk(Math.ceil(this.shardList.length/this.totalClusters));
+      if(this.shardclusterlist.length !== this.totalClusters){
+        this.totalClusters = this.shardclusterlist.length;
+      }
+    if (this.shardList.some(shardID => shardID >= amount)) {
+      throw new RangeError(
+        'CLIENT_INVALID_OPTION',
+        'Amount of Internal Shards',
+        'bigger than the highest shardID in the shardList option.',
+      );
+    }
+    for (let i = 0; i < this.totalClusters ; i++) {
         const promises = [];
-        const cluster = this.createCluster(i, this.shardclusterlist[i], totalshards)
+        const cluster = this.createCluster(i, this.shardclusterlist[i], this.totalShards)
         promises.push(cluster.spawn(spawnTimeout));
-        if (delay > 0 && this.clusters.size !== clusteramount) promises.push(Discord.Util.delayFor(delay));
+        if (delay > 0 && this.clusters.size !== this.totalClusters) promises.push(Discord.Util.delayFor(delay));
         await Promise.all(promises); // eslint-disable-line no-await-in-loop
     }
     return this.clusters;
@@ -254,3 +289,11 @@ class ClusterManager extends EventEmitter {
 }
 module.exports = ClusterManager;
 
+Object.defineProperty(Array.prototype, 'chunk', {
+  value: function(chunkSize) {
+    var R = [];
+    for (var i = 0; i < this.length; i += chunkSize)
+      R.push(this.slice(i, i + chunkSize));
+    return R;
+  }
+});

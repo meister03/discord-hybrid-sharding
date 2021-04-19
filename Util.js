@@ -1,5 +1,6 @@
 const has = (o, k) => Object.prototype.hasOwnProperty.call(o, k);
 class Util {
+ 
    /**
    * Sets default properties on an object that aren't already specified.
    * @param {Object} def Default properties

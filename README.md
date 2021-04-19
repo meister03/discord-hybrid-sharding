@@ -22,6 +22,7 @@ const Cluster = require("discord-hybrid-sharding");
 let {token} = require("./config.json");
 const manager = new Cluster.Manager(`${__dirname}/bot.js`,{
                                        totalShards: 7 ,
+                                      ///See below for more options
                                        totalClusters: 2, 
                                        mode: "worker" ,  //you can also choose process
                                        token: token
@@ -29,6 +30,7 @@ const manager = new Cluster.Manager(`${__dirname}/bot.js`,{
 manager.on('clusterCreate', cluster => console.log(`Launched Cluster ${cluster.id}`));
 manager.spawn(undefined, undefined, -1)
 ```
+### Sometimes the Cluster.Manager can choose a less amount of total Clusters, when it finds out, that a new cluster is not needed (in very rare cases...)
 
 After that, you have to insert the code below in your bot.js file
 FileName: Bot.js //You can name your file after you wish
@@ -56,6 +58,7 @@ client.login("Your_Token");
 | ------------- | ------------- | ------------- | ------------- |
 | totalShards | number/string| 'auto'| The Number of Internal Shards, which should be spawned |
 | totalClusters | number/string| 'auto' | The Number of Processes/Clusters which should be spawned |
+| shardList | Array[Number] | not-required | On Cross hosting or spawning specific shards you can provided a shardList of internal Shards id, which should get spawned |
 | mode | "worker/process" | worker | The Cluster.Manager Mode for the processes |
 | token | string | not-required | The Bot token is just required, when you set the totalShards on auto |
 The Manager.spawn option are the same like Sharding Manager
