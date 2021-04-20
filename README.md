@@ -2,10 +2,21 @@
 <p align="center"><img src="https://img.shields.io/npm/v/discord-hybrid-sharding"> <img src="https://img.shields.io/github/repo-size/meister03/disord-hybrid-sharding"> <img src="https://img.shields.io/npm/l/discord-hybrid-sharding"> <img src="https://img.shields.io/github/contributors/discord-hybrid-sharding">  <a href="https://discord.gg/YTdNBHh"><img src="https://discordapp.com/api/guilds/697129454761410600/widget.png" alt="Discord server"/></a></p>
 
 # Discord-Hybrid-Sharding
-The first package which combines Sharding Manager & Internal Sharding to save a lot of resources
+The first package which combines Sharding Manager & Internal Sharding to save a lot of resources!
+Aka: "Mixing both: if you need `x` shards for `n` process"
 
 ## Why?
-The Sharding Manager is very heavy and it uses more than 300mb for every shard on a light usage, during internal sharding just uses 20% of it. Internal Sharding reaches their limit on more than 14000 Guilds and it becomes slow when you bot gets bigger. Your only solution is convert to Sharding Manager. Thatsway this new Package will solve all your problems, because it spawns Shards, which has Internal Shards. **You can save up to 60% on resources**
+The Sharding Manager is very heavy and it uses more than 300mb on a light usage for every shard, during internal sharding just uses 20% of it. Internal Sharding reaches their limit on more than 14000 Guilds and it becomes slow when your bot gets bigger.
+Your only solution is to convert to the Sharding Manager. Thatsway this new Package will solve all your problems, because it spawns Shards, which has Internal Shards. **You can save up to 60% on resources**
+
+## How does it Work?
+There are Clusters/Master Shards, which are like normal shards on the sharding manager and the clusters spawns in addition internal shards. So you do not have to spawn so much normal Shards (master shards ), which you can replace with internal shards.
+"for process `n` , `n` internal shards"
+
+Example: `A 4k Discord Bot`
+Normaly we would spawn 4 shards with the Sharding Manager, but we start here with 2 Clusters/MasterShards, which spawns 2 internal shards ==> We save 2 shards in comparision to the Sharding Manager.
+
+### See below for the Docs
 
 **If you need help feel free to join our <a href="https://discord.gg/YTdNBHh">discord server</a>. We will provied you all help ☺**
 # Download
@@ -61,7 +72,9 @@ client.login("Your_Token");
 | shardList | Array[Number] | not-required | On Cross hosting or spawning specific shards you can provided a shardList of internal Shards id, which should get spawned |
 | mode | "worker/process" | worker | The Cluster.Manager Mode for the processes |
 | token | string | not-required | The Bot token is just required, when you set the totalShards on auto |
+
 The Manager.spawn option are the same like Sharding Manager
+
 # Cluster Events
 | Event |  Description |
 | ------------- | -------------- |
@@ -81,7 +94,7 @@ Other Properties:
 **Have fun and feel free to contribute/suggest or contact me on my discord server or per dm on Meister#9667**
 
 # Bugs, Glitches and Issues
-If you encounter any problems fell free to open an issue in our <a href="https://github.com/meister03/discord-hybrid-sharding/issues">github repository or join the discord server.</a>
+If you encounter any problems feel free to open an issue in our <a href="https://github.com/meister03/discord-hybrid-sharding/issues">github repository or join the discord server.</a>
 
 # Credits
 Credits goes to the discord.js libary since some structures are copied and to this helpful [server]()
