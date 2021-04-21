@@ -1,5 +1,6 @@
 declare module 'discord-hybrid-sharding' {
 import { EventEmitter } from 'events';
+import { ChildProcess } from 'child_process';
 export class Cluster extends EventEmitter {
     constructor(manager: ClusterManager, id: number);
     private _evals: Map<string, Promise<any>>;
@@ -79,7 +80,7 @@ export class Cluster extends EventEmitter {
     public file: string;
     public respawn: boolean;
     public shardArgs: string[];
-    public shards: Collection<number, Clusters>;
+    public clusters: Map<number, Cluster>;
     public token: string | null;
     public totalClusters: number | 'auto';
     public totalShards: number | 'auto';
@@ -94,13 +95,14 @@ export class Cluster extends EventEmitter {
       clusterDelay?: number,
       respawnDelay?: number,
       spawnTimeout?: number,
-    ): Promise<Collection<number, Cluster>>;
-    public spawn(amount?: number | 'auto', delay?: number, spawnTimeout?: number): Promise<Collection<number, Cluster>>;
-
+    ): Promise<Map<number, Cluster>>;
+    public spawn(amount?: number | 'auto', delay?: number, spawnTimeout?: number): Promise<Map<number, Cluster>>;
+   
     public on(event: 'clusterCreate', listener: (cluster: Cluster) => void): this;
 
     public once(event: 'clusterCreate', listener: (cluster: Cluster) => void): this;
   }
 
   type ClusterManagerMode = 'process' | 'worker';
+  type Client = 'client';
 }
