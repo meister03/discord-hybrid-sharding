@@ -3,6 +3,7 @@
   "version": "1.0.4",
   "description": "The first package which combines Sharding Manager & Internal Sharding to save a lot of ressources",
   "main": "index.js",
+  "types": "./typings.d.ts",
   "dependencies": {
     "discord.js": "^12.5.2"
   },
