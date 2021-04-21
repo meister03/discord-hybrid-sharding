@@ -1,6 +1,7 @@
 declare module 'discord-hybrid-sharding' {
-export class Shard extends EventEmitter {
-    constructor(manager: ShardingManager, id: number);
+import { EventEmitter } from 'events';
+export class Cluster extends EventEmitter {
+    constructor(manager: ClusterManager, id: number);
     private _evals: Map<string, Promise<any>>;
     private _exitListener: (...args: any[]) => void;
     private _fetches: Map<string, Promise<any>>;
@@ -65,7 +66,7 @@ export class Shard extends EventEmitter {
         totalShards?: number | 'auto';
         totalClusters?: number | 'auto';
         shardList?: number[] | 'auto';
-        mode?: ShardingManagerMode;
+        mode?: ClusterManagerMode;
         respawn?: boolean;
         shardArgs?: string[];
         token?: string;
@@ -86,14 +87,14 @@ export class Shard extends EventEmitter {
     public broadcast(message: any): Promise<Cluster[]>;
     public broadcastEval(script: string): Promise<any[]>;
     public broadcastEval(script: string, cluster: number): Promise<any>;
-    public createCluster(id: number, shardstospawn: number[], totalshards: number): Cluster;
+    public createCluster(id: number, clusterstospawn: number[], totalshards: number): Cluster;
     public fetchClientValues(prop: string): Promise<any[]>;
     public fetchClientValues(prop: string, cluster: number): Promise<any>;
     public respawnAll(
-      shardDelay?: number,
+      clusterDelay?: number,
       respawnDelay?: number,
       spawnTimeout?: number,
-    ): Promise<Collection<number, Shard>>;
+    ): Promise<Collection<number, Cluster>>;
     public spawn(amount?: number | 'auto', delay?: number, spawnTimeout?: number): Promise<Collection<number, Cluster>>;
 
     public on(event: 'clusterCreate', listener: (cluster: Cluster) => void): this;
