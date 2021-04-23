@@ -35,7 +35,7 @@ const manager = new Cluster.Manager(`${__dirname}/bot.js`,{
                                        totalShards: 7 ,
                                       ///See below for more options
                                        totalClusters: 2, 
-                                       mode: "worker" ,  //you can also choose process
+                                       mode: "process" ,  //you can also choose worker
                                        token: token
                                     })
 manager.on('clusterCreate', cluster => console.log(`Launched Cluster ${cluster.id}`));
