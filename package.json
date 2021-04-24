@@ -12,7 +12,9 @@
     "type": "git",
     "url": "git+https://github.com/meister03/discord-hybrid-sharding.git"
   },
-
+  "publishConfig": {
+  "access": "public"
+  },
   "keywords": [
     "discord",
     "discord.js",
