@@ -3,6 +3,7 @@
 
 # Discord-Hybrid-Sharding
 The first package which combines Sharding Manager & Internal Sharding to save a lot of resources!
+
 Aka: "Mixing both: if you need `x` shards for `n` process"
 
 ## Why?

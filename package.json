@@ -1,6 +1,6 @@
 {
   "name": "discord-hybrid-sharding",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "The first package which combines Sharding Manager & Internal Sharding to save a lot of ressources",
   "main": "index.js",
   "types": "./typings.d.ts",
@@ -12,7 +12,9 @@
     "type": "git",
     "url": "git+https://github.com/meister03/discord-hybrid-sharding.git"
   },
-
+  "publishConfig": {
+  "access": "public"
+  },
   "keywords": [
     "discord",
     "discord.js",
