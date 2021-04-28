@@ -28,7 +28,7 @@ class ClusterManager extends EventEmitter {
             totalShards: 'auto',
             shardArgs: [],
             execArgv: [],
-            mode: 'worker',
+            mode: 'process',
             shardList: 'auto',
             token: process.env.DISCORD_TOKEN,
           },
@@ -80,7 +80,7 @@ class ClusterManager extends EventEmitter {
       */
       this.mode = options.mode;
       if (this.mode !== 'worker' && this.mode !== "process") {
-        throw new RangeError('CLIENT_INVALID_OPTION', 'Cluster mode', '"worker"');
+        throw new RangeError('CLIENT_INVALID_OPTION', 'Cluster mode', '"worker/process"');
       }
       
      /**
@@ -148,6 +148,7 @@ class ClusterManager extends EventEmitter {
   async spawn(amount = this.totalShards, delay = 5500, spawnTimeout) {
     if (amount === 'auto') {
       amount = await Discord.fetchRecommendedShards(this.token, 1000);
+      this.totalShards = amount;
     } else {
       if (typeof amount !== 'number' || isNaN(amount)) {
         throw new TypeError('CLIENT_INVALID_OPTION', 'Amount of internal shards', 'a number.');
@@ -174,7 +175,7 @@ class ClusterManager extends EventEmitter {
       if(this.shardList === "auto")  this.shardList = [...Array(amount).keys()];
       this.shardclusterlist = this.shardList.chunk(Math.ceil(this.shardList.length/this.totalClusters));
       if(this.shardclusterlist.length !== this.totalClusters){
-        this.totalClusters = this.shardclusterlist.length;
+        this.totalClusters = this.shardclusterlist.length ;
       }
     if (this.shardList.some(shardID => shardID >= amount)) {
       throw new RangeError(
