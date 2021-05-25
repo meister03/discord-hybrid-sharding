@@ -25,7 +25,6 @@ class Cluster extends EventEmitter {
      * @type {ClusterManager}
      */
      this.manager = manager;
-
     /**
      * ID of the cluster in the manager
      * @type {number}
@@ -47,7 +46,7 @@ class Cluster extends EventEmitter {
      * Internal Shards which will get spawned in the cluster
      * @type {number}
      */
-     this.shardlist = shardlist;
+    this.shardlist = shardlist;
     /**
     * the amount of real shards
     * @type {number}
@@ -103,6 +102,13 @@ class Cluster extends EventEmitter {
       */
      this._exitListener = this._handleExit.bind(this, undefined);
 
+      /**
+      * Listener function for the {@link ChildProcess}' `error` event
+      * @type {Function}
+      * @private
+      */
+      this._errorListener = this._handleError.bind(this, undefined);
+
   }
     /**
    * Forks a child process or creates a worker thread for the cluster.
@@ -126,6 +132,9 @@ class Cluster extends EventEmitter {
       this.worker = new Worker(path.resolve(this.manager.file), { workerData: this.env })
         .on('message', this._handleMessage.bind(this))
         .on('exit', this._exitListener);
+
+        ///.on('error', this._handleError)
+        
     }
         
 
@@ -393,6 +402,24 @@ class Cluster extends EventEmitter {
 
     if (respawn) this.spawn().catch(err => this.emit('error', err));
   }
+
+  /**
+   * Handles the cluster's process/worker error.
+   * @param {Object} [error] the error, which occured on the worker/child process
+   * @private
+   */
+  _handleError(error) {
+     /**
+     * Emitted upon the cluster's child process/worker error.
+     * @event Cluster#error
+     * @param {ChildProcess|Worker} process Child process/worker, where error occured
+     */
+    console.log(error)
+     //this.manager.emit('error',  error);
+     //console.log(error)
+  }
+
+
 }
 
 module.exports = Cluster;
