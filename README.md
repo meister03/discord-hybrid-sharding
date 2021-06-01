@@ -48,6 +48,7 @@ After that, you have to insert the code below in your bot.js file
 FileName: Bot.js //You can name your file after you wish
 ```js
 const Cluster = require("discord-hybrid-sharding");
+const Discord = require("discord.js");
 const client = new Discord.Client({
  	shards: Cluster.data.SHARD_LIST,        //  A Array of Shard list, which will get spawned
 	shardCount: Cluster.data.TOTAL_SHARDS, // The Number of Total Shards
