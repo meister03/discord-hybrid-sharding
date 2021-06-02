@@ -99,4 +99,4 @@ Other Properties:
 If you encounter any problems feel free to open an issue in our <a href="https://github.com/meister03/discord-hybrid-sharding/issues">github repository or join the discord server.</a>
 
 # Credits
-Credits goes to the discord.js libary since some structures are copied and to this helpful [server]()
+Credits goes partially to the discord.js libary and to this helpful [server](https://discord.gg/BpeedKh)
