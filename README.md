@@ -2,9 +2,11 @@
 <p align="center"><img src="https://img.shields.io/npm/v/discord-hybrid-sharding"> <img src="https://img.shields.io/npm/dm/discord-hybrid-sharding?label=downloads"> <img src="https://img.shields.io/npm/l/discord-hybrid-sharding"> <img src="https://img.shields.io/github/repo-size/meister03/discord-hybrid-sharding">  <a href="https://discord.gg/YTdNBHh"><img src="https://discordapp.com/api/guilds/697129454761410600/widget.png" alt="Discord server"/></a></p>
 
 # Discord-Hybrid-Sharding
-The first package which combines Sharding Manager & Internal Sharding to save a lot of resources!
+The first package which combines Sharding Manager & Internal Sharding to save a lot of resources, which allows Clustering!
 
 Aka: "Mixing both: if you need `x` shards for `n` process"
+
+When you are interested on auto-scaling & cross hosting on Machines. Look on this Package `npmjs.com/discord-cross-hosting`
 
 ## Why?
 The Sharding Manager is very heavy and it uses more than 300mb on a light usage for every shard, during internal sharding just uses 20% of it. Internal Sharding reaches their limit on more than 14000 Guilds and it becomes slow when your bot gets bigger.
