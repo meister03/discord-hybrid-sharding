@@ -2,7 +2,7 @@ declare module 'discord-hybrid-sharding' {
 import { EventEmitter } from 'events';
 import { ChildProcess } from 'child_process';
 export class Cluster extends EventEmitter {
-    constructor(manager: ClusterManager, id: number);
+    constructor(manager: Manager, id: number);
     private _evals: Map<string, Promise<any>>;
     private _exitListener: (...args: any[]) => void;
     private _fetches: Map<string, Promise<any>>;
@@ -13,12 +13,12 @@ export class Cluster extends EventEmitter {
     public execArgv: string[];
     public env: object;
     public id: number;
-    public manager: ClusterManager;
+    public manager: Manager;
     public process: ChildProcess | null;
     public ready: boolean;
     public worker: any | null;
     public eval(script: string): Promise<any>;
-    public eval<T>(fn: (client: Client) => T): Promise<T[]>;
+    public eval<T>(fn: (client: client) => T): Promise<T[]>;
     public fetchClientValue(prop: string): Promise<any>;
     public kill(): void;
     public respawn(delay?: number, spawnTimeout?: number): Promise<ChildProcess>;
@@ -39,25 +39,25 @@ export class Cluster extends EventEmitter {
   }
 
   export class Client {
-    constructor(client: Client, mode: ClusterManagerMode);
+    constructor(client: client, mode: ClusterManagerMode);
     private _handleMessage(message: any): void;
     private _respond(type: string, message: any): void;
 
-    public client: Client;
+    public client: client;
     public readonly count: number;
     public readonly ids: number[];
     public mode: ClusterManagerMode;
     public parentPort: any | null;
     public broadcastEval(script: string): Promise<any[]>;
     public broadcastEval(script: string, cluster: number): Promise<any>;
-    public broadcastEval<T>(fn: (client: Client) => T): Promise<T[]>;
-    public broadcastEval<T>(fn: (client: Client) => T, cluster: number): Promise<T>;
+    public broadcastEval<T>(fn: (client: client) => T): Promise<T[]>;
+    public broadcastEval<T>(fn: (client: client) => T, cluster: number): Promise<T>;
     public fetchClientValues(prop: string): Promise<any[]>;
     public fetchClientValues(prop: string, cluster: number): Promise<any>;
     public respawnAll(clusterDelay?: number, respawnDelay?: number, spawnTimeout?: number): Promise<void>;
     public send(message: any): Promise<void>;
 
-    public static singleton(client: Client, mode: ClusterManagerMode): ClusterClient;
+    public static singleton(client: client, mode: ClusterManagerMode): client;
   }
 
   export class Manager extends EventEmitter {
@@ -104,5 +104,5 @@ export class Cluster extends EventEmitter {
   }
 
   type ClusterManagerMode = 'process' | 'worker';
-  type Client = 'client';
+  type client = 'client';
 }
