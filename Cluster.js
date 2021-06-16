@@ -102,12 +102,7 @@ class Cluster extends EventEmitter {
       */
      this._exitListener = this._handleExit.bind(this, undefined);
 
-      /**
-      * Listener function for the {@link ChildProcess}' `error` event
-      * @type {Function}
-      * @private
-      */
-      this._errorListener = this._handleError.bind(this, undefined);
+
 
   }
     /**
@@ -131,9 +126,8 @@ class Cluster extends EventEmitter {
     } else if (this.manager.mode === 'worker') {
       this.worker = new Worker(path.resolve(this.manager.file), { workerData: this.env })
         .on('message', this._handleMessage.bind(this))
-        .on('exit', this._exitListener);
-
-        ///.on('error', this._handleError)
+        .on('exit', this._exitListener)
+        .on('error', this._handleError.bind(this));
         
     }
         
@@ -414,9 +408,7 @@ class Cluster extends EventEmitter {
      * @event Cluster#error
      * @param {ChildProcess|Worker} process Child process/worker, where error occured
      */
-    console.log(error)
-     //this.manager.emit('error',  error);
-     //console.log(error)
+     this.manager.emit('error',  error);
   }
 
 

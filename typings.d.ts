@@ -38,7 +38,7 @@ export class Cluster extends EventEmitter {
     public once(event: string, listener: (...args: any[]) => void): this;
   }
 
-  export class ClusterClient {
+  export class Client {
     constructor(client: Client, mode: ClusterManagerMode);
     private _handleMessage(message: any): void;
     private _respond(type: string, message: any): void;
@@ -60,7 +60,7 @@ export class Cluster extends EventEmitter {
     public static singleton(client: Client, mode: ClusterManagerMode): ClusterClient;
   }
 
-  export class ClusterManager extends EventEmitter {
+  export class Manager extends EventEmitter {
     constructor(
       file: string,
       options?: {
