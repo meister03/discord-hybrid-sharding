@@ -187,7 +187,7 @@ class ClusterManager extends EventEmitter {
         const promises = [];
         const cluster = this.createCluster(i, this.shardclusterlist[i], this.totalShards)
         promises.push(cluster.spawn(spawnTimeout));
-        if (delay > 0 && this.clusters.size !== this.totalClusters) promises.push(Discord.Util.delayFor(delay));
+        if (delay > 0 && this.clusters.size !== this.totalClusters) promises.push(Discord.Util.delayFor(delay*this.shardclusterlist[i].length));
         await Promise.all(promises); // eslint-disable-line no-await-in-loop
     }
     return this.clusters;
