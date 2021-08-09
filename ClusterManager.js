@@ -256,7 +256,7 @@ class ClusterManager extends EventEmitter {
     if (this.clusters.size === 0) return Promise.reject(new Error('CLUSTERING_NO_CLUSTERS'));
 
     if (typeof cluster=== 'number') {
-      if (this.clusters.has(cluster)) return this.clusers.get(cluster)[method](...args);
+      if (this.clusters.has(cluster)) return this.clusters.get(cluster)[method](...args);
       return Promise.reject(new Error('CLUSTERING_CLUSTER_NOT_FOUND', cluster));
     }
 
