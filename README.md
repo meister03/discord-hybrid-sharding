@@ -119,8 +119,8 @@ Get Total Shard Count:
 ```
 Get all ShardID's in the current Cluster:
 ```diff
-+ client.shard.id
-- [...client.cluster.ids.keys()]
+- client.shard.id
++ [...client.cluster.ids.keys()]
 ```
 
 # Bugs, Glitches and Issues
