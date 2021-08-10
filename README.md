@@ -97,6 +97,32 @@ Other Properties:
 
 **Have fun and feel free to contribute/suggest or contact me on my discord server or per dm on Meister#9667**
 
+# Changes | Updating to Discord-Hybrid-Sharding
+```diff
+- client.shard...
++ client.cluster...
+```
+Get Current Cluster ID:
+```diff
+- client.shard.id
++ client.cluster.id
+```
+Get Current Shard ID:
+```diff
+- client.shard.id
++ message.guild.shardId
+```
+Get Total Shard Count:
+```diff
+- client.shard.count
++ client.cluster.info.TOTAL_SHARDS
+```
+Get all ShardID's in the current Cluster:
+```diff
++ client.shard.id
+- [...client.cluster.ids.keys()]
+```
+
 # Bugs, Glitches and Issues
 If you encounter any problems feel free to open an issue in our <a href="https://github.com/meister03/discord-hybrid-sharding/issues">github repository or join the discord server.</a>
 
