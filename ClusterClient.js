@@ -6,7 +6,7 @@ class ClusterClient{
    /**
    * @param {Client} client Client of the current cluster
    */
-   constructor(client, mode) {
+   constructor(client, mode, usev13) {
     /**
      * Client for the Cluser
      * @type {Client}
@@ -19,6 +19,9 @@ class ClusterClient{
      */
     this.mode = this.info.CLUSTER_MANAGER_MODE;
     mode = this.mode;
+      
+      
+    this.usev13 =  usev13 || false  ;  
     /**
      * Message port for the master process (only when {@link ClusterClientUtil#mode} is `worker`)
      * @type {?MessagePort}
@@ -156,7 +159,33 @@ class ClusterClient{
    *   .catch(console.error);
    * @see {@link ClusterManager#broadcastEval}
    */
-  broadcastEval(script, cluster) {
+broadcastEval(script, cluster) {
+    if(this.usev13){
+    return new Promise((resolve, reject) => {
+      const options = cluster || {}
+      const parent = this.parentPort || process;
+      if (typeof script !== 'function') {
+        reject(new TypeError('CLUSTERING_INVALID_EVAL_BROADCAST'));
+        return;
+      }
+      
+      script = `(${script})(this, ${JSON.stringify(options.context)})`;
+
+      const listener = message => {
+        if (message._sEval !== script || message._sEvalShard !== options.cluster) return;
+        parent.removeListener('message', listener);
+        if (!message._error) resolve(message._result);
+        else reject(Util.makeError(message._error));
+      };
+      parent.on('message', listener);
+
+      this.send({ _sEval: script, _sEvalShard: options.cluster }).catch(err => {
+        parent.removeListener('message', listener);
+        reject(err);
+      });
+    })
+
+    }
     return new Promise((resolve, reject) => {
       const parent = this.parentPort || process;
       script = typeof script === 'function' ? `(${script})(this)` : script;
