@@ -26,6 +26,7 @@ class ClusterManager extends EventEmitter {
           {
             totalClusters: 'auto',
             totalShards: 'auto',
+            usev13: false,
             shardArgs: [],
             execArgv: [],
             mode: 'process',
@@ -33,6 +34,10 @@ class ClusterManager extends EventEmitter {
           },
           options,
         );
+       
+    this.usev13 = options.usev13 || false;
+       
+       
     this.respawn = true;
     /**
     * Path to the bot script file
@@ -228,6 +233,11 @@ class ClusterManager extends EventEmitter {
     * @returns {Promise<*>|Promise<Array<*>>} Results of the script execution
     */
    broadcastEval(script, cluster) {
+     if(this.usev13){
+         const options = cluster || {};
+         if (typeof script !== 'function') return Promise.reject(new TypeError('ClUSTERING_INVALID_EVAL_BROADCAST'));
+         return this._performOnShards('eval', [`(${script})(this, ${JSON.stringify(options.context)})`], options.cluster);
+     }
      return this._performOnShards('eval', [script], cluster);
    }
   /**
