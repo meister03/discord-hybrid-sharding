@@ -127,4 +127,4 @@ Get all ShardID's in the current Cluster:
 If you encounter any problems feel free to open an issue in our <a href="https://github.com/meister03/discord-hybrid-sharding/issues">github repository or join the discord server.</a>
 
 # Credits
-Credits goes partially to the discord.js libary and to this helpful [server](https://discord.gg/BpeedKh)
+Credits goes to the discord.js libary (See the Changes.md) and to this helpful [server](https://discord.gg/BpeedKh)
