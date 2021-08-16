@@ -280,6 +280,17 @@ class ClusterManager extends EventEmitter {
   }
 
   /**
+   * Runs a method with given arguments on the Manager itself
+   * @returns {Promise<*>|Promise<Array<*>>} Results of the script execution
+   * @private
+   */
+   evalOnManager(script){
+      const _eval = typeof script === 'function' ? `(${script})(this)` : script;
+      const promise = [eval(script)]
+      return Promise.all(promise)
+   }
+
+  /**
    * Kills all running clusters and respawns them.
    * @param {number} [clusterDelay=5000] How long to wait between each clusters (in milliseconds)
    * @param {number} [respawnDelay=500] How long to wait between killing a cluster's process and restarting it

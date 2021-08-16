@@ -149,7 +149,7 @@ class ClusterClient{
   }
 
   /**
-   * Evaluates a script or function on all clustes, or a given cluster, in the context of the {@link Client}s.
+   * Evaluates a script or function on all clusters, or a given cluster, in the context of the {@link Client}s.
    * @param {string|Function} script JavaScript to run on each cluster
    * @param {number} [cluster] Cluster to run script on, all if undefined
    * @returns {Promise<*>|Promise<Array<*>>} Results of the script execution
@@ -159,7 +159,7 @@ class ClusterClient{
    *   .catch(console.error);
    * @see {@link ClusterManager#broadcastEval}
    */
-broadcastEval(script, cluster) {
+    broadcastEval(script, cluster) {
     if(this.usev13){
 
     return new Promise((resolve, reject) => {
@@ -205,6 +205,35 @@ broadcastEval(script, cluster) {
     });
   }
 
+  /**
+   * Evaluates a script or function on the Cluster Manager
+   * @param {string|Function} script JavaScript to run on the Manager
+   * @returns {Promise<*>|Promise<Array<*>>} Result of the script execution
+   * @example
+   * client.cluster.evalOnManager('process.uptime')
+   *   .then(result => console.log(result))
+   *   .catch(console.error);
+   * @see {@link ClusterManager#broadcastEval}
+   */
+  evalOnManager(script){
+    return new Promise((resolve, reject) => {
+      const parent = this.parentPort || process;
+      script = typeof script === 'function' ? `(${script})(this)` : script;
+
+      const listener = message => {
+        if (!message || message._sManagerEval !== script) return;
+        parent.removeListener('message', listener);
+        if (!message._error) resolve(message._result[0]);
+        else reject(Util.makeError(message._error));
+      };
+      parent.on('message', listener);
+
+      this.send({ _sManagerEval: script}).catch(err => {
+        parent.removeListener('message', listener);
+        reject(err);
+      });
+    })
+  }
   /**
    * Requests a respawn of all clusters.
    * @param {number} [clusterDelay=5000] How long to wait between clusters (in milliseconds)

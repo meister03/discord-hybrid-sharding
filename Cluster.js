@@ -365,8 +365,13 @@ class Cluster extends EventEmitter {
         return;
       }
 
-      if (message._sEval) {
-        
+      //Evals a Request on a Cluster
+      if (message._sManagerEval) {
+        this.manager.evalOnManager(message._sManagerEval).then(
+          results => this.send({_result: results, _sManagerEval: message._sManagerEval}),
+          err => this.send({_error: Util.makePlainError(err)}),
+        );
+        return;
       }
 
       // Cluster is requesting a respawn of all shards

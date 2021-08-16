@@ -135,6 +135,13 @@ Get all ShardID's in the current Cluster:
 + [...client.cluster.ids.keys()]
 ```
 
+# New Functions:
+Evals a Script on the ClusterManager
+```diff
++ client.cluster.evalOnManager(`process.memoryUsage().rss/1024/1024`)
+```
+Open a PR/Issue when you need other Functions :)
+
 # Bugs, Glitches and Issues
 If you encounter any problems feel free to open an issue in our <a href="https://github.com/meister03/discord-hybrid-sharding/issues">github repository or join the discord server.</a>
 
