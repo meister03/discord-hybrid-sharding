@@ -312,6 +312,7 @@ class Cluster extends EventEmitter {
          * @event Cluster#ready
          */
         this.emit('ready');
+        this.manager._debug('Ready', this.id);
         return;
       }
 
@@ -323,6 +324,7 @@ class Cluster extends EventEmitter {
          * @event Cluster#disconnect
          */
         this.emit('disconnect');
+        this.manager._debug('[DISCONNECT] Some Shards disconnected', this.id);
         return;
       }
 
@@ -334,6 +336,7 @@ class Cluster extends EventEmitter {
          * @event Cluster#reconnecting
          */
         this.emit('reconnecting');
+        this.manager._debug('[RECONNECTING] Some Shards are attempting reconnect', this.id);
         return;
       }
 
@@ -377,6 +380,7 @@ class Cluster extends EventEmitter {
       // Cluster is requesting a respawn of all shards
       if (message._sRespawnAll) {
         const { shardDelay, respawnDelay, spawnTimeout } = message._sRespawnAll;
+        this.manager._debug('Cluster requested respawn of all Clusters', this.id);
         this.manager.respawnAll(shardDelay, respawnDelay, spawnTimeout).catch(() => {
           // Do nothing
         });
@@ -404,6 +408,7 @@ class Cluster extends EventEmitter {
      * @param {ChildProcess|Worker} process Child process/worker that exited
      */
     this.emit('death', this.process || this.worker);
+    this.manager._debug('[DEATH] Cluster died, attempting respawn', this.id);
 
     this.ready = false;
     this.process = null;

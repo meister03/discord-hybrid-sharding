@@ -140,6 +140,8 @@ class ClusterManager extends EventEmitter {
       process.env.CLUSTER_MANAGER = true;
       process.env.CLUSTER_MANAGER_MODE = this.mode;
       process.env.DISCORD_TOKEN = this.token;
+
+      this._debug(`[START] Cluster Manager has been initalized`)
   }
   /**
    * Spawns multiple internal shards.
@@ -153,6 +155,7 @@ class ClusterManager extends EventEmitter {
     if (amount === 'auto') {
       amount = await Discord.fetchRecommendedShards(this.token, 1000);
       this.totalShards = amount;
+      this._debug(`Discord recommanded Total Shard Count of ${amount}`)
     } else {
       if (typeof amount !== 'number' || isNaN(amount)) {
         throw new TypeError('CLIENT_INVALID_OPTION', 'Amount of internal shards', 'a number.');
@@ -188,6 +191,10 @@ class ClusterManager extends EventEmitter {
         'bigger than the highest shardID in the shardList option.',
       );
     }
+    this._debug(`[Spawning Clusters]
+    ClusterCount: ${this.totalClusters}
+    ShardCount: ${amount}
+    ShardList: ${this.shardclusterlist.join(', ')}`)
     for (let i = 0; i < this.totalClusters ; i++) {
         const promises = [];
         const cluster = this.createCluster(i, this.shardclusterlist[i], this.totalShards)
@@ -209,7 +216,7 @@ class ClusterManager extends EventEmitter {
       return Promise.all(promises);
     }
    /**
-   * Creates a single shard.
+   * Creates a single cluster.
    * <warn>Using this method is usually not necessary if you use the spawn method.</warn>
    * <info>This is usually not necessary to manually specify.</info>
    * @returns {CLUSTER} Note that the created cluster needs to be explicitly spawned using its spawn method.
@@ -224,6 +231,8 @@ class ClusterManager extends EventEmitter {
        * @param {Cluster} cluster Cluster that was created
        */
       this.emit('clusterCreate', cluster);
+
+      this._debug(`[CREATE] Created Cluster ${cluster.id}`)
       return cluster;
     }
     /**
@@ -279,7 +288,29 @@ class ClusterManager extends EventEmitter {
     return Promise.all(promises);
   }
 
-  /**
+   /**
+   * Kills all running clusters and respawns them.
+   * @param {number} [clusterDelay=5000] How long to wait between each clusters (in milliseconds)
+   * @param {number} [respawnDelay=500] How long to wait between killing a cluster's process and restarting it
+   * (in milliseconds)
+   * @param {number} [spawnTimeout=30000] The amount in milliseconds to wait for a cluster to become ready before
+   * continuing to another. (-1 or Infinity for no wait)
+   * @returns {Promise<Collection<string, Shard>>}
+   */
+   async respawnAll(shardDelay = 5000, respawnDelay = 500, spawnTimeout) {
+    let s = 0;
+    for (const cluster of this.clusters.values()) {
+      const promises = [cluster.respawn(respawnDelay, spawnTimeout)];
+      if (++s < this.clusters.size && shardDelay > 0) promises.push(Util.delayFor(shardDelay));
+      await Promise.all(promises); // eslint-disable-line no-await-in-loop
+    }
+    this._debug('Respawning all Clusters')
+    return this.clusters;
+   }
+
+   //Custom Functions:
+
+   /**
    * Runs a method with given arguments on the Manager itself
    * @returns {Promise<*>|Promise<Array<*>>} Results of the script execution
    * @private
@@ -291,23 +322,26 @@ class ClusterManager extends EventEmitter {
    }
 
   /**
-   * Kills all running clusters and respawns them.
-   * @param {number} [clusterDelay=5000] How long to wait between each clusters (in milliseconds)
-   * @param {number} [respawnDelay=500] How long to wait between killing a cluster's process and restarting it
-   * (in milliseconds)
-   * @param {number} [spawnTimeout=30000] The amount in milliseconds to wait for a cluster to become ready before
-   * continuing to another. (-1 or Infinity for no wait)
-   * @returns {Promise<Collection<string, Shard>>}
+   * Logsout the Debug Messages
+   * <warn>Using this method just emits the Debug Event.</warn>
+   * <info>This is usually not necessary to manually specify.</info>
+   * @returns {log} returns the log message
    */
-  async respawnAll(shardDelay = 5000, respawnDelay = 500, spawnTimeout) {
-    let s = 0;
-    for (const cluster of this.clusters.values()) {
-      const promises = [cluster.respawn(respawnDelay, spawnTimeout)];
-      if (++s < this.clusters.size && shardDelay > 0) promises.push(Util.delayFor(shardDelay));
-      await Promise.all(promises); // eslint-disable-line no-await-in-loop
-    }
-    return this.clusters;
-  }
+   _debug(message, cluster){
+      let log;
+      if(cluster === undefined){
+        log = `[CM => Manager] ` + message;
+      }else{
+        log = `[CM => Cluster ${cluster}] ` + message;
+      }
+      /**
+       * Emitted upon recieving a message
+       * @event ClusterManager#debug
+       * @param {log} Message, which was recieved
+      */
+      this.emit('debug', log)
+      return log;
+   }
 
 }
 module.exports = ClusterManager;

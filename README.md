@@ -45,7 +45,7 @@ const manager = new Cluster.Manager(`${__dirname}/bot.js`,{
                                       ///See below for more options
                                        totalClusters: 2, 
                                        mode: "process" ,  //you can also choose worker
-                                       token: token
+                                       token: token,
                                        usev13: true //When you do not use v13 turn it to false
                                     })
 manager.on('clusterCreate', cluster => console.log(`Launched Cluster ${cluster.id}`));
@@ -135,11 +135,16 @@ Get all ShardID's in the current Cluster:
 + [...client.cluster.ids.keys()]
 ```
 
-# New Functions:
+# New Functions & Event:
 Evals a Script on the ClusterManager
 ```diff
 + client.cluster.evalOnManager(`process.memoryUsage().rss/1024/1024`)
 ```
+Listen to some debug Messages and get informed about internal stuff.
+```diff
++ manager.on('debug', console.log)
+```
+
 Open a PR/Issue when you need other Functions :)
 
 # Bugs, Glitches and Issues
