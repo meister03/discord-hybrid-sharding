@@ -5,15 +5,14 @@
   "main": "index.js",
   "types": "./typings.d.ts",
   "dependencies": {
-    "discord.js": "^12.5.2"
+    "discord.js": "^12.5.3"
   },
-  "devDependencies": {},
   "repository": {
     "type": "git",
     "url": "git+https://github.com/meister03/discord-hybrid-sharding.git"
   },
   "publishConfig": {
-  "access": "public"
+    "access": "public"
   },
   "keywords": [
     "discord",

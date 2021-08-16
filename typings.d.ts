@@ -47,6 +47,7 @@ export class Cluster extends EventEmitter {
     public readonly count: number;
     public readonly ids: number[];
     public mode: ClusterManagerMode;
+    public getinfo: data;
     public parentPort: any | null;
     public broadcastEval(script: string): Promise<any[]>;
     public broadcastEval(script: string, cluster: number): Promise<any>;
@@ -104,5 +105,13 @@ export class Cluster extends EventEmitter {
   }
 
   type ClusterManagerMode = 'process' | 'worker';
-  type client = 'client';
+  type client = client;
+  type data = {
+        SHARD_LIST: number[], 
+        TOTAL_SHARDS: number, 
+        CLUSTER_COUNT: number, 
+        CLUSTER: number, 
+        CLUSTER_MANAGER_MODE: ClusterManagerMode
+  }
+  
 }

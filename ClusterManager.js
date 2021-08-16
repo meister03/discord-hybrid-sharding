@@ -234,6 +234,7 @@ class ClusterManager extends EventEmitter {
     */
    broadcastEval(script, cluster) {
      if(this.usev13){
+
          const options = cluster || {};
          if (typeof script !== 'function') return Promise.reject(new TypeError('ClUSTERING_INVALID_EVAL_BROADCAST'));
          return this._performOnShards('eval', [`(${script})(this, ${JSON.stringify(options.context)})`], options.cluster);
@@ -263,6 +264,7 @@ class ClusterManager extends EventEmitter {
    * @private
    */
   _performOnShards(method, args, cluster) {
+
     if (this.clusters.size === 0) return Promise.reject(new Error('CLUSTERING_NO_CLUSTERS'));
 
     if (typeof cluster=== 'number') {

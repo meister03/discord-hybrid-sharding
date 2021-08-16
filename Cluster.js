@@ -350,11 +350,23 @@ class Cluster extends EventEmitter {
       // Cluster is requesting an eval broadcast
       if (message._sEval) {
         const resp = { _sEval: message._sEval, _sEvalShard: message._sEvalShard };
+        if(this.manager.usev13){
+          const resp = { _sEval: message._sEval, _sEvalShard: message._sEvalShard };
+          this.manager._performOnShards('eval', [message._sEval], message._sEvalShard).then(
+             results => this.send({ ...resp, _result: results }),
+              err => this.send({ ...resp, _error: Util.makePlainError(err) }),
+          );
+          return;
+        }
         this.manager.broadcastEval(message._sEval, message._sEvalShard).then(
           results =>this.send({ ...resp, _result: results }),
           err => this.send({ ...resp, _error: Util.makePlainError(err) }),
         );
         return;
+      }
+
+      if (message._sEval) {
+        
       }
 
       // Cluster is requesting a respawn of all shards

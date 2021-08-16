@@ -28,6 +28,12 @@ You can download it from npm:
 npm i discord-hybrid-sharding
 ```
 
+# Discord.js v13
+- We also support the v13 Library Version
+- When your Broadcastevals are currently strings, dont change them since they are supported
+- But when you want to broadcast functions with the contexts. `Easily add the Option usev13, which is shown below.`
+- The methods `Manager#spawn()` accepts just seperate values, not a object like in v13 | e.g `Manager#spawn(undefined, undefined, -1)`
+
 # Setting Up
 First we include the module into the project (into your shard/cluster file).
 Filename: Cluster.js
@@ -40,6 +46,7 @@ const manager = new Cluster.Manager(`${__dirname}/bot.js`,{
                                        totalClusters: 2, 
                                        mode: "process" ,  //you can also choose worker
                                        token: token
+                                       usev13: true //When you do not use v13 turn it to false
                                     })
 manager.on('clusterCreate', cluster => console.log(`Launched Cluster ${cluster.id}`));
 manager.spawn(undefined, undefined, -1)
@@ -55,7 +62,8 @@ const client = new Discord.Client({
  	shards: Cluster.data.SHARD_LIST,        //  A Array of Shard list, which will get spawned
 	shardCount: Cluster.data.TOTAL_SHARDS, // The Number of Total Shards
 });
-client.cluster = new Cluster.Client(client); //Init the CLient & So we can also access broadcastEval...
+const usev13 = true; //When you do not use v13, turn this value to false
+client.cluster = new Cluster.Client(client, usev13); //Init the CLient & So we can also access broadcastEval...
 client.login("Your_Token");
 ```
 
@@ -64,8 +72,12 @@ client.login("Your_Token");
 *Following examples assume that your `Discord.Client` is called `client`.*
 
 ```js
-	let guildcount = (await client.cluster.broadcastEval(`this.guilds.cache.size`)).reduce((acc, guildCount) => Number(acc + guildCount), 0);
-  message.channel.send(`I am in ${guildcount} guilds`)
+let guildcount = (await client.cluster.broadcastEval(`this.guilds.cache.size`)).reduce((acc, guildCount) => Number(acc + guildCount), 0);
+message.channel.send(`I am in ${guildcount} guilds`)
+
+For v13:
+client.cluster.broadcastEval(c => c.guilds.cache.size)
+		.then(results => console.log(`${results.reduce((prev, val) => prev + val, 0)} total guilds`))
 .........
 ```
 # Cluster.Manager 
