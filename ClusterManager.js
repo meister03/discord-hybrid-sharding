@@ -15,6 +15,7 @@ class ClusterManager extends EventEmitter {
    * @param {string[]} [options.shardArgs=[]] Arguments to pass to the clustered script when spawning
    * (only available when using the `process` mode)
    * @param {string[]} [options.execArgv=[]] Arguments to pass to the clustered script executable when spawning
+   * @param {boolean} [respawn=true] Whether clusters should automatically respawn upon exiting
    * (only available when using the `process` mode)
    * @param {ClusterManagerMode} [options.mode='worker'] Which mode to use for clustering
    * @param {number[]} [options.shardList] A Array of Internal Shards Ids, which should get spawned
@@ -29,6 +30,7 @@ class ClusterManager extends EventEmitter {
             usev13: false,
             shardArgs: [],
             execArgv: [],
+            respawn: true,
             mode: 'process',
             token: process.env.DISCORD_TOKEN,
           },
@@ -37,8 +39,11 @@ class ClusterManager extends EventEmitter {
        
     this.usev13 = options.usev13 || false;
        
-       
-    this.respawn = true;
+    /**
+     * Whether clusters should automatically respawn upon exiting
+     * @type {boolean}
+     */
+    this.respawn = options.respawn;
     /**
     * Path to the bot script file
     * @type {string}
