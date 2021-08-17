@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    
+    <meta charset="utf-8">
+    <title>Discord Hybrid Sharding</title>
+    
+    
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc.css">
+    <script src="scripts/nav.js" defer></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav >
+    
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Cluster.html">Cluster</a><ul class='methods'><li data-type='method'><a href="Cluster.html#eval">eval</a></li><li data-type='method'><a href="Cluster.html#fetchClientValue">fetchClientValue</a></li><li data-type='method'><a href="Cluster.html#kill">kill</a></li><li data-type='method'><a href="Cluster.html#respawn">respawn</a></li><li data-type='method'><a href="Cluster.html#send">send</a></li><li data-type='method'><a href="Cluster.html#spawn">spawn</a></li></ul></li><li><a href="ClusterClient.html">ClusterClient</a><ul class='methods'><li data-type='method'><a href="ClusterClient.html#.getinfo">getinfo</a></li><li data-type='method'><a href="ClusterClient.html#.singleton">singleton</a></li><li data-type='method'><a href="ClusterClient.html#broadcastEval">broadcastEval</a></li><li data-type='method'><a href="ClusterClient.html#evalOnManager">evalOnManager</a></li><li data-type='method'><a href="ClusterClient.html#fetchClientValues">fetchClientValues</a></li><li data-type='method'><a href="ClusterClient.html#respawnAll">respawnAll</a></li><li data-type='method'><a href="ClusterClient.html#send">send</a></li></ul></li><li><a href="ClusterManager.html">ClusterManager</a><ul class='methods'><li data-type='method'><a href="ClusterManager.html#_debug">_debug</a></li><li data-type='method'><a href="ClusterManager.html#broadcast">broadcast</a></li><li data-type='method'><a href="ClusterManager.html#broadcastEval">broadcastEval</a></li><li data-type='method'><a href="ClusterManager.html#createCluster">createCluster</a></li><li data-type='method'><a href="ClusterManager.html#fetchClientValues">fetchClientValues</a></li><li data-type='method'><a href="ClusterManager.html#respawnAll">respawnAll</a></li><li data-type='method'><a href="ClusterManager.html#spawn">spawn</a></li></ul></li></ul><h3>Events</h3><ul><li><a href="Client.html#event:error">error</a></li><li><a href="Cluster.html#event:death">death</a></li><li><a href="Cluster.html#event:disconnect">disconnect</a></li><li><a href="Cluster.html#event:error">error</a></li><li><a href="Cluster.html#event:ready">ready</a></li><li><a href="Cluster.html#event:reconnecting">reconnecting</a></li><li><a href="Cluster.html#event:spawn">spawn</a></li><li><a href="ClusterManager.html#event:clusterCreate">clusterCreate</a></li><li><a href="ClusterManager.html#event:debug">debug</a></li><li><a href="Shard.html#event:message">message</a></li></ul>
+</nav>
+
+<div id="main">
+    <section class="package">
+        <h3>Discord-Hybrid-Sharding 1.1.7</h3>		
+    </section>
+    <section class="readme usertext">
+        <article><p align="center"><a href="https://nodei.co/npm/discord-hybrid-sharding/"><img src="https://nodei.co/npm/discord-hybrid-sharding.png"></a></p>
+<p align="center"><img src="https://img.shields.io/npm/v/discord-hybrid-sharding"> <img src="https://img.shields.io/npm/dm/discord-hybrid-sharding?label=downloads"> <img src="https://img.shields.io/npm/l/discord-hybrid-sharding"> <img src="https://img.shields.io/github/repo-size/meister03/discord-hybrid-sharding">  <a href="https://discord.gg/YTdNBHh"><img src="https://discordapp.com/api/guilds/697129454761410600/widget.png" alt="Discord server"/></a></p>
+<h1>Discord-Hybrid-Sharding</h1>
+<p>The first package which combines Sharding Manager &amp; Internal Sharding to save a lot of resources, which allows Clustering!</p>
+<p>Aka: &quot;Mixing both: if you need <code>x</code> shards for <code>n</code> process&quot;</p>
+<p>When you are interested on auto-scaling &amp; cross hosting on Machines. Look on this Package <code>npmjs.com/discord-cross-hosting</code></p>
+<h2>Why?</h2>
+<p>The Sharding Manager is very heavy and it uses more than 300mb on a light usage for every shard, during internal sharding just uses 20% of it. Internal Sharding reaches their limit on more than 14000 Guilds and it becomes slow when your bot gets bigger.
+Your only solution is to convert to the Sharding Manager. Thatsway this new Package will solve all your problems, because it spawns Shards, which has Internal Shards. <strong>You can save up to 60% on resources</strong></p>
+<h2>How does it Work?</h2>
+<p>There are Clusters/Master Shards, which are like normal shards on the sharding manager and the clusters spawns in addition internal shards. So you do not have to spawn so much normal Shards (master shards ), which you can replace with internal shards.
+&quot;for process <code>n</code> , <code>n</code> internal shards&quot;</p>
+<p>Example: <code>A 4k Discord Bot</code>
+Normaly we would spawn 4 shards with the Sharding Manager, but we start here with 2 Clusters/MasterShards, which spawns 2 internal shards ==&gt; We save 2 shards in comparision to the Sharding Manager.</p>
+<h3>See below for the Docs</h3>
+<p><strong>If you need help feel free to join our <a href="https://discord.gg/YTdNBHh">discord server</a>. We will provied you all help ☺</strong></p>
+<h1>Download</h1>
+<p>You can download it from npm:</p>
+<pre class="prettyprint source lang-cli"><code>npm i discord-hybrid-sharding
+</code></pre>
+<h1>Discord.js v13</h1>
+<ul>
+<li>We also support the v13 Library Version</li>
+<li>When your Broadcastevals are currently strings, dont change them since they are supported</li>
+<li>But when you want to broadcast functions with the contexts. <code>Easily add the Option usev13, which is shown below.</code></li>
+<li>The methods <code>Manager#spawn()</code> accepts just seperate values, not a object like in v13 | e.g <code>Manager#spawn(undefined, undefined, -1)</code></li>
+</ul>
+<h1>Setting Up</h1>
+<p>First we include the module into the project (into your shard/cluster file).
+Filename: Cluster.js</p>
+<pre class="prettyprint source lang-js"><code>const Cluster = require(&quot;discord-hybrid-sharding&quot;);
+let {token} = require(&quot;./config.json&quot;);
+const manager = new Cluster.Manager(`${__dirname}/bot.js`,{
+                                       totalShards: 7 ,
+                                      ///See below for more options
+                                       totalClusters: 2, 
+                                       mode: &quot;process&quot; ,  //you can also choose worker
+                                       token: token,
+                                       usev13: true //When you do not use v13 turn it to false
+                                    })
+manager.on('clusterCreate', cluster => console.log(`Launched Cluster ${cluster.id}`));
+manager.spawn(undefined, undefined, -1)
+</code></pre>
+<h3>Sometimes the Cluster.Manager can choose a less amount of total Clusters, when it finds out, that a new cluster is not needed (in very rare cases...)</h3>
+<p>After that, you have to insert the code below in your bot.js file
+FileName: Bot.js //You can name your file after you wish</p>
+<pre class="prettyprint source lang-js"><code>const Cluster = require(&quot;discord-hybrid-sharding&quot;);
+const Discord = require(&quot;discord.js&quot;);
+const client = new Discord.Client({
+ 	shards: Cluster.data.SHARD_LIST,        //  A Array of Shard list, which will get spawned
+	shardCount: Cluster.data.TOTAL_SHARDS, // The Number of Total Shards
+});
+const usev13 = true; //When you do not use v13, turn this value to false
+client.cluster = new Cluster.Client(client, usev13); //Init the CLient & So we can also access broadcastEval...
+client.login(&quot;Your_Token&quot;);
+</code></pre>
+<h1>Evaling over Clusters</h1>
+<p><em>Following examples assume that your <code>Discord.Client</code> is called <code>client</code>.</em></p>
+<pre class="prettyprint source lang-js"><code>let guildcount = (await client.cluster.broadcastEval(`this.guilds.cache.size`)).reduce((acc, guildCount) => Number(acc + guildCount), 0);
+message.channel.send(`I am in ${guildcount} guilds`)
+
+For v13:
+client.cluster.broadcastEval(c => c.guilds.cache.size)
+		.then(results => console.log(`${results.reduce((prev, val) => prev + val, 0)} total guilds`))
+.........
+</code></pre>
+<h1>Cluster.Manager</h1>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Type</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>totalShards</td>
+<td>number/string</td>
+<td>'auto'</td>
+<td>The Number of Internal Shards, which should be spawned</td>
+</tr>
+<tr>
+<td>totalClusters</td>
+<td>number/string</td>
+<td>'auto'</td>
+<td>The Number of Processes/Clusters which should be spawned</td>
+</tr>
+<tr>
+<td>shardList</td>
+<td>Array[Number]</td>
+<td>not-required</td>
+<td>On Cross hosting or spawning specific shards you can provided a shardList of internal Shards id, which should get spawned</td>
+</tr>
+<tr>
+<td>mode</td>
+<td>&quot;worker/process&quot;</td>
+<td>worker</td>
+<td>The Cluster.Manager Mode for the processes</td>
+</tr>
+<tr>
+<td>token</td>
+<td>string</td>
+<td>not-required</td>
+<td>The Bot token is just required, when you set the totalShards on auto</td>
+</tr>
+</tbody>
+</table>
+<p>The Manager.spawn option are the same like Sharding Manager</p>
+<h1>Cluster Events</h1>
+<table>
+<thead>
+<tr>
+<th>Event</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>clusterCreate</td>
+<td>When a Cluster is spawned the Event is triggered</td>
+</tr>
+</tbody>
+</table>
+<h1>Cluster Client Properties</h1>
+<p>You have all properties like broadcasteval..., just replace client.shard with client.cluster
+Other Properties:</p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>client.cluster.count</td>
+<td>gives the amount of all clusters</td>
+</tr>
+<tr>
+<td>client.cluster.id</td>
+<td>gives the current cluster</td>
+</tr>
+<tr>
+<td>client.cluster.ids</td>
+<td>gives all internal shards of the cluster</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Have fun and feel free to contribute/suggest or contact me on my discord server or per dm on Meister#9667</strong></p>
+<h1>Changes | Updating to Discord-Hybrid-Sharding</h1>
+<pre class="prettyprint source lang-diff"><code>- client.shard...
++ client.cluster...
+</code></pre>
+<p>Get Current Cluster ID:</p>
+<pre class="prettyprint source lang-diff"><code>- client.shard.id
++ client.cluster.id
+</code></pre>
+<p>Get Current Shard ID:</p>
+<pre class="prettyprint source lang-diff"><code>- client.shard.id
++ message.guild.shardId
+</code></pre>
+<p>Get Total Shard Count:</p>
+<pre class="prettyprint source lang-diff"><code>- client.shard.count
++ client.cluster.info.TOTAL_SHARDS
+</code></pre>
+<p>Get all ShardID's in the current Cluster:</p>
+<pre class="prettyprint source lang-diff"><code>- client.shard.id
++ [...client.cluster.ids.keys()]
+</code></pre>
+<h1>New Functions &amp; Event:</h1>
+<p>Evals a Script on the ClusterManager</p>
+<pre class="prettyprint source lang-diff"><code>+ client.cluster.evalOnManager(`process.memoryUsage().rss/1024/1024`)
+</code></pre>
+<p>Listen to some debug Messages and get informed about internal stuff.</p>
+<pre class="prettyprint source lang-diff"><code>+ manager.on('debug', console.log)
+</code></pre>
+<p>Open a PR/Issue when you need other Functions :)</p>
+<h1>Bugs, Glitches and Issues</h1>
+<p>If you encounter any problems feel free to open an issue in our <a href="https://github.com/meister03/discord-hybrid-sharding/issues">github repository or join the discord server.</a></p>
+<h1>Credits</h1>
+<p>Credits goes to the discord.js libary (See the Changes.md) and to this helpful <a href="https://discord.gg/BpeedKh">server</a></p></article>
+    </section>
+
+
+
+
+
+
+    
+    
+</div>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.7</a> on Tue Aug 17 2021 23:27:51 GMT+0530 (India Standard Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/polyfill.js"></script>
+<script src="scripts/linenumber.js"></script>
+
+
+
+</body>
+</html>
