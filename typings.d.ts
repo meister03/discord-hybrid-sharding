@@ -1,8 +1,8 @@
 declare module 'discord-hybrid-sharding' {
-import { EventEmitter } from 'events';
-import { ChildProcess } from 'child_process';
-import { Client as DJsClient } from "discord.js"
-export class Cluster extends EventEmitter {
+  import { EventEmitter } from 'events';
+  import { ChildProcess } from 'child_process';
+  import { Client as DJsClient } from "discord.js"
+  export class Cluster extends EventEmitter {
     constructor(manager: Manager, id: number);
     private _evals: Map<string, Promise<any>>;
     private _exitListener: (...args: any[]) => void;
@@ -40,19 +40,23 @@ export class Cluster extends EventEmitter {
   }
 
   export class Client {
-    constructor(client: client, mode: ClusterManagerMode);
+    constructor(client: client, usev13?: boolean);
     private _handleMessage(message: any): void;
     private _respond(type: string, message: any): void;
     private _nonce: Map<string, Promise<any>>;
 
     public client: client;
     public readonly count: number;
+    public readonly id: number;
     public readonly ids: number[];
     public mode: ClusterManagerMode;
+    public static getinfo: data;
     public getinfo: data;
     public parentPort: any | null;
     public evalOnManager(script: string): Promise<any[]>;
-    public evalOnCluster(script: string, options: Object): Promise<any[]>;
+    public evalOnCluster(script: string, options: { cluster: number; timeout?: number }): Promise<any[]>;
+    public evalOnCluster<T>(fn: (client: client) => T, options: { cluster: number; timeout?: number }): Promise<T>;
+    public evalOnCluster<T>(fn: (client: client) => T, options: { cluster: number; timeout?: number }): Promise<any[]>;
     public broadcastEval(script: string): Promise<any[]>;
     public broadcastEval(script: string, cluster: number): Promise<any>;
     public broadcastEval<T>(fn: (client: client) => T): Promise<T[]>;
@@ -77,6 +81,7 @@ export class Cluster extends EventEmitter {
         shardArgs?: string[];
         token?: string;
         execArgv?: string[];
+        usev13?: boolean;
       },
     );
     private _performOnShards(method: string, args: any[]): Promise<any[]>;
@@ -106,10 +111,12 @@ export class Cluster extends EventEmitter {
       spawnTimeout?: number,
     ): Promise<Map<number, Cluster>>;
     public spawn(amount?: number | 'auto', delay?: number, spawnTimeout?: number): Promise<Map<number, Cluster>>;
-   
+
     public on(event: 'clusterCreate', listener: (cluster: Cluster) => void): this;
+    public on(event: "debug", listener: (message: string) => void): this;
 
     public once(event: 'clusterCreate', listener: (cluster: Cluster) => void): this;
+    public once(event: "debug", listener: (message: string) => void): this;
   }
   export class data{
     public SHARD_LIST: number[], 
@@ -122,12 +129,12 @@ export class Cluster extends EventEmitter {
     
   type ClusterManagerMode = 'process' | 'worker';
   type client = DJsClient;
-  type data = {
-        SHARD_LIST: number[], 
-        TOTAL_SHARDS: number, 
-        CLUSTER_COUNT: number, 
-        CLUSTER: number, 
-        CLUSTER_MANAGER_MODE: ClusterManagerMode
+  export type data = {
+    SHARD_LIST: number[],
+    TOTAL_SHARDS: number,
+    CLUSTER_COUNT: number,
+    CLUSTER: number,
+    CLUSTER_MANAGER_MODE: ClusterManagerMode
   }
-  
+
 }

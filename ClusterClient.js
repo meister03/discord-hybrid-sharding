@@ -64,7 +64,7 @@ class ClusterClient {
   }
   /**
  * cluster's id
- * @type {number[]}
+ * @type {number}
  * @readonly
  */
   get id() {
