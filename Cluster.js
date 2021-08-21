@@ -24,17 +24,17 @@ class Cluster extends EventEmitter {
      * Manager that created the cluster
      * @type {ClusterManager}
      */
-     this.manager = manager;
+    this.manager = manager;
     /**
      * ID of the cluster in the manager
      * @type {number}
      */
-     this.id = id;
+    this.id = id;
 
-     /**
-     * Arguments for the shard's process (only when {@link ShardingManager#mode} is `process`)
-     * @type {string[]}
-     */
+    /**
+    * Arguments for the shard's process (only when {@link ShardingManager#mode} is `process`)
+    * @type {string[]}
+    */
     this.args = manager.shardArgs || [];
 
     /**
@@ -42,81 +42,83 @@ class Cluster extends EventEmitter {
      * @type {string[]}
      */
     this.execArgv = manager.execArgv;
-     /**
-     * Internal Shards which will get spawned in the cluster
-     * @type {number}
-     */
+    /**
+    * Internal Shards which will get spawned in the cluster
+    * @type {number}
+    */
     this.shardlist = shardlist;
     /**
     * the amount of real shards
     * @type {number}
     */
     this.totalshards = totalshards;
-     /**
-     * Environment variables for the cluster's process, or workerData for the cluster's worker
-     * @type {Object}
-     */
+    /**
+    * Environment variables for the cluster's process, or workerData for the cluster's worker
+    * @type {Object}
+    */
     this.env = Object.assign({}, process.env, {
-        SHARD_LIST: this.shardlist,
-        TOTAL_SHARDS: this.totalshards,
-        CLUSTER_MANAGER: true,
-        CLUSTER: this.id,
-        CLUSTER_COUNT: this.manager.totalClusters,
-        DISCORD_TOKEN: this.manager.token,
-      });
+      SHARD_LIST: this.shardlist,
+      TOTAL_SHARDS: this.totalshards,
+      CLUSTER_MANAGER: true,
+      CLUSTER: this.id,
+      CLUSTER_COUNT: this.manager.totalClusters,
+      DISCORD_TOKEN: this.manager.token,
+    });
     /**
     * Whether the cluster's {@link Client} is ready
     * @type {boolean}
     */
-    
+
     /**
      * Process of the cluster (if {@link ClusterManager#mode} is `process`)
      * @type {?ChildProcess}
      */
-     this.process = null;
+    this.process = null;
 
-     /**
-      * Worker of the cluster (if {@link ClusterManager#mode} is `worker`)
-      * @type {?Worker}
-      */
-     this.worker = null;
- 
-     /**
-      * Ongoing promises for calls to {@link Cluster#eval}, mapped by the `script` they were called with
-      * @type {Map<string, Promise>}
-      * @private
-      */
-     this._evals = new Map();
- 
-     /**
-      * Ongoing promises for calls to {@link Cluster#fetchClientValue}, mapped by the `prop` they were called with
-      * @type {Map<string, Promise>}
-      * @private
-      */
-     this._fetches = new Map();
- 
-     /**
-      * Listener function for the {@link ChildProcess}' `exit` event
-      * @type {Function}
-      * @private
-      */
-     this._exitListener = this._handleExit.bind(this, undefined);
+    /**
+     * Worker of the cluster (if {@link ClusterManager#mode} is `worker`)
+     * @type {?Worker}
+     */
+    this.worker = null;
+
+    /**
+     * Ongoing promises for calls to {@link Cluster#eval}, mapped by the `script` they were called with
+     * @type {Map<string, Promise>}
+     * @private
+     */
+    this._evals = new Map();
+
+    /**
+     * Ongoing promises for calls to {@link Cluster#fetchClientValue}, mapped by the `prop` they were called with
+     * @type {Map<string, Promise>}
+     * @private
+     */
+    this._fetches = new Map();
+
+
+
+    /**
+     * Listener function for the {@link ChildProcess}' `exit` event
+     * @type {Function}
+     * @private
+     */
+    this._exitListener = this._handleExit.bind(this, undefined);
 
 
 
   }
-    /**
-   * Forks a child process or creates a worker thread for the cluster.
-   * <warn>You should not need to call this manually.</warn>
-   * @param {number} [spawnTimeout=30000] The amount in milliseconds to wait until the {@link Client} has become ready
-   * before resolving. (-1 or Infinity for no wait)
-   * @returns {Promise<ChildProcess>}
-   */
+  /**
+ * Forks a child process or creates a worker thread for the cluster.
+ * <warn>You should not need to call this manually.</warn>
+ * @param {number} [spawnTimeout=30000] The amount in milliseconds to wait until the {@link Client} has become ready
+ * before resolving. (-1 or Infinity for no wait)
+ * @returns {Promise<ChildProcess>}
+ */
   async spawn(spawnTimeout = 30000) {
-   if (this.process) throw new Error('CLUSTERING_PROCESS_EXISTS', this.id);
-   if (this.worker) throw new Error('CLUSTERING_WORKER_EXISTS', this.id);
-   if (this.manager.mode === 'process') {
-        this.process = childProcess
+    if (this.process) throw new Error('CLUSTERING_PROCESS_EXISTS', this.id);
+    if (this.worker) throw new Error('CLUSTERING_WORKER_EXISTS', this.id);
+    if (this.manager.mode === 'process') {
+      this.process = childProcess
         .fork(path.resolve(this.manager.file), this.args, {
           env: this.env,
           execArgv: this.execArgv,
@@ -128,9 +130,9 @@ class Cluster extends EventEmitter {
         .on('message', this._handleMessage.bind(this))
         .on('exit', this._exitListener)
         .on('error', this._handleError.bind(this));
-        
+
     }
-        
+
 
     this._evals.clear();
     this._fetches.clear();
@@ -178,38 +180,38 @@ class Cluster extends EventEmitter {
     });
     return this.process || this.worker;
   }
-    /**
-   * Immediately kills the clusters's process/worker and does not restart it.
-   */
-    kill() {
-      if (this.process) {
-        this.process.removeListener('exit', this._exitListener);
-        this.process.kill();
-      } else {
-        this.worker.removeListener('exit', this._exitListener);
-        this.worker.terminate();
-      }
-  
-      this._handleExit(false);
+  /**
+ * Immediately kills the clusters's process/worker and does not restart it.
+ */
+  kill() {
+    if (this.process) {
+      this.process.removeListener('exit', this._exitListener);
+      this.process.kill();
+    } else {
+      this.worker.removeListener('exit', this._exitListener);
+      this.worker.terminate();
     }
-   /**
-   * Kills and restarts the cluster's process/worker.
-   * @param {number} [delay=500] How long to wait between killing the process/worker and restarting it (in milliseconds)
-   * @param {number} [spawnTimeout=30000] The amount in milliseconds to wait until the {@link Client} has become ready
-   * before resolving. (-1 or Infinity for no wait)
-   * @returns {Promise<ChildProcess>}
-   */
-   async respawn(delay = 500, spawnTimeout) {
-     this.kill();
-     if (delay > 0) await Util.delayFor(delay);
-     return this.spawn(spawnTimeout);
-   }
-   /**
-   * Sends a message to the cluster's process/worker.
-   * @param {*} message Message to send to the cluster
-   * @returns {Promise<Shard>}
-   */
-   send(message) {
+
+    this._handleExit(false);
+  }
+  /**
+  * Kills and restarts the cluster's process/worker.
+  * @param {number} [delay=500] How long to wait between killing the process/worker and restarting it (in milliseconds)
+  * @param {number} [spawnTimeout=30000] The amount in milliseconds to wait until the {@link Client} has become ready
+  * before resolving. (-1 or Infinity for no wait)
+  * @returns {Promise<ChildProcess>}
+  */
+  async respawn(delay = 500, spawnTimeout) {
+    this.kill();
+    if (delay > 0) await Util.delayFor(delay);
+    return this.spawn(spawnTimeout);
+  }
+  /**
+  * Sends a message to the cluster's process/worker.
+  * @param {*} message Message to send to the cluster
+  * @returns {Promise<Shard>}
+  */
+  send(message) {
     return new Promise((resolve, reject) => {
       if (this.process) {
         this.process.send(message, err => {
@@ -222,43 +224,43 @@ class Cluster extends EventEmitter {
       }
     });
   }
-    /**
-   * Fetches a client property value of the cluster.
-   * @param {string} prop Name of the client property to get, using periods for nesting
-   * @returns {Promise<*>}
-   * @example
-   * cluster.fetchClientValue('guilds.cache.size')
-   *   .then(count => console.log(`${count} guilds in cluster ${cluster.id}`))
-   *   .catch(console.error);
-   */
-    fetchClientValue(prop) {
-      // Shard is dead (maybe respawning), don't cache anything and error immediately
-      if (!this.process && !this.worker) return Promise.reject(new Error('CLUSTERING_NO_CHILD_EXISTS', this.id));
-  
-      // Cached promise from previous call
-      if (this._fetches.has(prop)) return this._fetches.get(prop);
-  
-      const promise = new Promise((resolve, reject) => {
-        const child = this.process || this.worker;
-  
-        const listener = message => {
-          if (!message || message._fetchProp !== prop) return;
-          child.removeListener('message', listener);
-          this._fetches.delete(prop);
-          resolve(message._result);
-        };
-        child.on('message', listener);
-  
-        this.send({ _fetchProp: prop }).catch(err => {
-          child.removeListener('message', listener);
-          this._fetches.delete(prop);
-          reject(err);
-        });
+  /**
+ * Fetches a client property value of the cluster.
+ * @param {string} prop Name of the client property to get, using periods for nesting
+ * @returns {Promise<*>}
+ * @example
+ * cluster.fetchClientValue('guilds.cache.size')
+ *   .then(count => console.log(`${count} guilds in cluster ${cluster.id}`))
+ *   .catch(console.error);
+ */
+  fetchClientValue(prop) {
+    // Shard is dead (maybe respawning), don't cache anything and error immediately
+    if (!this.process && !this.worker) return Promise.reject(new Error('CLUSTERING_NO_CHILD_EXISTS', this.id));
+
+    // Cached promise from previous call
+    if (this._fetches.has(prop)) return this._fetches.get(prop);
+
+    const promise = new Promise((resolve, reject) => {
+      const child = this.process || this.worker;
+
+      const listener = message => {
+        if (!message || message._fetchProp !== prop) return;
+        child.removeListener('message', listener);
+        this._fetches.delete(prop);
+        resolve(message._result);
+      };
+      child.on('message', listener);
+
+      this.send({ _fetchProp: prop }).catch(err => {
+        child.removeListener('message', listener);
+        this._fetches.delete(prop);
+        reject(err);
       });
-  
-      this._fetches.set(prop, promise);
-      return promise;
-    }
+    });
+
+    this._fetches.set(prop, promise);
+    return promise;
+  }
 
 
   /**
@@ -302,7 +304,7 @@ class Cluster extends EventEmitter {
    * @param {*} message Message received
    * @private
    */
-   _handleMessage(message) {
+  _handleMessage(message) {
     if (message) {
       // Cluster is ready
       if (message._ready) {
@@ -353,16 +355,16 @@ class Cluster extends EventEmitter {
       // Cluster is requesting an eval broadcast
       if (message._sEval) {
         const resp = { _sEval: message._sEval, _sEvalShard: message._sEvalShard };
-        if(this.manager.usev13){
+        if (this.manager.usev13) {
           const resp = { _sEval: message._sEval, _sEvalShard: message._sEvalShard };
           this.manager._performOnShards('eval', [message._sEval], message._sEvalShard).then(
-             results => this.send({ ...resp, _result: results }),
-              err => this.send({ ...resp, _error: Util.makePlainError(err) }),
+            results => this.send({ ...resp, _result: results }),
+            err => this.send({ ...resp, _error: Util.makePlainError(err) }),
           );
           return;
         }
         this.manager.broadcastEval(message._sEval, message._sEvalShard).then(
-          results =>this.send({ ...resp, _result: results }),
+          results => this.send({ ...resp, _result: results }),
           err => this.send({ ...resp, _error: Util.makePlainError(err) }),
         );
         return;
@@ -371,10 +373,37 @@ class Cluster extends EventEmitter {
       //Evals a Request on a Cluster
       if (message._sManagerEval) {
         this.manager.evalOnManager(message._sManagerEval).then(
-          results => this.send({_result: results, _sManagerEval: message._sManagerEval}),
-          err => this.send({_error: Util.makePlainError(err)}),
+          results => this.send({ _result: results, _sManagerEval: message._sManagerEval }),
+          err => this.send({ _error: Util.makePlainError(err) }),
         );
         return;
+      }
+
+      //Evals a Request on a Cluster
+      if (message._sClusterEval) {
+        this.manager.evalOnCluster(message._sClusterEval, {...message, requestcluster: this.id}).catch((e) => new Error(e))
+        return;
+      }
+
+      //If Message is a Eval Response
+      if (message._sClusterEvalResponse) {
+        const promise = this.manager._nonce.get(message.nonce);
+        if(!promise) return;
+        if (promise) {
+          if (message._error) {
+            promise.reject(message._error)
+            this.manager._nonce.delete(message.nonce);
+            if(this.manager.clusters.has(promise.requestcluster)){
+              this.manager.clusters.get(promise.requestcluster).send(message)
+            }
+          } else {
+            promise.resolve(message._sClusterEvalResponse)
+            this.manager._nonce.delete(message.nonce);
+            if(this.manager.clusters.has(promise.requestcluster)){
+              this.manager.clusters.get(promise.requestcluster).send(message)
+            }
+          }
+        }
       }
 
       // Cluster is requesting a respawn of all shards
@@ -419,20 +448,21 @@ class Cluster extends EventEmitter {
     if (respawn) this.spawn().catch(err => this.emit('error', err));
   }
 
+  ///Custom Functions
+
   /**
    * Handles the cluster's process/worker error.
    * @param {Object} [error] the error, which occured on the worker/child process
    * @private
    */
   _handleError(error) {
-     /**
-     * Emitted upon the cluster's child process/worker error.
-     * @event Cluster#error
-     * @param {ChildProcess|Worker} process Child process/worker, where error occured
-     */
-     this.manager.emit('error',  error);
+    /**
+    * Emitted upon the cluster's child process/worker error.
+    * @event Cluster#error
+    * @param {ChildProcess|Worker} process Child process/worker, where error occured
+    */
+    this.manager.emit('error', error);
   }
-
 
 }
 
