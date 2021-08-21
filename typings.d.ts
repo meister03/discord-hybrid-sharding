@@ -107,7 +107,7 @@ export class Cluster extends EventEmitter {
 
     public once(event: 'clusterCreate', listener: (cluster: Cluster) => void): this;
   }
-  export class Data{
+  export class data{
     public SHARD_LIST: number[], 
     public TOTAL_SHARDS: number, 
     public CLUSTER_COUNT: number, 
