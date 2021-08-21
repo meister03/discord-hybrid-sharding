@@ -256,7 +256,7 @@ class ClusterClient {
  */
   evalOnCluster(script, options) {
     return new Promise((resolve, reject) => {
-      if (!options.cluster) reject('TARGET CLUSTER HAS NOT BEEN PROVIDED');
+      if (!options.hasOwnProperty("cluster")) reject('TARGET CLUSTER HAS NOT BEEN PROVIDED');
       script = typeof script === 'function' ? `(${script})(this)` : script;
       const nonce = Date.now().toString(36) + Math.random().toString(36);
       this._nonce.set(nonce, { resolve, reject });
