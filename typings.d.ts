@@ -107,7 +107,15 @@ export class Cluster extends EventEmitter {
 
     public once(event: 'clusterCreate', listener: (cluster: Cluster) => void): this;
   }
-
+  export class Data{
+    public SHARD_LIST: number[], 
+    public TOTAL_SHARDS: number, 
+    public CLUSTER_COUNT: number, 
+    public CLUSTER: number, 
+    public CLUSTER_MANAGER_MODE: ClusterManagerMode
+  }
+    
+    
   type ClusterManagerMode = 'process' | 'worker';
   type client = DJsClient;
   type data = {
