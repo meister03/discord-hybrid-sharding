@@ -7,38 +7,38 @@ const Util = require('./Util.js');
 const Cluster = require('./Cluster.js')
 
 class ClusterManager extends EventEmitter {
-   /**
-   * @param {string} file Path to your bot file
-   * @param {Object} [options] Options for the cluster manager
-   * @param {string|number} [options.totalShards='auto'] Number of total internal shards or "auto"
-   * @param {string|number} [options.totalClusters='auto'] Number of total Clusters\Process to spawn
-   * @param {string[]} [options.shardArgs=[]] Arguments to pass to the clustered script when spawning
-   * (only available when using the `process` mode)
-   * @param {string[]} [options.execArgv=[]] Arguments to pass to the clustered script executable when spawning
-   * @param {boolean} [respawn=true] Whether clusters should automatically respawn upon exiting
-   * (only available when using the `process` mode)
-   * @param {ClusterManagerMode} [options.mode='worker'] Which mode to use for clustering
-   * @param {number[]} [options.shardList] A Array of Internal Shards Ids, which should get spawned
-   * @param {string} [options.token] Token to use for automatic internal shard count and passing to bot file
-   */
-    constructor(file, options = {}) {
-        super();
-        options = Util.mergeDefault(
-          {
-            totalClusters: 'auto',
-            totalShards: 'auto',
-            usev13: false,
-            shardArgs: [],
-            execArgv: [],
-            respawn: true,
-            mode: 'process',
-            token: process.env.DISCORD_TOKEN,
-          },
-          options,
-        );
-       
+  /**
+  * @param {string} file Path to your bot file
+  * @param {Object} [options] Options for the cluster manager
+  * @param {string|number} [options.totalShards='auto'] Number of total internal shards or "auto"
+  * @param {string|number} [options.totalClusters='auto'] Number of total Clusters\Process to spawn
+  * @param {string[]} [options.shardArgs=[]] Arguments to pass to the clustered script when spawning
+  * (only available when using the `process` mode)
+  * @param {string[]} [options.execArgv=[]] Arguments to pass to the clustered script executable when spawning
+  * @param {boolean} [respawn=true] Whether clusters should automatically respawn upon exiting
+  * (only available when using the `process` mode)
+  * @param {ClusterManagerMode} [options.mode='worker'] Which mode to use for clustering
+  * @param {number[]} [options.shardList] A Array of Internal Shards Ids, which should get spawned
+  * @param {string} [options.token] Token to use for automatic internal shard count and passing to bot file
+  */
+  constructor(file, options = {}) {
+    super();
+    options = Util.mergeDefault(
+      {
+        totalClusters: 'auto',
+        totalShards: 'auto',
+        usev13: false,
+        shardArgs: [],
+        execArgv: [],
+        respawn: true,
+        mode: 'process',
+        token: process.env.DISCORD_TOKEN,
+      },
+      options,
+    );
+
     this.usev13 = options.usev13 || false;
-       
+
     /**
      * Whether clusters should automatically respawn upon exiting
      * @type {boolean}
@@ -57,52 +57,52 @@ class ClusterManager extends EventEmitter {
      * Amount of internal shards in total
      * @type {number}
      */
-     this.totalShards = options.totalShards || 'auto';
-     if (this.totalShards !== 'auto') {
-       if (typeof this.totalShards !== 'number' || isNaN(this.totalShards)) {
-         throw new TypeError('CLIENT_INVALID_OPTION', 'Amount of internal shards', 'a number.');
-       }
-       if (this.totalShards < 1) throw new RangeError('CLIENT_INVALID_OPTION', 'Amount of internal shards', 'at least 1.');
-       if (!Number.isInteger(this.totalShards)) {
-         throw new RangeError('CLIENT_INVALID_OPTION', 'Amount of internal shards', 'an integer.');
-       }
-     }
-
-
-     /**
-     * Amount of total clusters to spawn
-     * @type {number}
-     */
-      this.totalClusters = options.totalClusters || 'auto';
-         if (this.totalClusters !== 'auto') {
-           if (typeof this.totalClusters !== 'number' || isNaN(this.totalClusters)) {
-             throw new TypeError('CLIENT_INVALID_OPTION', 'Amount of Clusters', 'a number.');
-           }
-           if (this.totalClusters < 1) throw new RangeError('CLIENT_INVALID_OPTION', 'Amount of Clusters', 'at least 1.');
-           if (!Number.isInteger(this.totalClusters)) {
-             throw new RangeError('CLIENT_INVALID_OPTION', 'Amount of Clusters', 'an integer.');
-           }
+    this.totalShards = options.totalShards || 'auto';
+    if (this.totalShards !== 'auto') {
+      if (typeof this.totalShards !== 'number' || isNaN(this.totalShards)) {
+        throw new TypeError('CLIENT_INVALID_OPTION', 'Amount of internal shards', 'a number.');
       }
-      /**
-      * Mode for shards to spawn with
-      * @type {ClusterManagerMode}
-      */
-      this.mode = options.mode;
-      if (this.mode !== 'worker' && this.mode !== "process") {
-        throw new RangeError('CLIENT_INVALID_OPTION', 'Cluster mode', '"worker/process"');
+      if (this.totalShards < 1) throw new RangeError('CLIENT_INVALID_OPTION', 'Amount of internal shards', 'at least 1.');
+      if (!Number.isInteger(this.totalShards)) {
+        throw new RangeError('CLIENT_INVALID_OPTION', 'Amount of internal shards', 'an integer.');
       }
-      
-     /**
-     * An array of arguments to pass to clusters (only when {@link ClusterManager#mode} is `process`)
-     * @type {string[]}
-     */
-     this.shardArgs = options.shardArgs;
+    }
 
-     /**
-     * An array of arguments to pass to the executable (only when {@link ClusterManager#mode} is `process`)
-     * @type {string[]}
-     */
-     this.execArgv = options.execArgv;
+
+    /**
+    * Amount of total clusters to spawn
+    * @type {number}
+    */
+    this.totalClusters = options.totalClusters || 'auto';
+    if (this.totalClusters !== 'auto') {
+      if (typeof this.totalClusters !== 'number' || isNaN(this.totalClusters)) {
+        throw new TypeError('CLIENT_INVALID_OPTION', 'Amount of Clusters', 'a number.');
+      }
+      if (this.totalClusters < 1) throw new RangeError('CLIENT_INVALID_OPTION', 'Amount of Clusters', 'at least 1.');
+      if (!Number.isInteger(this.totalClusters)) {
+        throw new RangeError('CLIENT_INVALID_OPTION', 'Amount of Clusters', 'an integer.');
+      }
+    }
+    /**
+    * Mode for shards to spawn with
+    * @type {ClusterManagerMode}
+    */
+    this.mode = options.mode;
+    if (this.mode !== 'worker' && this.mode !== "process") {
+      throw new RangeError('CLIENT_INVALID_OPTION', 'Cluster mode', '"worker/process"');
+    }
+
+    /**
+    * An array of arguments to pass to clusters (only when {@link ClusterManager#mode} is `process`)
+    * @type {string[]}
+    */
+    this.shardArgs = options.shardArgs;
+
+    /**
+    * An array of arguments to pass to the executable (only when {@link ClusterManager#mode} is `process`)
+    * @type {string[]}
+    */
+    this.execArgv = options.execArgv;
 
     /**
     * List of internal shard ids this cluster manager spawns
@@ -117,7 +117,7 @@ class ClusterManager extends EventEmitter {
       if (this.shardList.length < 1) throw new RangeError('CLIENT_INVALID_OPTION', 'shardList', 'at least 1 ID.');
       if (
         this.shardList.some(
-          shardID => typeof shardID !== 'number' || isNaN(shardID) || !Number.isInteger(shardID)  || shardID < 0,
+          shardID => typeof shardID !== 'number' || isNaN(shardID) || !Number.isInteger(shardID) || shardID < 0,
         )
       ) {
         throw new TypeError('CLIENT_INVALID_OPTION', 'shardList', 'an array of positive integers.');
@@ -127,26 +127,34 @@ class ClusterManager extends EventEmitter {
 
 
 
-      /**
-      * Token to use for obtaining the automatic internal shards count, and passing to bot script
-      * @type {?string}
-      */
-      this.token = options.token ? options.token.replace(/^Bot\s*/i, '') : null;
-      /**
-      * A collection of all clusters the manager spawned
-      * @type {Collection<number, Cluster>}
-      */
-      this.clusters = new Map();
-      this.shardclusterlist = null;
-      process.env.SHARD_LIST =  undefined;
-      process.env.TOTAL_SHARDS = this.totalShards;
-      process.env.CLUSTER = undefined;
-      process.env.CLUSTER_COUNT = this.totalClusters;
-      process.env.CLUSTER_MANAGER = true;
-      process.env.CLUSTER_MANAGER_MODE = this.mode;
-      process.env.DISCORD_TOKEN = this.token;
+    /**
+    * Token to use for obtaining the automatic internal shards count, and passing to bot script
+    * @type {?string}
+    */
+    this.token = options.token ? options.token.replace(/^Bot\s*/i, '') : null;
+    /**
+    * A collection of all clusters the manager spawned
+    * @type {Collection<number, Cluster>}
+    */
+    this.clusters = new Map();
+    this.shardclusterlist = null;
+    process.env.SHARD_LIST = undefined;
+    process.env.TOTAL_SHARDS = this.totalShards;
+    process.env.CLUSTER = undefined;
+    process.env.CLUSTER_COUNT = this.totalClusters;
+    process.env.CLUSTER_MANAGER = true;
+    process.env.CLUSTER_MANAGER_MODE = this.mode;
+    process.env.DISCORD_TOKEN = this.token;
 
-      this._debug(`[START] Cluster Manager has been initalized`)
+
+    /**
+    * Ongoing promises for calls to {@link ClusterClient#evalOnCluster}, mapped by the `script` they were called with
+    * @type {Map<string, Promise>}
+    * @private
+    */
+    this._nonce = new Map();
+
+    this._debug(`[START] Cluster Manager has been initalized`)
   }
   /**
    * Spawns multiple internal shards.
@@ -183,12 +191,12 @@ class ClusterManager extends EventEmitter {
         throw new TypeError('CLIENT_INVALID_OPTION', 'Amount of Clusters', 'an integer.');
       }
     }
-   
-      if(this.shardList === "auto")  this.shardList = [...Array(amount).keys()];
-      this.shardclusterlist = this.shardList.chunk(Math.ceil(this.shardList.length/this.totalClusters));
-      if(this.shardclusterlist.length !== this.totalClusters){
-        this.totalClusters = this.shardclusterlist.length ;
-      }
+
+    if (this.shardList === "auto") this.shardList = [...Array(amount).keys()];
+    this.shardclusterlist = this.shardList.chunk(Math.ceil(this.shardList.length / this.totalClusters));
+    if (this.shardclusterlist.length !== this.totalClusters) {
+      this.totalClusters = this.shardclusterlist.length;
+    }
     if (this.shardList.some(shardID => shardID >= amount)) {
       throw new RangeError(
         'CLIENT_INVALID_OPTION',
@@ -200,61 +208,61 @@ class ClusterManager extends EventEmitter {
     ClusterCount: ${this.totalClusters}
     ShardCount: ${amount}
     ShardList: ${this.shardclusterlist.join(', ')}`)
-    for (let i = 0; i < this.totalClusters ; i++) {
-        const promises = [];
-        const cluster = this.createCluster(i, this.shardclusterlist[i], this.totalShards)
-        promises.push(cluster.spawn(spawnTimeout));
-        if (delay > 0 && this.clusters.size !== this.totalClusters) promises.push(Discord.Util.delayFor(delay*this.shardclusterlist[i].length));
-        await Promise.all(promises); // eslint-disable-line no-await-in-loop
+    for (let i = 0; i < this.totalClusters; i++) {
+      const promises = [];
+      const cluster = this.createCluster(i, this.shardclusterlist[i], this.totalShards)
+      promises.push(cluster.spawn(spawnTimeout));
+      if (delay > 0 && this.clusters.size !== this.totalClusters) promises.push(Discord.Util.delayFor(delay * this.shardclusterlist[i].length));
+      await Promise.all(promises); // eslint-disable-line no-await-in-loop
     }
     return this.clusters;
   }
 
-   /**
-   * Sends a message to all clusters.
-   * @param {*} message Message to be sent to the clusters
-   * @returns {Promise<Cluster[]>}
-   */
-    broadcast(message) {
-      const promises = [];
-      for (const cluster of this.clusters.values()) promises.push(cluster.send(message));
-      return Promise.all(promises);
-    }
-   /**
-   * Creates a single cluster.
-   * <warn>Using this method is usually not necessary if you use the spawn method.</warn>
-   * <info>This is usually not necessary to manually specify.</info>
-   * @returns {CLUSTER} Note that the created cluster needs to be explicitly spawned using its spawn method.
-   */
-    createCluster(id , shardstospawn, totalshards) {
-      
-      const cluster = new Cluster(this, id,  shardstospawn, totalshards);
-      this.clusters.set(id, cluster);
-      /**
-       * Emitted upon creating a cluster.
-       * @event ClusterManager#clusterCreate
-       * @param {Cluster} cluster Cluster that was created
-       */
-      this.emit('clusterCreate', cluster);
+  /**
+  * Sends a message to all clusters.
+  * @param {*} message Message to be sent to the clusters
+  * @returns {Promise<Cluster[]>}
+  */
+  broadcast(message) {
+    const promises = [];
+    for (const cluster of this.clusters.values()) promises.push(cluster.send(message));
+    return Promise.all(promises);
+  }
+  /**
+  * Creates a single cluster.
+  * <warn>Using this method is usually not necessary if you use the spawn method.</warn>
+  * <info>This is usually not necessary to manually specify.</info>
+  * @returns {CLUSTER} Note that the created cluster needs to be explicitly spawned using its spawn method.
+  */
+  createCluster(id, shardstospawn, totalshards) {
 
-      this._debug(`[CREATE] Created Cluster ${cluster.id}`)
-      return cluster;
-    }
+    const cluster = new Cluster(this, id, shardstospawn, totalshards);
+    this.clusters.set(id, cluster);
     /**
-    * Evaluates a script on all clusters, or a given cluster, in the context of the {@link Client}s.
-    * @param {string} script JavaScript to run on each cluster
-    * @param {number} [cluster] cluser to run on, all if undefined
-    * @returns {Promise<*>|Promise<Array<*>>} Results of the script execution
-    */
-   broadcastEval(script, cluster) {
-     if(this.usev13){
+     * Emitted upon creating a cluster.
+     * @event ClusterManager#clusterCreate
+     * @param {Cluster} cluster Cluster that was created
+     */
+    this.emit('clusterCreate', cluster);
 
-         const options = cluster || {};
-         if (typeof script !== 'function') return Promise.reject(new TypeError('ClUSTERING_INVALID_EVAL_BROADCAST'));
-         return this._performOnShards('eval', [`(${script})(this, ${JSON.stringify(options.context)})`], options.cluster);
-     }
-     return this._performOnShards('eval', [script], cluster);
-   }
+    this._debug(`[CREATE] Created Cluster ${cluster.id}`)
+    return cluster;
+  }
+  /**
+  * Evaluates a script on all clusters, or a given cluster, in the context of the {@link Client}s.
+  * @param {string} script JavaScript to run on each cluster
+  * @param {number} [cluster] cluser to run on, all if undefined
+  * @returns {Promise<*>|Promise<Array<*>>} Results of the script execution
+  */
+  broadcastEval(script, cluster) {
+    if (this.usev13) {
+
+      const options = cluster || {};
+      if (typeof script !== 'function') return Promise.reject(new TypeError('ClUSTERING_INVALID_EVAL_BROADCAST'));
+      return this._performOnShards('eval', [`(${script})(this, ${JSON.stringify(options.context)})`], options.cluster);
+    }
+    return this._performOnShards('eval', [script], cluster);
+  }
   /**
    * Fetches a client property value of each cluster, or a given cluster.
    * @param {string} prop Name of the client property to get, using periods for nesting
@@ -281,7 +289,7 @@ class ClusterManager extends EventEmitter {
 
     if (this.clusters.size === 0) return Promise.reject(new Error('CLUSTERING_NO_CLUSTERS'));
 
-    if (typeof cluster=== 'number') {
+    if (typeof cluster === 'number') {
       if (this.clusters.has(cluster)) return this.clusters.get(cluster)[method](...args);
       return Promise.reject(new Error('CLUSTERING_CLUSTER_NOT_FOUND', cluster));
     }
@@ -293,16 +301,16 @@ class ClusterManager extends EventEmitter {
     return Promise.all(promises);
   }
 
-   /**
-   * Kills all running clusters and respawns them.
-   * @param {number} [clusterDelay=5000] How long to wait between each clusters (in milliseconds)
-   * @param {number} [respawnDelay=500] How long to wait between killing a cluster's process and restarting it
-   * (in milliseconds)
-   * @param {number} [spawnTimeout=30000] The amount in milliseconds to wait for a cluster to become ready before
-   * continuing to another. (-1 or Infinity for no wait)
-   * @returns {Promise<Collection<string, Shard>>}
-   */
-   async respawnAll(shardDelay = 5000, respawnDelay = 500, spawnTimeout) {
+  /**
+  * Kills all running clusters and respawns them.
+  * @param {number} [clusterDelay=5000] How long to wait between each clusters (in milliseconds)
+  * @param {number} [respawnDelay=500] How long to wait between killing a cluster's process and restarting it
+  * (in milliseconds)
+  * @param {number} [spawnTimeout=30000] The amount in milliseconds to wait for a cluster to become ready before
+  * continuing to another. (-1 or Infinity for no wait)
+  * @returns {Promise<Collection<string, Shard>>}
+  */
+  async respawnAll(shardDelay = 5000, respawnDelay = 500, spawnTimeout) {
     let s = 0;
     for (const cluster of this.clusters.values()) {
       const promises = [cluster.respawn(respawnDelay, spawnTimeout)];
@@ -311,20 +319,46 @@ class ClusterManager extends EventEmitter {
     }
     this._debug('Respawning all Clusters')
     return this.clusters;
-   }
+  }
 
-   //Custom Functions:
+  //Custom Functions:
 
-   /**
-   * Runs a method with given arguments on the Manager itself
-   * @returns {Promise<*>|Promise<Array<*>>} Results of the script execution
-   * @private
-   */
-   evalOnManager(script){
-      const _eval = typeof script === 'function' ? `(${script})(this)` : script;
-      const promise = [eval(script)]
-      return Promise.all(promise)
-   }
+  /**
+  * Runs a method with given arguments on the Manager itself
+  * @returns {Promise<*>|Promise<Array<*>>} Results of the script execution
+  * @private
+  */
+  evalOnManager(script) {
+    const _eval = typeof script === 'function' ? `(${script})(this)` : script;
+    const promise = [eval(script)]
+    return Promise.all(promise)
+  }
+
+  /**
+  * Runs a method with given arguments on the provided Cluster Client
+  * @returns {Promise<*>|Promise<Array<*>>} Results of the script execution
+  * @private
+  */
+  evalOnCluster(script, options) {
+    const cluster = this.clusters.get(options.cluster);
+    if (!cluster) return Promise.reject(new Error('CLUSTER_DOES_NOT_EXIST', options.cluster));
+    if (!cluster.process && !cluster.worker) return Promise.reject(new Error('CLUSTERING_NO_CHILD_EXISTS', cluster.id));
+    return new Promise((resolve, reject) => {
+      const nonce = options.nonce;
+      this._nonce.set(nonce, { resolve, reject, requestcluster: options.requestcluster });
+      const sent = cluster.send({ _sClusterEvalRequest: script, nonce, cluster: options.cluster }, void 0, void 0, e => {
+        if (e) reject(new Error(`Failed to deliver Message to cluster: ${e}`));
+        setTimeout(() => {
+          if (this._nonce.has(nonce)) {
+            this._nonce.get(nonce).reject(new Error("Eval Request Timedout"));
+            this._nonce.delete(nonce);
+          }
+        }, (options.timeout || 10000));
+      });
+      if (!sent) reject(new Error("CLUSTERING_IN_PROCESS or CLUSTERING_DIED"));
+    }).catch((e) => this._handleError(e.toString()))
+  }
+
 
   /**
    * Logsout the Debug Messages
@@ -332,27 +366,27 @@ class ClusterManager extends EventEmitter {
    * <info>This is usually not necessary to manually specify.</info>
    * @returns {log} returns the log message
    */
-   _debug(message, cluster){
-      let log;
-      if(cluster === undefined){
-        log = `[CM => Manager] ` + message;
-      }else{
-        log = `[CM => Cluster ${cluster}] ` + message;
-      }
-      /**
-       * Emitted upon recieving a message
-       * @event ClusterManager#debug
-       * @param {log} Message, which was recieved
-      */
-      this.emit('debug', log)
-      return log;
-   }
+  _debug(message, cluster) {
+    let log;
+    if (cluster === undefined) {
+      log = `[CM => Manager] ` + message;
+    } else {
+      log = `[CM => Cluster ${cluster}] ` + message;
+    }
+    /**
+     * Emitted upon recieving a message
+     * @event ClusterManager#debug
+     * @param {log} Message, which was recieved
+    */
+    this.emit('debug', log)
+    return log;
+  }
 
 }
 module.exports = ClusterManager;
 
 Object.defineProperty(Array.prototype, 'chunk', {
-  value: function(chunkSize) {
+  value: function (chunkSize) {
     var R = [];
     for (var i = 0; i < this.length; i += chunkSize)
       R.push(this.slice(i, i + chunkSize));

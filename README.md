@@ -12,6 +12,8 @@ When you are interested on auto-scaling & cross hosting on Machines. Look on thi
 The Sharding Manager is very heavy and it uses more than 300mb on a light usage for every shard, during internal sharding just uses 20% of it. Internal Sharding reaches their limit on more than 14000 Guilds and it becomes slow when your bot gets bigger.
 Your only solution is to convert to the Sharding Manager. Thatsway this new Package will solve all your problems, because it spawns Shards, which has Internal Shards. **You can save up to 60% on resources**
 
+**Scroll down to check our new Functions.**
+
 ## How does it Work?
 There are Clusters/Master Shards, which are like normal shards on the sharding manager and the clusters spawns in addition internal shards. So you do not have to spawn so much normal Shards (master shards ), which you can replace with internal shards.
 "for process `n` , `n` internal shards"
@@ -136,6 +138,15 @@ Get all ShardID's in the current Cluster:
 ```
 
 # New Functions & Event:
+Decentral ClusterClient Eval function, which doesnt open any listener and minimalizes the chances create a memory leak during broadcastEvaling.
+```js
+- Inbuilt Eval Timeout, how long to wait until getting response back
+- No addition Listeners ==> less memory leak, better than .broadCastEval
+- Client has not to be ready
+- All Clusters has not to be ready (just traget Cluster)
+
+client.cluster.evalOnCluster(`this.cluster.id`, {cluster: 0, timeout: 10000})
+```
 Evals a Script on the ClusterManager
 ```diff
 + client.cluster.evalOnManager(`process.memoryUsage().rss/1024/1024`)

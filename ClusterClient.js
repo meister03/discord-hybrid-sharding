@@ -2,11 +2,11 @@ const Discord = require('discord.js');
 const { Events } = Discord.Constants
 const Util = Discord.Util;
 ///communicates between the master workers and the process
-class ClusterClient{
-   /**
-   * @param {Client} client Client of the current cluster
-   */
-   constructor(client, usev13) {
+class ClusterClient {
+  /**
+  * @param {Client} client Client of the current cluster
+  */
+  constructor(client, usev13) {
     /**
      * Client for the Cluser
      * @type {Client}
@@ -19,91 +19,99 @@ class ClusterClient{
      */
     this.mode = this.info.CLUSTER_MANAGER_MODE;
     let mode = this.mode;
-      
-      
-    this.usev13 =  usev13 || false  ;  
+
+
+    /**
+    * Ongoing promises for calls to {@link ClusterManager#evalOnCluster}, mapped by the `script` they were called with
+    * @type {Map<string, Promise>}
+    * @private
+    */
+    this._nonce = new Map();
+
+
+    this.usev13 = usev13 || false;
     /**
      * Message port for the master process (only when {@link ClusterClientUtil#mode} is `worker`)
      * @type {?MessagePort}
      */
-     this.parentPort = null;
-     
-     if (mode === 'process') {
-        process.on('message', this._handleMessage.bind(this));
-        client.on('ready', () => {
-          process.send({ _ready: true });
-        });
-        client.on('disconnect', () => {
-          process.send({ _disconnect: true });
-        });
-        client.on('reconnecting', () => {
-          process.send({ _reconnecting: true });
-        });
-      } else if (mode === 'worker') {
-        this.parentPort = require('worker_threads').parentPort;
-        this.parentPort.on('message', this._handleMessage.bind(this));
-        client.on('ready', () => {
-          this.parentPort.postMessage({ _ready: true });
-        });
-        client.on('disconnect', () => {
-          this.parentPort.postMessage({ _disconnect: true });
-        });
-        client.on('reconnecting', () => {
-          this.parentPort.postMessage({ _reconnecting: true });
-        });
-      }
-    
-   }
-    /**
-   * cluster's id
-   * @type {number[]}
-   * @readonly
-   */
-    get id() {
-      return this.info.CLUSTER;
+    this.parentPort = null;
+
+    if (mode === 'process') {
+      process.on('message', this._handleMessage.bind(this));
+      client.on('ready', () => {
+        process.send({ _ready: true });
+      });
+      client.on('disconnect', () => {
+        process.send({ _disconnect: true });
+      });
+      client.on('reconnecting', () => {
+        process.send({ _reconnecting: true });
+      });
+    } else if (mode === 'worker') {
+      this.parentPort = require('worker_threads').parentPort;
+      this.parentPort.on('message', this._handleMessage.bind(this));
+      client.on('ready', () => {
+        this.parentPort.postMessage({ _ready: true });
+      });
+      client.on('disconnect', () => {
+        this.parentPort.postMessage({ _disconnect: true });
+      });
+      client.on('reconnecting', () => {
+        this.parentPort.postMessage({ _reconnecting: true });
+      });
     }
-   /**
-   * Array of shard IDs of this client
-   * @type {number[]}
-   * @readonly
-   */
-   get ids() {
+
+  }
+  /**
+ * cluster's id
+ * @type {number[]}
+ * @readonly
+ */
+  get id() {
+    return this.info.CLUSTER;
+  }
+  /**
+  * Array of shard IDs of this client
+  * @type {number[]}
+  * @readonly
+  */
+  get ids() {
     return this.client.ws.shards;
-   }
-   /**
-   * Total number of clusters
-   * @type {number}
-   * @readonly
-   */
-   get count() {
-     return this.info.CLUSTER_COUNT;
-   }
-   /**
-   * Gets several Info like Cluster_Count, Number, Totalshards...
-   * @type {Object}
-   * @readonly
-   */
-   get info(){
+  }
+  /**
+  * Total number of clusters
+  * @type {number}
+  * @readonly
+  */
+  get count() {
+    return this.info.CLUSTER_COUNT;
+  }
+  /**
+  * Gets several Info like Cluster_Count, Number, Totalshards...
+  * @type {Object}
+  * @readonly
+  */
+  get info() {
     let clustermode = process.env.CLUSTER_MANAGER_MODE;
-    if(!clustermode) return
-    if(clustermode !== "worker" && clustermode !== "process") throw new Error("NO CHILD/MASTER EXISTS OR SUPPLIED CLUSTER_MANAGER_MODE IS INCORRECT");
+    if (!clustermode) return
+    if (clustermode !== "worker" && clustermode !== "process") throw new Error("NO CHILD/MASTER EXISTS OR SUPPLIED CLUSTER_MANAGER_MODE IS INCORRECT");
     let data;
-    if(clustermode === "process"){ 
+    if (clustermode === "process") {
       const shardlist = [];
-      let parseshardlist =  process.env.SHARD_LIST.split(",")
-      parseshardlist.forEach(c =>shardlist.push(Number(c)))
-      data = {SHARD_LIST: shardlist, TOTAL_SHARDS: Number(process.env.TOTAL_SHARDS), CLUSTER_COUNT: Number(process.env.CLUSTER_COUNT), CLUSTER: Number(process.env.CLUSTER), CLUSTER_MANAGER_MODE: clustermode}
-    }else{
-      data = require("worker_threads").workerData 
+      let parseshardlist = process.env.SHARD_LIST.split(",")
+      parseshardlist.forEach(c => shardlist.push(Number(c)))
+      data = { SHARD_LIST: shardlist, TOTAL_SHARDS: Number(process.env.TOTAL_SHARDS), CLUSTER_COUNT: Number(process.env.CLUSTER_COUNT), CLUSTER: Number(process.env.CLUSTER), CLUSTER_MANAGER_MODE: clustermode }
+    } else {
+      data = require("worker_threads").workerData
     }
     return data;
-   }
-   /**
-   * Sends a message to the master process.
-   * @param {*} message Message to send
-   * @returns {Promise<void>}
-   * @emits Cluster#message
-   */
+  }
+  /**
+  * Sends a message to the master process.
+  * @param {*} message Message to send
+  * @returns {Promise<void>}
+  * @emits Cluster#message
+  */
   send(message) {
     //console.log(message)
     return new Promise((resolve, reject) => {
@@ -118,17 +126,17 @@ class ClusterClient{
       }
     });
   }
-    /**
-   * Fetches a client property value of each shard, or a given shard.
-   * @param {string} prop Name of the client property to get, using periods for nesting
-   * @param {number} [shard] Shard to fetch property from, all if undefined
-   * @returns {Promise<*>|Promise<Array<*>>}
-   * @example
-   * client.shard.fetchClientValues('guilds.cache.size')
-   *   .then(results => console.log(`${results.reduce((prev, val) => prev + val, 0)} total guilds`))
-   *   .catch(console.error);
-   * @see {@link ClusterManager#fetchClientValues}
-   */
+  /**
+ * Fetches a client property value of each shard, or a given shard.
+ * @param {string} prop Name of the client property to get, using periods for nesting
+ * @param {number} [shard] Shard to fetch property from, all if undefined
+ * @returns {Promise<*>|Promise<Array<*>>}
+ * @example
+ * client.shard.fetchClientValues('guilds.cache.size')
+ *   .then(results => console.log(`${results.reduce((prev, val) => prev + val, 0)} total guilds`))
+ *   .catch(console.error);
+ * @see {@link ClusterManager#fetchClientValues}
+ */
   fetchClientValues(prop, shard) {
     return new Promise((resolve, reject) => {
       const parent = this.parentPort || process;
@@ -159,31 +167,31 @@ class ClusterClient{
    *   .catch(console.error);
    * @see {@link ClusterManager#broadcastEval}
    */
-    broadcastEval(script, cluster) {
-    if(this.usev13){
+  broadcastEval(script, cluster) {
+    if (this.usev13) {
 
-    return new Promise((resolve, reject) => {
-      const options = cluster || {};
+      return new Promise((resolve, reject) => {
+        const options = cluster || {};
 
-      const parent = this.parentPort || process;
-      if (typeof script !== 'function') {
-        reject(new TypeError('CLUSTERING_INVALID_EVAL_BROADCAST'));
-        return;
-      }
-      
-      script = `(${script})(this, ${JSON.stringify(options.context)})`;
-      const listener = message => {
-        if (message._sEval !== script || message._sEvalShard !== options.cluster) return;
-        parent.removeListener('message', listener);
-        if (!message._error) resolve(message._result);
-        else reject(Util.makeError(message._error));
-      };
-      parent.on('message', listener);
-      this.send({ _sEval: script, _sEvalShard: options.cluster }).catch(err => {
-        parent.removeListener('message', listener);
-        reject(err);
-      });
-    })
+        const parent = this.parentPort || process;
+        if (typeof script !== 'function') {
+          reject(new TypeError('CLUSTERING_INVALID_EVAL_BROADCAST'));
+          return;
+        }
+
+        script = `(${script})(this, ${JSON.stringify(options.context)})`;
+        const listener = message => {
+          if (message._sEval !== script || message._sEvalShard !== options.cluster) return;
+          parent.removeListener('message', listener);
+          if (!message._error) resolve(message._result);
+          else reject(Util.makeError(message._error));
+        };
+        parent.on('message', listener);
+        this.send({ _sEval: script, _sEvalShard: options.cluster }).catch(err => {
+          parent.removeListener('message', listener);
+          reject(err);
+        });
+      })
 
     }
     return new Promise((resolve, reject) => {
@@ -206,16 +214,17 @@ class ClusterClient{
   }
 
   /**
-   * Evaluates a script or function on the Cluster Manager
+   * Evaluates a script or function on the ClusterClient
    * @param {string|Function} script JavaScript to run on the Manager
+   * @param {Object} options The Evaltimeout, the targetclusterid
    * @returns {Promise<*>|Promise<Array<*>>} Result of the script execution
    * @example
-   * client.cluster.evalOnManager('process.uptime')
+   * client.cluster.evalOnCluster('this.cluster.id',  {timeout: 10000, cluster: 0})
    *   .then(result => console.log(result))
    *   .catch(console.error);
    * @see {@link ClusterManager#broadcastEval}
    */
-  evalOnManager(script){
+  evalOnManager(script) {
     return new Promise((resolve, reject) => {
       const parent = this.parentPort || process;
       script = typeof script === 'function' ? `(${script})(this)` : script;
@@ -228,12 +237,40 @@ class ClusterClient{
       };
       parent.on('message', listener);
 
-      this.send({ _sManagerEval: script}).catch(err => {
+      this.send({ _sManagerEval: script }).catch(err => {
         parent.removeListener('message', listener);
         reject(err);
       });
     })
   }
+
+  /**
+ * Evaluates a script or function on the Cluster Manager
+ * @param {string|Function} script JavaScript to run on the Manager
+ * @returns {Promise<*>|Promise<Array<*>>} Result of the script execution
+ * @example
+ * client.cluster.evalOnManager('process.uptime')
+ *   .then(result => console.log(result))
+ *   .catch(console.error);
+ * @see {@link ClusterManager#broadcastEval}
+ */
+  evalOnCluster(script, options) {
+    return new Promise((resolve, reject) => {
+      if (!options.cluster) reject('TARGET CLUSTER HAS NOT BEEN PROVIDED');
+      script = typeof script === 'function' ? `(${script})(this)` : script;
+      const nonce = Date.now().toString(36) + Math.random().toString(36);
+      this._nonce.set(nonce, { resolve, reject });
+      if (!options.timeout) options.timeout = 10000;
+      setTimeout(() => {
+        if (this._nonce.has(nonce)) {
+          this._nonce.get(nonce).reject(new Error("EVAL Request Timed out"));
+          this._nonce.delete(nonce);
+        }
+      }, options.timeout);
+      this.send({ _sClusterEval: script, nonce, timeout: options.timeout, cluster: options.cluster });
+    })
+  }
+
   /**
    * Requests a respawn of all clusters.
    * @param {number} [clusterDelay=5000] How long to wait between clusters (in milliseconds)
@@ -266,6 +303,23 @@ class ClusterClient{
       } catch (err) {
         this._respond('eval', { _eval: message._eval, _error: Util.makePlainError(err) });
       }
+    } else if (message._sClusterEvalRequest) {
+      try {
+        this._respond('evalOnCluster', { _sClusterEvalResponse: await this.client._eval(message._sClusterEvalRequest), nonce: message.nonce, cluster: message.cluster });
+      } catch (err) {
+        this._respond('evalOnCluster', { _sClusterEvalResponse: {}, _error: Util.makePlainError(err), nonce: message.nonce });
+      }
+    } else if (message._sClusterEvalResponse) {
+      const promise = this._nonce.get(message.nonce);
+      if (!promise) return;
+      if (message._error) {
+        promise.reject(message._error)
+        this._nonce.delete(message.nonce);
+      } else {
+        promise.resolve(message._sClusterEvalResponse)
+        this._nonce.delete(message.nonce);
+      }
+      return;
     }
   }
 
@@ -277,8 +331,8 @@ class ClusterClient{
    */
   _respond(type, message) {
     this.send(message).catch(err => {
-      let error = {err};
-  
+      let error = { err };
+
       error.message = `Error when sending ${type} response to master process: ${err.message}`;
       /**
        * Emitted when the client encounters an error.
@@ -310,22 +364,22 @@ class ClusterClient{
    * gets the total Internalshardcount and shard list.
    * @returns {ClusterClientUtil}
    */
-  static getinfo(){
+  static getinfo() {
     let clustermode = process.env.CLUSTER_MANAGER_MODE;
-    if(!clustermode) return
-    if(clustermode !== "worker" && clustermode !== "process") throw new Error("NO CHILD/MASTER EXISTS OR SUPPLIED CLUSTER_MANAGER_MODE IS INCORRECT");
+    if (!clustermode) return
+    if (clustermode !== "worker" && clustermode !== "process") throw new Error("NO CHILD/MASTER EXISTS OR SUPPLIED CLUSTER_MANAGER_MODE IS INCORRECT");
     let data;
-    if(clustermode === "process"){ 
+    if (clustermode === "process") {
       const shardlist = [];
-      let parseshardlist =  process.env.SHARD_LIST.split(",")
-      parseshardlist.forEach(c =>shardlist.push(Number(c)))
-      data = {SHARD_LIST: shardlist, TOTAL_SHARDS: Number(process.env.TOTAL_SHARDS), CLUSTER_COUNT: Number(process.env.CLUSTER_COUNT), CLUSTER: Number(process.env.CLUSTER), CLUSTER_MANAGER_MODE: clustermode}
-    }else{
-      data = require("worker_threads").workerData 
+      let parseshardlist = process.env.SHARD_LIST.split(",")
+      parseshardlist.forEach(c => shardlist.push(Number(c)))
+      data = { SHARD_LIST: shardlist, TOTAL_SHARDS: Number(process.env.TOTAL_SHARDS), CLUSTER_COUNT: Number(process.env.CLUSTER_COUNT), CLUSTER: Number(process.env.CLUSTER), CLUSTER_MANAGER_MODE: clustermode }
+    } else {
+      data = require("worker_threads").workerData
     }
     return data;
   }
- 
+
 
 }
 module.exports = ClusterClient;
