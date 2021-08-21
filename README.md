@@ -138,7 +138,7 @@ Get all ShardID's in the current Cluster:
 ```
 
 # New Functions & Event:
-Decentral ClusterClient Eval function, which doesnt open any listener and minimalizes the chances create a memory leak during broadcastEvaling.
+Decentral ClusterClient Eval function, which doesn't open any listeners and minimalizes the chances creating a memory leak during broadcastEvaling.
 ```js
 - Inbuilt Eval Timeout, how long to wait until getting response back
 - No addition Listeners ==> less memory leak, better than .broadCastEval
