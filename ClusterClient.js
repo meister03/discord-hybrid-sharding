@@ -254,9 +254,9 @@ class ClusterClient {
  *   .catch(console.error);
  * @see {@link ClusterManager#broadcastEval}
  */
-  evalOnCluster(script, options) {
+  evalOnCluster(script, options = {}) {
     return new Promise((resolve, reject) => {
-      if (!options.cluster) reject('TARGET CLUSTER HAS NOT BEEN PROVIDED');
+      if (!options.hasOwnProperty('cluster')) reject('TARGET CLUSTER HAS NOT BEEN PROVIDED');
       script = typeof script === 'function' ? `(${script})(this)` : script;
       const nonce = Date.now().toString(36) + Math.random().toString(36);
       this._nonce.set(nonce, { resolve, reject });
@@ -303,13 +303,13 @@ class ClusterClient {
       } catch (err) {
         this._respond('eval', { _eval: message._eval, _error: Util.makePlainError(err) });
       }
-    } else if (message._sClusterEvalRequest) {
+    } else if (message.hasOwnProperty('_sClusterEvalRequest')) {
       try {
         this._respond('evalOnCluster', { _sClusterEvalResponse: await this.client._eval(message._sClusterEvalRequest), nonce: message.nonce, cluster: message.cluster });
       } catch (err) {
         this._respond('evalOnCluster', { _sClusterEvalResponse: {}, _error: Util.makePlainError(err), nonce: message.nonce });
       }
-    } else if (message._sClusterEvalResponse) {
+    } else if (message.hasOwnProperty('_sClusterEvalResponse')) {
       const promise = this._nonce.get(message.nonce);
       if (!promise) return;
       if (message._error) {

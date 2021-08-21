@@ -371,7 +371,7 @@ class Cluster extends EventEmitter {
       }
 
       //Evals a Request on a Cluster
-      if (message._sManagerEval) {
+      if (message.hasOwnProperty('_sManagerEval')) {
         this.manager.evalOnManager(message._sManagerEval).then(
           results => this.send({ _result: results, _sManagerEval: message._sManagerEval }),
           err => this.send({ _error: Util.makePlainError(err) }),
@@ -380,13 +380,13 @@ class Cluster extends EventEmitter {
       }
 
       //Evals a Request on a Cluster
-      if (message._sClusterEval) {
+      if (message.hasOwnProperty('_sClusterEval')) {
         this.manager.evalOnCluster(message._sClusterEval, {...message, requestcluster: this.id}).catch((e) => new Error(e))
         return;
       }
 
       //If Message is a Eval Response
-      if (message._sClusterEvalResponse) {
+      if (message.hasOwnProperty('_sClusterEvalResponse')) {
         const promise = this.manager._nonce.get(message.nonce);
         if(!promise) return;
         if (promise) {
