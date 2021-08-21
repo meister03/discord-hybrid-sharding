@@ -43,6 +43,7 @@ declare module 'discord-hybrid-sharding' {
     constructor(client: client, usev13?: boolean);
     private _handleMessage(message: any): void;
     private _respond(type: string, message: any): void;
+    private _nonce: Map<string, Promise<any>>;
 
     public client: client;
     public readonly count: number;
@@ -85,6 +86,7 @@ declare module 'discord-hybrid-sharding' {
     );
     private _performOnShards(method: string, args: any[]): Promise<any[]>;
     private _performOnShards(method: string, args: any[], cluster: number): Promise<any>;
+    private _nonce: Map<string, Promise<any>>;
 
 
     public file: string;
@@ -102,6 +104,7 @@ declare module 'discord-hybrid-sharding' {
     public fetchClientValues(prop: string): Promise<any[]>;
     public fetchClientValues(prop: string, cluster: number): Promise<any>;
     public evalOnManager(script: string): Promise<any[]>;
+    private evalOnCluster(script: string, options: Object): Promise<any[]>;
     public respawnAll(
       clusterDelay?: number,
       respawnDelay?: number,
@@ -115,7 +118,15 @@ declare module 'discord-hybrid-sharding' {
     public once(event: 'clusterCreate', listener: (cluster: Cluster) => void): this;
     public once(event: "debug", listener: (message: string) => void): this;
   }
-
+  export class data{
+    public SHARD_LIST: number[], 
+    public TOTAL_SHARDS: number, 
+    public CLUSTER_COUNT: number, 
+    public CLUSTER: number, 
+    public CLUSTER_MANAGER_MODE: ClusterManagerMode
+  }
+    
+    
   type ClusterManagerMode = 'process' | 'worker';
   type client = DJsClient;
   export type data = {
