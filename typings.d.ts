@@ -43,6 +43,7 @@ export class Cluster extends EventEmitter {
     constructor(client: client, mode: ClusterManagerMode);
     private _handleMessage(message: any): void;
     private _respond(type: string, message: any): void;
+    private _nonce: Map<string, Promise<any>>;
 
     public client: client;
     public readonly count: number;
@@ -51,6 +52,7 @@ export class Cluster extends EventEmitter {
     public getinfo: data;
     public parentPort: any | null;
     public evalOnManager(script: string): Promise<any[]>;
+    public evalOnCluster(script: string, options: Object): Promise<any[]>;
     public broadcastEval(script: string): Promise<any[]>;
     public broadcastEval(script: string, cluster: number): Promise<any>;
     public broadcastEval<T>(fn: (client: client) => T): Promise<T[]>;
@@ -79,6 +81,7 @@ export class Cluster extends EventEmitter {
     );
     private _performOnShards(method: string, args: any[]): Promise<any[]>;
     private _performOnShards(method: string, args: any[], cluster: number): Promise<any>;
+    private _nonce: Map<string, Promise<any>>;
 
 
     public file: string;
@@ -96,6 +99,7 @@ export class Cluster extends EventEmitter {
     public fetchClientValues(prop: string): Promise<any[]>;
     public fetchClientValues(prop: string, cluster: number): Promise<any>;
     public evalOnManager(script: string): Promise<any[]>;
+    private evalOnCluster(script: string, options: Object): Promise<any[]>;
     public respawnAll(
       clusterDelay?: number,
       respawnDelay?: number,
