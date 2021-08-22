@@ -1,5 +1,5 @@
 module.exports = {
-    Manager: require("./ClusterManager.js"),
-    Client: require("./ClusterClient.js"),
-    data: require("./ClusterClient.js").getinfo(),
+    Manager: require("./src/ClusterManager.js"),
+    Client: require("./src/ClusterClient.js"),
+    data: require("./src/ClusterClient.js").getinfo(),
 };

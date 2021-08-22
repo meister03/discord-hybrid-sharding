@@ -5,7 +5,11 @@
   "main": "index.js",
   "types": "./typings.d.ts",
   "dependencies": {
-    "discord.js": "^12.5.3"
+    "discord.js": "^12.5.3",
+    "docdash": "^1.2.0"
+  },
+  "script": {
+    "generate-docs": "node_modules/.bin/jsdoc -c ./.jsdoc.conf.json"
   },
   "repository": {
     "type": "git",

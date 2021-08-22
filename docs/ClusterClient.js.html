@@ -1,4 +1,48 @@
-const Discord = require('discord.js');
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    
+    <meta charset="utf-8">
+    <title>ClusterClient.js - Documentation</title>
+    
+    
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc.css">
+    <script src="scripts/nav.js" defer></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav >
+    
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Cluster.html">Cluster</a><ul class='methods'><li data-type='method'><a href="Cluster.html#eval">eval</a></li><li data-type='method'><a href="Cluster.html#fetchClientValue">fetchClientValue</a></li><li data-type='method'><a href="Cluster.html#kill">kill</a></li><li data-type='method'><a href="Cluster.html#respawn">respawn</a></li><li data-type='method'><a href="Cluster.html#send">send</a></li><li data-type='method'><a href="Cluster.html#spawn">spawn</a></li></ul></li><li><a href="ClusterClient.html">ClusterClient</a><ul class='methods'><li data-type='method'><a href="ClusterClient.html#.getinfo">getinfo</a></li><li data-type='method'><a href="ClusterClient.html#.singleton">singleton</a></li><li data-type='method'><a href="ClusterClient.html#broadcastEval">broadcastEval</a></li><li data-type='method'><a href="ClusterClient.html#evalOnCluster">evalOnCluster</a></li><li data-type='method'><a href="ClusterClient.html#evalOnManager">evalOnManager</a></li><li data-type='method'><a href="ClusterClient.html#fetchClientValues">fetchClientValues</a></li><li data-type='method'><a href="ClusterClient.html#respawnAll">respawnAll</a></li><li data-type='method'><a href="ClusterClient.html#send">send</a></li></ul></li><li><a href="ClusterManager.html">ClusterManager</a><ul class='methods'><li data-type='method'><a href="ClusterManager.html#_debug">_debug</a></li><li data-type='method'><a href="ClusterManager.html#broadcast">broadcast</a></li><li data-type='method'><a href="ClusterManager.html#broadcastEval">broadcastEval</a></li><li data-type='method'><a href="ClusterManager.html#createCluster">createCluster</a></li><li data-type='method'><a href="ClusterManager.html#fetchClientValues">fetchClientValues</a></li><li data-type='method'><a href="ClusterManager.html#respawnAll">respawnAll</a></li><li data-type='method'><a href="ClusterManager.html#spawn">spawn</a></li></ul></li></ul><h3>Events</h3><ul><li><a href="Client.html#event:error">error</a></li><li><a href="Cluster.html#event:death">death</a></li><li><a href="Cluster.html#event:disconnect">disconnect</a></li><li><a href="Cluster.html#event:error">error</a></li><li><a href="Cluster.html#event:ready">ready</a></li><li><a href="Cluster.html#event:reconnecting">reconnecting</a></li><li><a href="Cluster.html#event:spawn">spawn</a></li><li><a href="ClusterManager.html#event:clusterCreate">clusterCreate</a></li><li><a href="ClusterManager.html#event:debug">debug</a></li><li><a href="Shard.html#event:message">message</a></li></ul>
+</nav>
+
+<div id="main">
+    
+    <h1 class="page-title">ClusterClient.js</h1>
+    
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>const Discord = require('discord.js');
 const { Events } = Discord.Constants
 const Util = Discord.Util;
 ///communicates between the master workers and the process
@@ -23,7 +67,7 @@ class ClusterClient {
 
     /**
     * Ongoing promises for calls to {@link ClusterManager#evalOnCluster}, mapped by the `script` they were called with
-    * @type {Map<string, Promise>}
+    * @type {Map&lt;string, Promise>}
     * @private
     */
     this._nonce = new Map();
@@ -94,7 +138,7 @@ class ClusterClient {
   get info() {
     let clustermode = process.env.CLUSTER_MANAGER_MODE;
     if (!clustermode) return
-    if (clustermode !== "worker" && clustermode !== "process") throw new Error("NO CHILD/MASTER EXISTS OR SUPPLIED CLUSTER_MANAGER_MODE IS INCORRECT");
+    if (clustermode !== "worker" &amp;&amp; clustermode !== "process") throw new Error("NO CHILD/MASTER EXISTS OR SUPPLIED CLUSTER_MANAGER_MODE IS INCORRECT");
     let data;
     if (clustermode === "process") {
       const shardlist = [];
@@ -109,7 +153,7 @@ class ClusterClient {
   /**
   * Sends a message to the master process.
   * @param {*} message Message to send
-  * @returns {Promise<void>}
+  * @returns {Promise&lt;void>}
   * @emits Cluster#message
   */
   send(message) {
@@ -130,7 +174,7 @@ class ClusterClient {
  * Fetches a client property value of each shard, or a given shard.
  * @param {string} prop Name of the client property to get, using periods for nesting
  * @param {number} [shard] Shard to fetch property from, all if undefined
- * @returns {Promise<*>|Promise<Array<*>>}
+ * @returns {Promise&lt;*>|Promise&lt;Array&lt;*>>}
  * @example
  * client.shard.fetchClientValues('guilds.cache.size')
  *   .then(results => console.log(`${results.reduce((prev, val) => prev + val, 0)} total guilds`))
@@ -160,7 +204,7 @@ class ClusterClient {
    * Evaluates a script or function on all clusters, or a given cluster, in the context of the {@link Client}s.
    * @param {string|Function} script JavaScript to run on each cluster
    * @param {number} [cluster] Cluster to run script on, all if undefined
-   * @returns {Promise<*>|Promise<Array<*>>} Results of the script execution
+   * @returns {Promise&lt;*>|Promise&lt;Array&lt;*>>} Results of the script execution
    * @example
    * client.cluster.broadcastEval('this.guilds.cache.size')
    *   .then(results => console.log(`${results.reduce((prev, val) => prev + val, 0)} total guilds`))
@@ -213,17 +257,16 @@ class ClusterClient {
     });
   }
 
-  /**
-   * Evaluates a script or function on the ClusterClient
-   * @param {string|Function} script JavaScript to run on the Manager
-   * @param {Object} options The Evaltimeout, the targetclusterid
-   * @returns {Promise<*>|Promise<Array<*>>} Result of the script execution
-   * @example
-   * client.cluster.evalOnCluster('this.cluster.id',  {timeout: 10000, cluster: 0})
-   *   .then(result => console.log(result))
-   *   .catch(console.error);
-   * @see {@link ClusterManager#broadcastEval}
-   */
+   /**
+ * Evaluates a script or function on the Cluster Manager
+ * @param {string|Function} script JavaScript to run on the Manager
+ * @returns {Promise&lt;*>|Promise&lt;Array&lt;*>>} Result of the script execution
+ * @example
+ * client.cluster.evalOnManager('process.uptime')
+ *   .then(result => console.log(result))
+ *   .catch(console.error);
+ * @see {@link ClusterManager#evalOnManager}
+ */
   evalOnManager(script) {
     return new Promise((resolve, reject) => {
       const parent = this.parentPort || process;
@@ -244,16 +287,19 @@ class ClusterClient {
     })
   }
 
-  /**
- * Evaluates a script or function on the Cluster Manager
- * @param {string|Function} script JavaScript to run on the Manager
- * @returns {Promise<*>|Promise<Array<*>>} Result of the script execution
- * @example
- * client.cluster.evalOnManager('process.uptime')
- *   .then(result => console.log(result))
- *   .catch(console.error);
- * @see {@link ClusterManager#broadcastEval}
- */
+ /**
+   * Evaluates a script or function on the ClusterClient
+   * @param {string|Function} script JavaScript to run on the ClusterClient
+   * @param {Object} options Some options such as the TargetCluster or the Evaltimeout
+   * @param {number} [options.cluster] The Id od the target Cluster
+   * @param {number} [options.timeout=10000] The time in ms to wait, until the eval will be rejected without any response
+   * @returns {Promise&lt;*>|Promise&lt;Array&lt;*>>} Result of the script execution
+   * @example
+   * client.cluster.evalOnCluster('this.cluster.id',  {timeout: 10000, cluster: 0})
+   *   .then(result => console.log(result))
+   *   .catch(console.error);
+   * @see {@link ClusterManager#evalOnCluster}
+   */
   evalOnCluster(script, options = {}) {
     return new Promise((resolve, reject) => {
       if (!options.hasOwnProperty('cluster')) reject('TARGET CLUSTER HAS NOT BEEN PROVIDED');
@@ -278,7 +324,7 @@ class ClusterClient {
    * (in milliseconds)
    * @param {number} [spawnTimeout=30000] The amount in milliseconds to wait for a cluster to become ready before
    * continuing to another. (-1 or Infinity for no wait)
-   * @returns {Promise<void>} Resolves upon the message being sent
+   * @returns {Promise&lt;void>} Resolves upon the message being sent
    * @see {@link ClusterManager#respawnAll}
    */
   respawnAll(clusterDelay = 5000, respawnDelay = 500, spawnTimeout = 30000) {
@@ -367,7 +413,7 @@ class ClusterClient {
   static getinfo() {
     let clustermode = process.env.CLUSTER_MANAGER_MODE;
     if (!clustermode) return
-    if (clustermode !== "worker" && clustermode !== "process") throw new Error("NO CHILD/MASTER EXISTS OR SUPPLIED CLUSTER_MANAGER_MODE IS INCORRECT");
+    if (clustermode !== "worker" &amp;&amp; clustermode !== "process") throw new Error("NO CHILD/MASTER EXISTS OR SUPPLIED CLUSTER_MANAGER_MODE IS INCORRECT");
     let data;
     if (clustermode === "process") {
       const shardlist = [];
@@ -383,3 +429,28 @@ class ClusterClient {
 
 }
 module.exports = ClusterClient;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+    
+    
+</div>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.7</a> on Sun Aug 22 2021 09:49:10 GMT+0200 (Central European Summer Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/polyfill.js"></script>
+<script src="scripts/linenumber.js"></script>
+
+
+
+</body>
+</html>
