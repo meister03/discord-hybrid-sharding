@@ -6,7 +6,7 @@
   "opts": {
     "recurse": true,
     "destination": "./docs/",
-     "template": "node_modules/docdash",
+     "template": "node_modules/clean-jsdoc-theme",
      "encoding": "utf8",
       "readme": "./README.md",
       "destination": "docs/",

@@ -1,110 +1,144 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    
+
+  <head>
     <meta charset="utf-8">
-    <title>ClusterManager - Documentation</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Adding meta -->
     
+
+    <!-- Adding external script-->
     
-    <script src="scripts/prettify/prettify.js"></script>
-    <script src="scripts/prettify/lang-css.js"></script>
+
+    <!-- Adding external style-->
+    
+
+    <!-- Adding scripts-->
+    
+
+    <!-- Adding style-->
+    
+
+    <!-- Adding overlay script-->
+    
+
+    <!-- Adding overlay style-->
+    
+
+
+    <title>
+      ClusterManager
+    </title>
+
     <!--[if lt IE 9]>
       <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
-    <link type="text/css" rel="stylesheet" href="styles/prettify.css">
-    <link type="text/css" rel="stylesheet" href="styles/jsdoc.css">
-    <script src="scripts/nav.js" defer></script>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-</head>
-<body>
-
-<input type="checkbox" id="nav-trigger" class="nav-trigger" />
-<label for="nav-trigger" class="navicon-button x">
-  <div class="navicon"></div>
-</label>
-
-<label for="nav-trigger" class="overlay"></label>
-
-<nav >
+    <link type="text/css" rel="stylesheet" href="styles/third-party/ionicons.min.css">
+    <link type="text/css" rel="stylesheet" href="styles/third-party/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/reset.css">
+    <link type="text/css" rel="stylesheet" href="styles/heading.css">
+    <link type="text/css" rel="stylesheet" href="styles/clean-jsdoc-theme-base.css">
+    <link type="text/css" rel="stylesheet" href="styles/clean-jsdoc-theme-dark.css">
     
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Cluster.html">Cluster</a><ul class='methods'><li data-type='method'><a href="Cluster.html#eval">eval</a></li><li data-type='method'><a href="Cluster.html#fetchClientValue">fetchClientValue</a></li><li data-type='method'><a href="Cluster.html#kill">kill</a></li><li data-type='method'><a href="Cluster.html#respawn">respawn</a></li><li data-type='method'><a href="Cluster.html#send">send</a></li><li data-type='method'><a href="Cluster.html#spawn">spawn</a></li></ul></li><li><a href="ClusterClient.html">ClusterClient</a><ul class='methods'><li data-type='method'><a href="ClusterClient.html#.getinfo">getinfo</a></li><li data-type='method'><a href="ClusterClient.html#.singleton">singleton</a></li><li data-type='method'><a href="ClusterClient.html#broadcastEval">broadcastEval</a></li><li data-type='method'><a href="ClusterClient.html#evalOnCluster">evalOnCluster</a></li><li data-type='method'><a href="ClusterClient.html#evalOnManager">evalOnManager</a></li><li data-type='method'><a href="ClusterClient.html#fetchClientValues">fetchClientValues</a></li><li data-type='method'><a href="ClusterClient.html#respawnAll">respawnAll</a></li><li data-type='method'><a href="ClusterClient.html#send">send</a></li></ul></li><li><a href="ClusterManager.html">ClusterManager</a><ul class='methods'><li data-type='method'><a href="ClusterManager.html#_debug">_debug</a></li><li data-type='method'><a href="ClusterManager.html#broadcast">broadcast</a></li><li data-type='method'><a href="ClusterManager.html#broadcastEval">broadcastEval</a></li><li data-type='method'><a href="ClusterManager.html#createCluster">createCluster</a></li><li data-type='method'><a href="ClusterManager.html#fetchClientValues">fetchClientValues</a></li><li data-type='method'><a href="ClusterManager.html#respawnAll">respawnAll</a></li><li data-type='method'><a href="ClusterManager.html#spawn">spawn</a></li></ul></li></ul><h3>Events</h3><ul><li><a href="Client.html#event:error">error</a></li><li><a href="Cluster.html#event:death">death</a></li><li><a href="Cluster.html#event:disconnect">disconnect</a></li><li><a href="Cluster.html#event:error">error</a></li><li><a href="Cluster.html#event:ready">ready</a></li><li><a href="Cluster.html#event:reconnecting">reconnecting</a></li><li><a href="Cluster.html#event:spawn">spawn</a></li><li><a href="ClusterManager.html#event:clusterCreate">clusterCreate</a></li><li><a href="ClusterManager.html#event:debug">debug</a></li><li><a href="Shard.html#event:message">message</a></li></ul>
-</nav>
+    <svg aria-hidden="true" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+    style="display:none">
+    <defs>
+        <symbol id="copy-icon" viewbox="0 0 488.3 488.3">
+            <g>
+                <path
+                    d="M314.25,85.4h-227c-21.3,0-38.6,17.3-38.6,38.6v325.7c0,21.3,17.3,38.6,38.6,38.6h227c21.3,0,38.6-17.3,38.6-38.6V124    C352.75,102.7,335.45,85.4,314.25,85.4z M325.75,449.6c0,6.4-5.2,11.6-11.6,11.6h-227c-6.4,0-11.6-5.2-11.6-11.6V124    c0-6.4,5.2-11.6,11.6-11.6h227c6.4,0,11.6,5.2,11.6,11.6V449.6z" />
+                <path
+                    d="M401.05,0h-227c-21.3,0-38.6,17.3-38.6,38.6c0,7.5,6,13.5,13.5,13.5s13.5-6,13.5-13.5c0-6.4,5.2-11.6,11.6-11.6h227    c6.4,0,11.6,5.2,11.6,11.6v325.7c0,6.4-5.2,11.6-11.6,11.6c-7.5,0-13.5,6-13.5,13.5s6,13.5,13.5,13.5c21.3,0,38.6-17.3,38.6-38.6    V38.6C439.65,17.3,422.35,0,401.05,0z" />
+            </g>
+        </symbol>
+        <symbol id='search-icon' viewBox="0 0 512 512">
+            <g>
+                <g>
+                    <path
+                        d="M225.474,0C101.151,0,0,101.151,0,225.474c0,124.33,101.151,225.474,225.474,225.474    c124.33,0,225.474-101.144,225.474-225.474C450.948,101.151,349.804,0,225.474,0z M225.474,409.323    c-101.373,0-183.848-82.475-183.848-183.848S124.101,41.626,225.474,41.626s183.848,82.475,183.848,183.848    S326.847,409.323,225.474,409.323z" />
+                </g>
+            </g>
+            <g>
+                <g>
+                    <path
+                        d="M505.902,476.472L386.574,357.144c-8.131-8.131-21.299-8.131-29.43,0c-8.131,8.124-8.131,21.306,0,29.43l119.328,119.328    c4.065,4.065,9.387,6.098,14.715,6.098c5.321,0,10.649-2.033,14.715-6.098C514.033,497.778,514.033,484.596,505.902,476.472z" />
+                </g>
+            </g>
+        </symbol>
+        <symbol id="down-icon" viewBox="0 0 16 16">
+            <path 
+                fill-rule="evenodd" 
+                clip-rule="evenodd" 
+                d="M12.7803 6.21967C13.0732 6.51256 13.0732 6.98744 12.7803 7.28033L8.53033 11.5303C8.23744 11.8232 7.76256 11.8232 7.46967 11.5303L3.21967 7.28033C2.92678 6.98744 2.92678 6.51256 3.21967 6.21967C3.51256 5.92678 3.98744 5.92678 4.28033 6.21967L8 9.93934L11.7197 6.21967C12.0126 5.92678 12.4874 5.92678 12.7803 6.21967Z"
+            >
+            </path>
+        </symbol>
+    </defs>
+</svg>
+  </head>
 
-<div id="main">
-    
-    <h1 class="page-title">ClusterManager</h1>
-    
+  <body>
 
-    
+    <nav class="navbar" id="navbar">
+      <div class="navbar-heading" id="navbar-heading"><a href="index.html"><h2 class="navbar-heading-text">Home</h2></a></div><div class="search-box" id="search-box"><div class="search-box-input-container"><input class="search-box-input" type="text" placeholder="Search..." id="search-box-input" /><svg class="search-icon" alt="search-icon"><use xlink:href="#search-icon"></use></svg></div><div class="search-item-container" id="search-item-container"><ul class="search-item-ul" id="search-item-ul"></ul></div></div><div class="sidebar-main-content" id="sidebar-main-content"><div class="accordion collapsed" id="5671342" > <h3 class="accordion-heading">Classes<svg><use xlink:href="#down-icon"></use></svg></h3><ul class="accordion-content"><li class="accordion collapsed child" id=9924777><div class="accordion-heading child"><a href="Cluster.html">Cluster</a><svg><use xlink:href="#down-icon"></use></svg></div><ul class='methods accordion-content'><li data-type='method'><a href="Cluster.html#eval">eval</a></li><li data-type='method'><a href="Cluster.html#fetchClientValue">fetchClientValue</a></li><li data-type='method'><a href="Cluster.html#kill">kill</a></li><li data-type='method'><a href="Cluster.html#respawn">respawn</a></li><li data-type='method'><a href="Cluster.html#send">send</a></li><li data-type='method'><a href="Cluster.html#spawn">spawn</a></li></ul></li><li class="accordion collapsed child" id=349673><div class="accordion-heading child"><a href="ClusterClient.html">ClusterClient</a><svg><use xlink:href="#down-icon"></use></svg></div><ul class='methods accordion-content'><li data-type='method'><a href="ClusterClient.html#.getinfo">getinfo</a></li><li data-type='method'><a href="ClusterClient.html#.singleton">singleton</a></li><li data-type='method'><a href="ClusterClient.html#broadcastEval">broadcastEval</a></li><li data-type='method'><a href="ClusterClient.html#evalOnCluster">evalOnCluster</a></li><li data-type='method'><a href="ClusterClient.html#evalOnManager">evalOnManager</a></li><li data-type='method'><a href="ClusterClient.html#fetchClientValues">fetchClientValues</a></li><li data-type='method'><a href="ClusterClient.html#respawnAll">respawnAll</a></li><li data-type='method'><a href="ClusterClient.html#send">send</a></li></ul></li><li class="accordion collapsed child" id=1373895><div class="accordion-heading child"><a href="ClusterManager.html">ClusterManager</a><svg><use xlink:href="#down-icon"></use></svg></div><ul class='methods accordion-content'><li data-type='method'><a href="ClusterManager.html#_debug">_debug</a></li><li data-type='method'><a href="ClusterManager.html#broadcast">broadcast</a></li><li data-type='method'><a href="ClusterManager.html#broadcastEval">broadcastEval</a></li><li data-type='method'><a href="ClusterManager.html#createCluster">createCluster</a></li><li data-type='method'><a href="ClusterManager.html#fetchClientValues">fetchClientValues</a></li><li data-type='method'><a href="ClusterManager.html#respawnAll">respawnAll</a></li><li data-type='method'><a href="ClusterManager.html#spawn">spawn</a></li></ul></li></ul> </div><div class="accordion collapsed" id="348596" > <h3 class="accordion-heading">Events<svg><use xlink:href="#down-icon"></use></svg></h3><ul class="accordion-content"><li class="accordion-list" id=""><a href="Client.html#event:error">error</a></li><li class="accordion-list" id=""><a href="Cluster.html#event:death">death</a></li><li class="accordion-list" id=""><a href="Cluster.html#event:disconnect">disconnect</a></li><li class="accordion-list" id=""><a href="Cluster.html#event:error">error</a></li><li class="accordion-list" id=""><a href="Cluster.html#event:ready">ready</a></li><li class="accordion-list" id=""><a href="Cluster.html#event:reconnecting">reconnecting</a></li><li class="accordion-list" id=""><a href="Cluster.html#event:spawn">spawn</a></li><li class="accordion-list" id=""><a href="ClusterManager.html#event:clusterCreate">clusterCreate</a></li><li class="accordion-list" id=""><a href="ClusterManager.html#event:debug">debug</a></li><li class="accordion-list" id=""><a href="Shard.html#event:message">message</a></li></ul> </div></div>
+      
+
+    </nav>
+    <div class="navbar-ham" id="navbar-ham">
+      <div>
+        <div class="first"></div>
+        <div class="second"></div>
+        <div class="third"></div>
+      </div>
+    </div>
+
+    <div id="main" class="main-content">
+      
+      <h1 id='page-title' class="page-title">
+        ClusterManager
+      </h1>
+      
+
+      
 
 
 
 
 <section>
 
+
 <header>
     
+        
         <h2>
+        
         ClusterManager
+        
         </h2>
+        
         
     
 </header>
 
+
 <article>
+    <div class="container-overview">
     
-        <div class="container-overview">
         
-            
 
     
 
-    <h4 class="name" id="ClusterManager"><span class="type-signature"></span>new ClusterManager<span class="signature">(file, options<span class="signature-attributes">opt</span>, respawn<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="ClusterManager">
+        <a href="#ClusterManager">#</a>
+        <span class="type-signature"></span>new ClusterManager<span class="signature">(file, options<span class="signature-attributes">opt</span>, respawn<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span>
+    </h4>
 
     
 
 
 
 
-<dl class="details">
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="ClusterManager.js.html">ClusterManager.js</a>, <a href="ClusterManager.js.html#line24">line 24</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
 
 
 
@@ -112,16 +146,9 @@
 
 
 
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
+    <div class="method-member-container flex flex-col w-100 overflow-auto mt-20">
+        <strong>Parameters:</strong>
+        
 
 <table class="params">
     <thead>
@@ -274,7 +301,7 @@
             
                 <td class="default">
                 
-                    <code>'auto'</code>
+                    'auto'
                 
                 </td>
             
@@ -316,7 +343,7 @@
             
                 <td class="default">
                 
-                    <code>'auto'</code>
+                    'auto'
                 
                 </td>
             
@@ -355,7 +382,7 @@
             
                 <td class="default">
                 
-                    <code>[]</code>
+                    []
                 
                 </td>
             
@@ -395,7 +422,7 @@
             
                 <td class="default">
                 
-                    <code>[]</code>
+                    []
                 
                 </td>
             
@@ -441,7 +468,7 @@
             
                 <td class="default">
                 
-                    <code>true</code>
+                    true
                 
                 </td>
             
@@ -481,7 +508,7 @@
             
                 <td class="default">
                 
-                    <code>'worker'</code>
+                    'worker'
                 
                 </td>
             
@@ -567,6 +594,7 @@
     </tbody>
 </table>
 
+    </div>
 
 
 
@@ -574,18 +602,38 @@
 
 
 
+<dl class="details">
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
+    
 
-        
+    
+
+    
+
+    
+        <div class="details-item-container">
+            <dt class="tag-source">Source:</dt>
+            <dd class="tag-source"><ul class="dummy"><li>
+                <a href="ClusterManager.js.html">ClusterManager.js</a>, <a href="ClusterManager.js.html#line24">line 24</a>
+            </li></ul></dd>
         </div>
     
 
@@ -594,7 +642,32 @@
     
 
     
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     
+    </div>
+
+    
+
+    
+
     
 
      
@@ -606,80 +679,33 @@
 
         
             
-<h4 class="name" id="clusters"><span class="type-signature"></span>clusters<span class="type-signature"> :Collection.&lt;number, <a href="Cluster.html">Cluster</a>></span></h4>
+<h4 class="name" id="clusters">
+    <a href="#clusters">#</a>
+    <span class="type-signature"></span>clusters<span class="type-signature"> :Collection.&lt;number, <a href="Cluster.html">Cluster</a>></span>
+</h4>
 
 
 
 
-
-<dl class="details">
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="ClusterManager.js.html">ClusterManager.js</a>, <a href="ClusterManager.js.html#line139">line 139</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-<div class="description usertext">
+<div class="description">
     <p>A collection of all clusters the manager spawned</p>
 </div>
 
 
 
-    <h5>Type:</h5>
-    <ul>
-        <li>
-            
+    <div class="member-item-container flex">
+        <strong>Type: </strong>
+        <ul>
+            <li>
+                
 <span class="param-type">Collection.&lt;number, <a href="Cluster.html">Cluster</a>></span>
 
 
-        </li>
-    </ul>
+            </li>
+        </ul>
+    </div>
 
 
-
-
-
-
-        
-            
-<h4 class="name" id="execArgv"><span class="type-signature"></span>execArgv<span class="type-signature"> :Array.&lt;string></span></h4>
 
 
 
@@ -688,11 +714,6 @@
 <dl class="details">
 
     
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="ClusterManager.js.html">ClusterManager.js</a>, <a href="ClusterManager.js.html#line105">line 105</a>
-    </li></ul></dd>
-    
 
     
 
@@ -716,6 +737,13 @@
 
     
 
+    
+        <div class="details-item-container">
+            <dt class="tag-source">Source:</dt>
+            <dd class="tag-source"><ul class="dummy"><li>
+                <a href="ClusterManager.js.html">ClusterManager.js</a>, <a href="ClusterManager.js.html#line139">line 139</a>
+            </li></ul></dd>
+        </div>
     
 
     
@@ -729,30 +757,38 @@
 
 
 
-<div class="description usertext">
+
+
+
+        
+            
+<h4 class="name" id="execArgv">
+    <a href="#execArgv">#</a>
+    <span class="type-signature"></span>execArgv<span class="type-signature"> :Array.&lt;string></span>
+</h4>
+
+
+
+
+<div class="description">
     <p>An array of arguments to pass to the executable (only when <a href="ClusterManager.html#mode">ClusterManager#mode</a> is <code>process</code>)</p>
 </div>
 
 
 
-    <h5>Type:</h5>
-    <ul>
-        <li>
-            
+    <div class="member-item-container flex">
+        <strong>Type: </strong>
+        <ul>
+            <li>
+                
 <span class="param-type">Array.&lt;string></span>
 
 
-        </li>
-    </ul>
+            </li>
+        </ul>
+    </div>
 
 
-
-
-
-
-        
-            
-<h4 class="name" id="file"><span class="type-signature"></span>file<span class="type-signature"> :string</span></h4>
 
 
 
@@ -761,11 +797,6 @@
 <dl class="details">
 
     
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="ClusterManager.js.html">ClusterManager.js</a>, <a href="ClusterManager.js.html#line51">line 51</a>
-    </li></ul></dd>
-    
 
     
 
@@ -789,6 +820,13 @@
 
     
 
+    
+        <div class="details-item-container">
+            <dt class="tag-source">Source:</dt>
+            <dd class="tag-source"><ul class="dummy"><li>
+                <a href="ClusterManager.js.html">ClusterManager.js</a>, <a href="ClusterManager.js.html#line105">line 105</a>
+            </li></ul></dd>
+        </div>
     
 
     
@@ -802,30 +840,38 @@
 
 
 
-<div class="description usertext">
+
+
+
+        
+            
+<h4 class="name" id="file">
+    <a href="#file">#</a>
+    <span class="type-signature"></span>file<span class="type-signature"> :string</span>
+</h4>
+
+
+
+
+<div class="description">
     <p>Path to the bot script file</p>
 </div>
 
 
 
-    <h5>Type:</h5>
-    <ul>
-        <li>
-            
+    <div class="member-item-container flex">
+        <strong>Type: </strong>
+        <ul>
+            <li>
+                
 <span class="param-type">string</span>
 
 
-        </li>
-    </ul>
+            </li>
+        </ul>
+    </div>
 
 
-
-
-
-
-        
-            
-<h4 class="name" id="mode"><span class="type-signature"></span>mode<span class="type-signature"> :ClusterManagerMode</span></h4>
 
 
 
@@ -834,11 +880,6 @@
 <dl class="details">
 
     
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="ClusterManager.js.html">ClusterManager.js</a>, <a href="ClusterManager.js.html#line90">line 90</a>
-    </li></ul></dd>
-    
 
     
 
@@ -862,6 +903,13 @@
 
     
 
+    
+        <div class="details-item-container">
+            <dt class="tag-source">Source:</dt>
+            <dd class="tag-source"><ul class="dummy"><li>
+                <a href="ClusterManager.js.html">ClusterManager.js</a>, <a href="ClusterManager.js.html#line51">line 51</a>
+            </li></ul></dd>
+        </div>
     
 
     
@@ -875,30 +923,38 @@
 
 
 
-<div class="description usertext">
+
+
+
+        
+            
+<h4 class="name" id="mode">
+    <a href="#mode">#</a>
+    <span class="type-signature"></span>mode<span class="type-signature"> :ClusterManagerMode</span>
+</h4>
+
+
+
+
+<div class="description">
     <p>Mode for shards to spawn with</p>
 </div>
 
 
 
-    <h5>Type:</h5>
-    <ul>
-        <li>
-            
+    <div class="member-item-container flex">
+        <strong>Type: </strong>
+        <ul>
+            <li>
+                
 <span class="param-type">ClusterManagerMode</span>
 
 
-        </li>
-    </ul>
+            </li>
+        </ul>
+    </div>
 
 
-
-
-
-
-        
-            
-<h4 class="name" id="respawn"><span class="type-signature"></span>respawn<span class="type-signature"> :boolean</span></h4>
 
 
 
@@ -907,11 +963,6 @@
 <dl class="details">
 
     
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="ClusterManager.js.html">ClusterManager.js</a>, <a href="ClusterManager.js.html#line46">line 46</a>
-    </li></ul></dd>
-    
 
     
 
@@ -935,6 +986,13 @@
 
     
 
+    
+        <div class="details-item-container">
+            <dt class="tag-source">Source:</dt>
+            <dd class="tag-source"><ul class="dummy"><li>
+                <a href="ClusterManager.js.html">ClusterManager.js</a>, <a href="ClusterManager.js.html#line90">line 90</a>
+            </li></ul></dd>
+        </div>
     
 
     
@@ -948,30 +1006,38 @@
 
 
 
-<div class="description usertext">
+
+
+
+        
+            
+<h4 class="name" id="respawn">
+    <a href="#respawn">#</a>
+    <span class="type-signature"></span>respawn<span class="type-signature"> :boolean</span>
+</h4>
+
+
+
+
+<div class="description">
     <p>Whether clusters should automatically respawn upon exiting</p>
 </div>
 
 
 
-    <h5>Type:</h5>
-    <ul>
-        <li>
-            
+    <div class="member-item-container flex">
+        <strong>Type: </strong>
+        <ul>
+            <li>
+                
 <span class="param-type">boolean</span>
 
 
-        </li>
-    </ul>
+            </li>
+        </ul>
+    </div>
 
 
-
-
-
-
-        
-            
-<h4 class="name" id="shardArgs"><span class="type-signature"></span>shardArgs<span class="type-signature"> :Array.&lt;string></span></h4>
 
 
 
@@ -980,11 +1046,6 @@
 <dl class="details">
 
     
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="ClusterManager.js.html">ClusterManager.js</a>, <a href="ClusterManager.js.html#line99">line 99</a>
-    </li></ul></dd>
-    
 
     
 
@@ -1008,6 +1069,13 @@
 
     
 
+    
+        <div class="details-item-container">
+            <dt class="tag-source">Source:</dt>
+            <dd class="tag-source"><ul class="dummy"><li>
+                <a href="ClusterManager.js.html">ClusterManager.js</a>, <a href="ClusterManager.js.html#line46">line 46</a>
+            </li></ul></dd>
+        </div>
     
 
     
@@ -1021,30 +1089,38 @@
 
 
 
-<div class="description usertext">
+
+
+
+        
+            
+<h4 class="name" id="shardArgs">
+    <a href="#shardArgs">#</a>
+    <span class="type-signature"></span>shardArgs<span class="type-signature"> :Array.&lt;string></span>
+</h4>
+
+
+
+
+<div class="description">
     <p>An array of arguments to pass to clusters (only when <a href="ClusterManager.html#mode">ClusterManager#mode</a> is <code>process</code>)</p>
 </div>
 
 
 
-    <h5>Type:</h5>
-    <ul>
-        <li>
-            
+    <div class="member-item-container flex">
+        <strong>Type: </strong>
+        <ul>
+            <li>
+                
 <span class="param-type">Array.&lt;string></span>
 
 
-        </li>
-    </ul>
+            </li>
+        </ul>
+    </div>
 
 
-
-
-
-
-        
-            
-<h4 class="name" id="shardList"><span class="type-signature"></span>shardList<span class="type-signature"> :string|Array.&lt;number></span></h4>
 
 
 
@@ -1053,11 +1129,6 @@
 <dl class="details">
 
     
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="ClusterManager.js.html">ClusterManager.js</a>, <a href="ClusterManager.js.html#line111">line 111</a>
-    </li></ul></dd>
-    
 
     
 
@@ -1081,6 +1152,13 @@
 
     
 
+    
+        <div class="details-item-container">
+            <dt class="tag-source">Source:</dt>
+            <dd class="tag-source"><ul class="dummy"><li>
+                <a href="ClusterManager.js.html">ClusterManager.js</a>, <a href="ClusterManager.js.html#line99">line 99</a>
+            </li></ul></dd>
+        </div>
     
 
     
@@ -1094,33 +1172,41 @@
 
 
 
-<div class="description usertext">
+
+
+
+        
+            
+<h4 class="name" id="shardList">
+    <a href="#shardList">#</a>
+    <span class="type-signature"></span>shardList<span class="type-signature"> :string|Array.&lt;number></span>
+</h4>
+
+
+
+
+<div class="description">
     <p>List of internal shard ids this cluster manager spawns</p>
 </div>
 
 
 
-    <h5>Type:</h5>
-    <ul>
-        <li>
-            
+    <div class="member-item-container flex">
+        <strong>Type: </strong>
+        <ul>
+            <li>
+                
 <span class="param-type">string</span>
 |
 
 <span class="param-type">Array.&lt;number></span>
 
 
-        </li>
-    </ul>
+            </li>
+        </ul>
+    </div>
 
 
-
-
-
-
-        
-            
-<h4 class="name" id="token"><span class="type-signature">(nullable) </span>token<span class="type-signature"> :string</span></h4>
 
 
 
@@ -1129,11 +1215,6 @@
 <dl class="details">
 
     
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="ClusterManager.js.html">ClusterManager.js</a>, <a href="ClusterManager.js.html#line134">line 134</a>
-    </li></ul></dd>
-    
 
     
 
@@ -1157,6 +1238,13 @@
 
     
 
+    
+        <div class="details-item-container">
+            <dt class="tag-source">Source:</dt>
+            <dd class="tag-source"><ul class="dummy"><li>
+                <a href="ClusterManager.js.html">ClusterManager.js</a>, <a href="ClusterManager.js.html#line111">line 111</a>
+            </li></ul></dd>
+        </div>
     
 
     
@@ -1170,30 +1258,38 @@
 
 
 
-<div class="description usertext">
+
+
+
+        
+            
+<h4 class="name" id="token">
+    <a href="#token">#</a>
+    <span class="type-signature">(nullable) </span>token<span class="type-signature"> :string</span>
+</h4>
+
+
+
+
+<div class="description">
     <p>Token to use for obtaining the automatic internal shards count, and passing to bot script</p>
 </div>
 
 
 
-    <h5>Type:</h5>
-    <ul>
-        <li>
-            
+    <div class="member-item-container flex">
+        <strong>Type: </strong>
+        <ul>
+            <li>
+                
 <span class="param-type">string</span>
 
 
-        </li>
-    </ul>
+            </li>
+        </ul>
+    </div>
 
 
-
-
-
-
-        
-            
-<h4 class="name" id="totalClusters"><span class="type-signature"></span>totalClusters<span class="type-signature"> :number</span></h4>
 
 
 
@@ -1202,11 +1298,6 @@
 <dl class="details">
 
     
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="ClusterManager.js.html">ClusterManager.js</a>, <a href="ClusterManager.js.html#line76">line 76</a>
-    </li></ul></dd>
-    
 
     
 
@@ -1230,6 +1321,13 @@
 
     
 
+    
+        <div class="details-item-container">
+            <dt class="tag-source">Source:</dt>
+            <dd class="tag-source"><ul class="dummy"><li>
+                <a href="ClusterManager.js.html">ClusterManager.js</a>, <a href="ClusterManager.js.html#line134">line 134</a>
+            </li></ul></dd>
+        </div>
     
 
     
@@ -1243,30 +1341,38 @@
 
 
 
-<div class="description usertext">
+
+
+
+        
+            
+<h4 class="name" id="totalClusters">
+    <a href="#totalClusters">#</a>
+    <span class="type-signature"></span>totalClusters<span class="type-signature"> :number</span>
+</h4>
+
+
+
+
+<div class="description">
     <p>Amount of total clusters to spawn</p>
 </div>
 
 
 
-    <h5>Type:</h5>
-    <ul>
-        <li>
-            
+    <div class="member-item-container flex">
+        <strong>Type: </strong>
+        <ul>
+            <li>
+                
 <span class="param-type">number</span>
 
 
-        </li>
-    </ul>
+            </li>
+        </ul>
+    </div>
 
 
-
-
-
-
-        
-            
-<h4 class="name" id="totalShards"><span class="type-signature"></span>totalShards<span class="type-signature"> :number</span></h4>
 
 
 
@@ -1275,11 +1381,6 @@
 <dl class="details">
 
     
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="ClusterManager.js.html">ClusterManager.js</a>, <a href="ClusterManager.js.html#line60">line 60</a>
-    </li></ul></dd>
-    
 
     
 
@@ -1303,6 +1404,13 @@
 
     
 
+    
+        <div class="details-item-container">
+            <dt class="tag-source">Source:</dt>
+            <dd class="tag-source"><ul class="dummy"><li>
+                <a href="ClusterManager.js.html">ClusterManager.js</a>, <a href="ClusterManager.js.html#line76">line 76</a>
+            </li></ul></dd>
+        </div>
     
 
     
@@ -1316,21 +1424,86 @@
 
 
 
-<div class="description usertext">
+
+
+
+        
+            
+<h4 class="name" id="totalShards">
+    <a href="#totalShards">#</a>
+    <span class="type-signature"></span>totalShards<span class="type-signature"> :number</span>
+</h4>
+
+
+
+
+<div class="description">
     <p>Amount of internal shards in total</p>
 </div>
 
 
 
-    <h5>Type:</h5>
-    <ul>
-        <li>
-            
+    <div class="member-item-container flex">
+        <strong>Type: </strong>
+        <ul>
+            <li>
+                
 <span class="param-type">number</span>
 
 
-        </li>
-    </ul>
+            </li>
+        </ul>
+    </div>
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <div class="details-item-container">
+            <dt class="tag-source">Source:</dt>
+            <dd class="tag-source"><ul class="dummy"><li>
+                <a href="ClusterManager.js.html">ClusterManager.js</a>, <a href="ClusterManager.js.html#line60">line 60</a>
+            </li></ul></dd>
+        </div>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
 
 
 
@@ -1348,9 +1521,31 @@
 
     
 
-    <h4 class="name" id="_debug"><span class="type-signature"></span>_debug<span class="signature">()</span><span class="type-signature"> &rarr; {log}</span></h4>
+    <h4 class="name" id="_debug">
+        <a href="#_debug">#</a>
+        <span class="type-signature"></span>_debug<span class="signature">()</span><span class="type-signature"> &rarr; {log}</span>
+    </h4>
 
     
+
+
+
+    <div class="description">
+        <p>Logsout the Debug Messages
+<warn>Using this method just emits the Debug Event.</warn>
+<info>This is usually not necessary to manually specify.</info></p>
+    </div>
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1358,11 +1553,6 @@
 <dl class="details">
 
     
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="ClusterManager.js.html">ClusterManager.js</a>, <a href="ClusterManager.js.html#line371">line 371</a>
-    </li></ul></dd>
-    
 
     
 
@@ -1386,6 +1576,13 @@
 
     
 
+    
+        <div class="details-item-container">
+            <dt class="tag-source">Source:</dt>
+            <dd class="tag-source"><ul class="dummy"><li>
+                <a href="ClusterManager.js.html">ClusterManager.js</a>, <a href="ClusterManager.js.html#line371">line 371</a>
+            </li></ul></dd>
+        </div>
     
 
     
@@ -1399,11 +1596,6 @@
 
 
 
-<div class="description usertext">
-    <p>Logsout the Debug Messages
-<warn>Using this method just emits the Debug Event.</warn>
-<info>This is usually not necessary to manually specify.</info></p>
-</div>
 
 
 
@@ -1414,24 +1606,10 @@
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
+    <div class="method-member-container mt-20">
+    <strong>Returns:</strong>
         
+            
 <div class="param-desc">
     <p>returns the log message</p>
 </div>
@@ -1450,7 +1628,9 @@
     </dd>
 </dl>
 
-    
+            
+    </div>
+
 
 
 
@@ -1459,60 +1639,18 @@
 
     
 
-    <h4 class="name" id="broadcast"><span class="type-signature"></span>broadcast<span class="signature">(message)</span><span class="type-signature"> &rarr; {Promise.&lt;Array.&lt;<a href="Cluster.html">Cluster</a>>>}</span></h4>
+    <h4 class="name" id="broadcast">
+        <a href="#broadcast">#</a>
+        <span class="type-signature"></span>broadcast<span class="signature">(message)</span><span class="type-signature"> &rarr; {Promise.&lt;Array.&lt;<a href="Cluster.html">Cluster</a>>>}</span>
+    </h4>
 
     
 
 
 
-
-<dl class="details">
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="ClusterManager.js.html">ClusterManager.js</a>, <a href="ClusterManager.js.html#line226">line 226</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-<div class="description usertext">
-    <p>Sends a message to all clusters.</p>
-</div>
+    <div class="description">
+        <p>Sends a message to all clusters.</p>
+    </div>
 
 
 
@@ -1522,10 +1660,9 @@
 
 
 
-
-
-    <h5>Parameters:</h5>
-    
+    <div class="method-member-container flex flex-col w-100 overflow-auto mt-20">
+        <strong>Parameters:</strong>
+        
 
 <table class="params">
     <thead>
@@ -1572,6 +1709,55 @@
     </tbody>
 </table>
 
+    </div>
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <div class="details-item-container">
+            <dt class="tag-source">Source:</dt>
+            <dd class="tag-source"><ul class="dummy"><li>
+                <a href="ClusterManager.js.html">ClusterManager.js</a>, <a href="ClusterManager.js.html#line226">line 226</a>
+            </li></ul></dd>
+        </div>
+    
+
+    
+
+    
+
+    
+</dl>
 
 
 
@@ -1587,9 +1773,10 @@
 
 
 
-<h5>Returns:</h5>
-
+    <div class="method-member-container mt-20">
+    <strong>Returns:</strong>
         
+            
 
 
 <dl class="param-type">
@@ -1604,7 +1791,9 @@
     </dd>
 </dl>
 
-    
+            
+    </div>
+
 
 
 
@@ -1613,60 +1802,18 @@
 
     
 
-    <h4 class="name" id="broadcastEval"><span class="type-signature"></span>broadcastEval<span class="signature">(script, cluster<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {Promise.&lt;*>|Promise.&lt;Array.&lt;*>>}</span></h4>
+    <h4 class="name" id="broadcastEval">
+        <a href="#broadcastEval">#</a>
+        <span class="type-signature"></span>broadcastEval<span class="signature">(script, cluster<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {Promise.&lt;*>|Promise.&lt;Array.&lt;*>>}</span>
+    </h4>
 
     
 
 
 
-
-<dl class="details">
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="ClusterManager.js.html">ClusterManager.js</a>, <a href="ClusterManager.js.html#line257">line 257</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-<div class="description usertext">
-    <p>Evaluates a script on all clusters, or a given cluster, in the context of the <a href="Client.html">Client</a>s.</p>
-</div>
+    <div class="description">
+        <p>Evaluates a script on all clusters, or a given cluster, in the context of the <a href="Client.html">Client</a>s.</p>
+    </div>
 
 
 
@@ -1676,10 +1823,9 @@
 
 
 
-
-
-    <h5>Parameters:</h5>
-    
+    <div class="method-member-container flex flex-col w-100 overflow-auto mt-20">
+        <strong>Parameters:</strong>
+        
 
 <table class="params">
     <thead>
@@ -1769,6 +1915,55 @@
     </tbody>
 </table>
 
+    </div>
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <div class="details-item-container">
+            <dt class="tag-source">Source:</dt>
+            <dd class="tag-source"><ul class="dummy"><li>
+                <a href="ClusterManager.js.html">ClusterManager.js</a>, <a href="ClusterManager.js.html#line257">line 257</a>
+            </li></ul></dd>
+        </div>
+    
+
+    
+
+    
+
+    
+</dl>
 
 
 
@@ -1784,9 +1979,10 @@
 
 
 
-<h5>Returns:</h5>
-
+    <div class="method-member-container mt-20">
+    <strong>Returns:</strong>
         
+            
 <div class="param-desc">
     <p>Results of the script execution</p>
 </div>
@@ -1808,7 +2004,9 @@
     </dd>
 </dl>
 
-    
+            
+    </div>
+
 
 
 
@@ -1817,9 +2015,31 @@
 
     
 
-    <h4 class="name" id="createCluster"><span class="type-signature"></span>createCluster<span class="signature">()</span><span class="type-signature"> &rarr; {CLUSTER}</span></h4>
+    <h4 class="name" id="createCluster">
+        <a href="#createCluster">#</a>
+        <span class="type-signature"></span>createCluster<span class="signature">()</span><span class="type-signature"> &rarr; {CLUSTER}</span>
+    </h4>
 
     
+
+
+
+    <div class="description">
+        <p>Creates a single cluster.
+<warn>Using this method is usually not necessary if you use the spawn method.</warn>
+<info>This is usually not necessary to manually specify.</info></p>
+    </div>
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1827,11 +2047,6 @@
 <dl class="details">
 
     
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="ClusterManager.js.html">ClusterManager.js</a>, <a href="ClusterManager.js.html#line237">line 237</a>
-    </li></ul></dd>
-    
 
     
 
@@ -1855,6 +2070,13 @@
 
     
 
+    
+        <div class="details-item-container">
+            <dt class="tag-source">Source:</dt>
+            <dd class="tag-source"><ul class="dummy"><li>
+                <a href="ClusterManager.js.html">ClusterManager.js</a>, <a href="ClusterManager.js.html#line237">line 237</a>
+            </li></ul></dd>
+        </div>
     
 
     
@@ -1868,11 +2090,6 @@
 
 
 
-<div class="description usertext">
-    <p>Creates a single cluster.
-<warn>Using this method is usually not necessary if you use the spawn method.</warn>
-<info>This is usually not necessary to manually specify.</info></p>
-</div>
 
 
 
@@ -1883,24 +2100,10 @@
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
+    <div class="method-member-container mt-20">
+    <strong>Returns:</strong>
         
+            
 <div class="param-desc">
     <p>Note that the created cluster needs to be explicitly spawned using its spawn method.</p>
 </div>
@@ -1919,7 +2122,9 @@
     </dd>
 </dl>
 
-    
+            
+    </div>
+
 
 
 
@@ -1928,60 +2133,18 @@
 
     
 
-    <h4 class="name" id="fetchClientValues"><span class="type-signature"></span>fetchClientValues<span class="signature">(prop, cluser<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {Promise.&lt;*>|Promise.&lt;Array.&lt;*>>}</span></h4>
+    <h4 class="name" id="fetchClientValues">
+        <a href="#fetchClientValues">#</a>
+        <span class="type-signature"></span>fetchClientValues<span class="signature">(prop, cluser<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {Promise.&lt;*>|Promise.&lt;Array.&lt;*>>}</span>
+    </h4>
 
     
 
 
 
-
-<dl class="details">
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="ClusterManager.js.html">ClusterManager.js</a>, <a href="ClusterManager.js.html#line276">line 276</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-<div class="description usertext">
-    <p>Fetches a client property value of each cluster, or a given cluster.</p>
-</div>
+    <div class="description">
+        <p>Fetches a client property value of each cluster, or a given cluster.</p>
+    </div>
 
 
 
@@ -1991,15 +2154,9 @@
 
 
 
-    <h5>Example</h5>
-    
-    <pre class="prettyprint"><code>manager.fetchClientValues('guilds.cache.size')  .then(results => console.log(`${results.reduce((prev, val) => prev + val, 0)} total guilds`))  .catch(console.error);</code></pre>
-
-
-
-
-    <h5>Parameters:</h5>
-    
+    <div class="method-member-container flex flex-col w-100 overflow-auto mt-20">
+        <strong>Parameters:</strong>
+        
 
 <table class="params">
     <thead>
@@ -2089,6 +2246,55 @@
     </tbody>
 </table>
 
+    </div>
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <div class="details-item-container">
+            <dt class="tag-source">Source:</dt>
+            <dd class="tag-source"><ul class="dummy"><li>
+                <a href="ClusterManager.js.html">ClusterManager.js</a>, <a href="ClusterManager.js.html#line276">line 276</a>
+            </li></ul></dd>
+        </div>
+    
+
+    
+
+    
+
+    
+</dl>
 
 
 
@@ -2104,9 +2310,10 @@
 
 
 
-<h5>Returns:</h5>
-
+    <div class="method-member-container mt-20">
+    <strong>Returns:</strong>
         
+            
 
 
 <dl class="param-type">
@@ -2124,8 +2331,21 @@
     </dd>
 </dl>
 
-    
+            
+    </div>
 
+
+
+    <div class="method-member-container flex flex-col w-100 overflow-auto mt-20">
+        <strong>Example</strong>
+        
+    <div class="rel">
+    <pre class="prettyprint"><code>manager.fetchClientValues('guilds.cache.size')  .then(results => console.log(`${results.reduce((prev, val) => prev + val, 0)} total guilds`))  .catch(console.error);</code></pre>
+    
+    
+    </div>
+
+    </div>
 
 
         
@@ -2133,60 +2353,18 @@
 
     
 
-    <h4 class="name" id="respawnAll"><span class="type-signature">(async) </span>respawnAll<span class="signature">(clusterDelay<span class="signature-attributes">opt</span>, respawnDelay<span class="signature-attributes">opt</span>, spawnTimeout<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {Promise.&lt;Collection.&lt;string, <a href="Shard.html">Shard</a>>>}</span></h4>
+    <h4 class="name" id="respawnAll">
+        <a href="#respawnAll">#</a>
+        <span class="type-signature">(async) </span>respawnAll<span class="signature">(clusterDelay<span class="signature-attributes">opt</span>, respawnDelay<span class="signature-attributes">opt</span>, spawnTimeout<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {Promise.&lt;Collection.&lt;string, <a href="Shard.html">Shard</a>>>}</span>
+    </h4>
 
     
 
 
 
-
-<dl class="details">
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="ClusterManager.js.html">ClusterManager.js</a>, <a href="ClusterManager.js.html#line313">line 313</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-<div class="description usertext">
-    <p>Kills all running clusters and respawns them.</p>
-</div>
+    <div class="description">
+        <p>Kills all running clusters and respawns them.</p>
+    </div>
 
 
 
@@ -2196,10 +2374,9 @@
 
 
 
-
-
-    <h5>Parameters:</h5>
-    
+    <div class="method-member-container flex flex-col w-100 overflow-auto mt-20">
+        <strong>Parameters:</strong>
+        
 
 <table class="params">
     <thead>
@@ -2254,7 +2431,7 @@
             
                 <td class="default">
                 
-                    <code>5000</code>
+                    5000
                 
                 </td>
             
@@ -2293,7 +2470,7 @@
             
                 <td class="default">
                 
-                    <code>500</code>
+                    500
                 
                 </td>
             
@@ -2333,7 +2510,7 @@
             
                 <td class="default">
                 
-                    <code>30000</code>
+                    30000
                 
                 </td>
             
@@ -2346,6 +2523,55 @@ continuing to another. (-1 or Infinity for no wait)</p></td>
     </tbody>
 </table>
 
+    </div>
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <div class="details-item-container">
+            <dt class="tag-source">Source:</dt>
+            <dd class="tag-source"><ul class="dummy"><li>
+                <a href="ClusterManager.js.html">ClusterManager.js</a>, <a href="ClusterManager.js.html#line313">line 313</a>
+            </li></ul></dd>
+        </div>
+    
+
+    
+
+    
+
+    
+</dl>
 
 
 
@@ -2361,9 +2587,10 @@ continuing to another. (-1 or Infinity for no wait)</p></td>
 
 
 
-<h5>Returns:</h5>
-
+    <div class="method-member-container mt-20">
+    <strong>Returns:</strong>
         
+            
 
 
 <dl class="param-type">
@@ -2378,7 +2605,9 @@ continuing to another. (-1 or Infinity for no wait)</p></td>
     </dd>
 </dl>
 
-    
+            
+    </div>
+
 
 
 
@@ -2387,60 +2616,18 @@ continuing to another. (-1 or Infinity for no wait)</p></td>
 
     
 
-    <h4 class="name" id="spawn"><span class="type-signature">(async) </span>spawn<span class="signature">(amount<span class="signature-attributes">opt</span>, delay<span class="signature-attributes">opt</span>, spawnTimeout<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {Promise.&lt;Collection.&lt;number, <a href="Shard.html">Shard</a>>>}</span></h4>
+    <h4 class="name" id="spawn">
+        <a href="#spawn">#</a>
+        <span class="type-signature">(async) </span>spawn<span class="signature">(amount<span class="signature-attributes">opt</span>, delay<span class="signature-attributes">opt</span>, spawnTimeout<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {Promise.&lt;Collection.&lt;number, <a href="Shard.html">Shard</a>>>}</span>
+    </h4>
 
     
 
 
 
-
-<dl class="details">
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="ClusterManager.js.html">ClusterManager.js</a>, <a href="ClusterManager.js.html#line167">line 167</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-<div class="description usertext">
-    <p>Spawns multiple internal shards.</p>
-</div>
+    <div class="description">
+        <p>Spawns multiple internal shards.</p>
+    </div>
 
 
 
@@ -2450,10 +2637,9 @@ continuing to another. (-1 or Infinity for no wait)</p></td>
 
 
 
-
-
-    <h5>Parameters:</h5>
-    
+    <div class="method-member-container flex flex-col w-100 overflow-auto mt-20">
+        <strong>Parameters:</strong>
+        
 
 <table class="params">
     <thead>
@@ -2511,7 +2697,7 @@ continuing to another. (-1 or Infinity for no wait)</p></td>
             
                 <td class="default">
                 
-                    <code>this.totalShards</code>
+                    this.totalShards
                 
                 </td>
             
@@ -2550,7 +2736,7 @@ continuing to another. (-1 or Infinity for no wait)</p></td>
             
                 <td class="default">
                 
-                    <code>5500</code>
+                    5500
                 
                 </td>
             
@@ -2589,7 +2775,7 @@ continuing to another. (-1 or Infinity for no wait)</p></td>
             
                 <td class="default">
                 
-                    <code>30000</code>
+                    30000
                 
                 </td>
             
@@ -2602,6 +2788,55 @@ before resolving. (-1 or Infinity for no wait)</p></td>
     </tbody>
 </table>
 
+    </div>
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <div class="details-item-container">
+            <dt class="tag-source">Source:</dt>
+            <dd class="tag-source"><ul class="dummy"><li>
+                <a href="ClusterManager.js.html">ClusterManager.js</a>, <a href="ClusterManager.js.html#line167">line 167</a>
+            </li></ul></dd>
+        </div>
+    
+
+    
+
+    
+
+    
+</dl>
 
 
 
@@ -2617,9 +2852,10 @@ before resolving. (-1 or Infinity for no wait)</p></td>
 
 
 
-<h5>Returns:</h5>
-
+    <div class="method-member-container mt-20">
+    <strong>Returns:</strong>
         
+            
 
 
 <dl class="param-type">
@@ -2634,7 +2870,9 @@ before resolving. (-1 or Infinity for no wait)</p></td>
     </dd>
 </dl>
 
-    
+            
+    </div>
+
 
 
 
@@ -2651,60 +2889,18 @@ before resolving. (-1 or Infinity for no wait)</p></td>
 
     
 
-    <h4 class="name" id="event:clusterCreate">clusterCreate</h4>
+    <h4 class="name" id="event:clusterCreate">
+        <a href="#event:clusterCreate">#</a>
+        clusterCreate
+    </h4>
 
     
 
 
 
-
-<dl class="details">
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="ClusterManager.js.html">ClusterManager.js</a>, <a href="ClusterManager.js.html#line241">line 241</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-<div class="description usertext">
-    <p>Emitted upon creating a cluster.</p>
-</div>
+    <div class="description">
+        <p>Emitted upon creating a cluster.</p>
+    </div>
 
 
 
@@ -2714,10 +2910,9 @@ before resolving. (-1 or Infinity for no wait)</p></td>
 
 
 
-
-
-    <h5>Parameters:</h5>
-    
+    <div class="method-member-container flex flex-col w-100 overflow-auto mt-20">
+        <strong>Parameters:</strong>
+        
 
 <table class="params">
     <thead>
@@ -2764,6 +2959,55 @@ before resolving. (-1 or Infinity for no wait)</p></td>
     </tbody>
 </table>
 
+    </div>
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <div class="details-item-container">
+            <dt class="tag-source">Source:</dt>
+            <dd class="tag-source"><ul class="dummy"><li>
+                <a href="ClusterManager.js.html">ClusterManager.js</a>, <a href="ClusterManager.js.html#line241">line 241</a>
+            </li></ul></dd>
+        </div>
+    
+
+    
+
+    
+
+    
+</dl>
 
 
 
@@ -2787,60 +3031,18 @@ before resolving. (-1 or Infinity for no wait)</p></td>
 
     
 
-    <h4 class="name" id="event:debug">debug</h4>
+    <h4 class="name" id="event:debug">
+        <a href="#event:debug">#</a>
+        debug
+    </h4>
 
     
 
 
 
-
-<dl class="details">
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="ClusterManager.js.html">ClusterManager.js</a>, <a href="ClusterManager.js.html#line378">line 378</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-<div class="description usertext">
-    <p>Emitted upon recieving a message</p>
-</div>
+    <div class="description">
+        <p>Emitted upon recieving a message</p>
+    </div>
 
 
 
@@ -2850,10 +3052,9 @@ before resolving. (-1 or Infinity for no wait)</p></td>
 
 
 
-
-
-    <h5>Parameters:</h5>
-    
+    <div class="method-member-container flex flex-col w-100 overflow-auto mt-20">
+        <strong>Parameters:</strong>
+        
 
 <table class="params">
     <thead>
@@ -2900,6 +3101,55 @@ before resolving. (-1 or Infinity for no wait)</p></td>
     </tbody>
 </table>
 
+    </div>
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <div class="details-item-container">
+            <dt class="tag-source">Source:</dt>
+            <dd class="tag-source"><ul class="dummy"><li>
+                <a href="ClusterManager.js.html">ClusterManager.js</a>, <a href="ClusterManager.js.html#line378">line 378</a>
+            </li></ul></dd>
+        </div>
+    
+
+    
+
+    
+
+    
+</dl>
 
 
 
@@ -2927,21 +3177,39 @@ before resolving. (-1 or Infinity for no wait)</p></td>
 
 
 
+    </div>
+
+    <footer class="footer" id="footer">
+      
+    </footer>
+
+    <script src="scripts/third-party/prettify.js"></script>
+    <script src="scripts/third-party/lang-css.js"></script>
+    <script type="text/javascript" src="scripts/misc.js"></script>
+
+    <script>prettyPrint();</script>
+    <script src="scripts/linenumber.js"></script>
+    <script src="scripts/fix-code-block.js"></script>
+    <script src="scripts/fix-navbar.js"></script>
     
+      <script src="scripts/search.js"></script>
+      <script src="scripts/third-party/fuse.js"></script>
+      <script>
+        var list = [{"title":"Cluster","link":"<a href=\"Cluster.html\">Cluster</a>"},{"title":"Cluster#eval","link":"<a href=\"Cluster.html#eval\">Cluster &rtrif; eval</a>"},{"title":"Cluster#fetchClientValue","link":"<a href=\"Cluster.html#fetchClientValue\">Cluster &rtrif; fetchClientValue</a>"},{"title":"Cluster#kill","link":"<a href=\"Cluster.html#kill\">Cluster &rtrif; kill</a>"},{"title":"Cluster#respawn","link":"<a href=\"Cluster.html#respawn\">Cluster &rtrif; respawn</a>"},{"title":"Cluster#send","link":"<a href=\"Cluster.html#send\">Cluster &rtrif; send</a>"},{"title":"Cluster#spawn","link":"<a href=\"Cluster.html#spawn\">Cluster &rtrif; spawn</a>"},{"title":"ClusterClient","link":"<a href=\"ClusterClient.html\">ClusterClient</a>"},{"title":"ClusterClient.getinfo","link":"<a href=\"ClusterClient.html#.getinfo\">ClusterClient.getinfo &rtrif; undefined</a>"},{"title":"ClusterClient.singleton","link":"<a href=\"ClusterClient.html#.singleton\">ClusterClient.singleton &rtrif; undefined</a>"},{"title":"ClusterClient#broadcastEval","link":"<a href=\"ClusterClient.html#broadcastEval\">ClusterClient &rtrif; broadcastEval</a>"},{"title":"ClusterClient#evalOnCluster","link":"<a href=\"ClusterClient.html#evalOnCluster\">ClusterClient &rtrif; evalOnCluster</a>"},{"title":"ClusterClient#evalOnManager","link":"<a href=\"ClusterClient.html#evalOnManager\">ClusterClient &rtrif; evalOnManager</a>"},{"title":"ClusterClient#fetchClientValues","link":"<a href=\"ClusterClient.html#fetchClientValues\">ClusterClient &rtrif; fetchClientValues</a>"},{"title":"ClusterClient#respawnAll","link":"<a href=\"ClusterClient.html#respawnAll\">ClusterClient &rtrif; respawnAll</a>"},{"title":"ClusterClient#send","link":"<a href=\"ClusterClient.html#send\">ClusterClient &rtrif; send</a>"},{"title":"ClusterManager","link":"<a href=\"ClusterManager.html\">ClusterManager</a>"},{"title":"ClusterManager#_debug","link":"<a href=\"ClusterManager.html#_debug\">ClusterManager &rtrif; _debug</a>"},{"title":"ClusterManager#broadcast","link":"<a href=\"ClusterManager.html#broadcast\">ClusterManager &rtrif; broadcast</a>"},{"title":"ClusterManager#broadcastEval","link":"<a href=\"ClusterManager.html#broadcastEval\">ClusterManager &rtrif; broadcastEval</a>"},{"title":"ClusterManager#createCluster","link":"<a href=\"ClusterManager.html#createCluster\">ClusterManager &rtrif; createCluster</a>"},{"title":"ClusterManager#fetchClientValues","link":"<a href=\"ClusterManager.html#fetchClientValues\">ClusterManager &rtrif; fetchClientValues</a>"},{"title":"ClusterManager#respawnAll","link":"<a href=\"ClusterManager.html#respawnAll\">ClusterManager &rtrif; respawnAll</a>"},{"title":"ClusterManager#spawn","link":"<a href=\"ClusterManager.html#spawn\">ClusterManager &rtrif; spawn</a>"},{"title":"error","link":"<a href=\"Client.html#event:error\">error</a>"},{"title":"death","link":"<a href=\"Cluster.html#event:death\">death</a>"},{"title":"disconnect","link":"<a href=\"Cluster.html#event:disconnect\">disconnect</a>"},{"title":"error","link":"<a href=\"Cluster.html#event:error\">error</a>"},{"title":"ready","link":"<a href=\"Cluster.html#event:ready\">ready</a>"},{"title":"reconnecting","link":"<a href=\"Cluster.html#event:reconnecting\">reconnecting</a>"},{"title":"spawn","link":"<a href=\"Cluster.html#event:spawn\">spawn</a>"},{"title":"clusterCreate","link":"<a href=\"ClusterManager.html#event:clusterCreate\">clusterCreate</a>"},{"title":"debug","link":"<a href=\"ClusterManager.html#event:debug\">debug</a>"},{"title":"message","link":"<a href=\"Shard.html#event:message\">message</a>"}];
+        var options = 
+          setupSearch(list, options)
+      </script>
     
-</div>
 
-<br class="clear">
+    
 
-<footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.7</a> on Sun Aug 22 2021 09:49:10 GMT+0200 (Central European Summer Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
-</footer>
+    
 
-<script>prettyPrint();</script>
-<script src="scripts/polyfill.js"></script>
-<script src="scripts/linenumber.js"></script>
+    
+
+    
 
 
+  </body>
 
-</body>
 </html>

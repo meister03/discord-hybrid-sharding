@@ -1,12 +1,11 @@
 {
   "name": "discord-hybrid-sharding",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "description": "The first package which combines Sharding Manager & Internal Sharding to save a lot of ressources",
   "main": "index.js",
   "types": "./typings.d.ts",
   "dependencies": {
-    "discord.js": "^12.5.3",
-    "docdash": "^1.2.0"
+    "discord.js": "^12.5.3"
   },
   "script": {
     "generate-docs": "node_modules/.bin/jsdoc -c ./.jsdoc.conf.json"
