@@ -145,6 +145,7 @@ class Cluster extends EventEmitter {
     this.emit('spawn', this.process || this.worker);
 
     if (spawnTimeout === -1 || spawnTimeout === Infinity) return this.process || this.worker;
+    spawnTimeout = spawnTimeout*this.shardlist;
     await new Promise((resolve, reject) => {
       const cleanup = () => {
         clearTimeout(spawnTimeoutTimer);
@@ -202,7 +203,7 @@ class Cluster extends EventEmitter {
   * @returns {Promise<ChildProcess>}
   */
   async respawn(delay = 500, spawnTimeout) {
-    this.kill();
+    this.kill(false);
     if (delay > 0) await Util.delayFor(delay);
     return this.spawn(spawnTimeout);
   }

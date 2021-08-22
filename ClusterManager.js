@@ -164,7 +164,7 @@ class ClusterManager extends EventEmitter {
    * before resolving. (-1 or Infinity for no wait)
    * @returns {Promise<Collection<number, Shard>>}
    */
-  async spawn(amount = this.totalShards, delay = 5500, spawnTimeout) {
+  async spawn(amount = this.totalShards, delay = 6000, spawnTimeout) {
     if (amount === 'auto') {
       amount = await Discord.fetchRecommendedShards(this.token, 1000);
       this.totalShards = amount;
@@ -310,11 +310,13 @@ class ClusterManager extends EventEmitter {
   * continuing to another. (-1 or Infinity for no wait)
   * @returns {Promise<Collection<string, Shard>>}
   */
-  async respawnAll(shardDelay = 5000, respawnDelay = 500, spawnTimeout) {
+  async respawnAll(shardDelay = 5500, respawnDelay = 500, spawnTimeout) {
+    this._nonce.clear()
     let s = 0;
+
     for (const cluster of this.clusters.values()) {
       const promises = [cluster.respawn(respawnDelay, spawnTimeout)];
-      if (++s < this.clusters.size && shardDelay > 0) promises.push(Util.delayFor(shardDelay));
+      if (++s < this.clusters.size && shardDelay > 0) promises.push(Discord.Util.delayFor(this.shardclusterlist[cluster.id].length*shardDelay));
       await Promise.all(promises); // eslint-disable-line no-await-in-loop
     }
     this._debug('Respawning all Clusters')
