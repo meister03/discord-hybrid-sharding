@@ -330,10 +330,17 @@ class ClusterManager extends EventEmitter {
   * @returns {Promise<*>|Promise<Array<*>>} Results of the script execution
   * @private
   */
-  evalOnManager(script) {
+  async evalOnManager(script) {
     const _eval = typeof script === 'function' ? `(${script})(this)` : script;
-    const promise = [eval(script)]
-    return Promise.all(promise)
+    let result;
+    let error;
+    try{
+      result = await eval(script)
+    }catch(err){
+      error = err;
+    }
+    const promise = {_results: result, _error: error}
+    return promise;
   }
 
   /**

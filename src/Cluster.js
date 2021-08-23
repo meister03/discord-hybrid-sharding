@@ -373,10 +373,10 @@ class Cluster extends EventEmitter {
 
       //Evals a Request on a Cluster
       if (message.hasOwnProperty('_sManagerEval')) {
-        this.manager.evalOnManager(message._sManagerEval).then(
-          results => this.send({ _result: results, _sManagerEval: message._sManagerEval }),
-          err => this.send({ _error: Util.makePlainError(err) }),
-        );
+        this.manager.evalOnManager(message._sManagerEval).then((result) =>{
+          if(result._results) return this.send({ _results: result._results, _sManagerEval: message._sManagerEval });
+          if(result._error) return this.send({ _error: Util.makePlainError(result._error), _sManagerEval: message._sManagerEval })
+        });
         return;
       }
 

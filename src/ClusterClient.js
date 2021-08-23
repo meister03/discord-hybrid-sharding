@@ -231,7 +231,7 @@ class ClusterClient {
       const listener = message => {
         if (!message || message._sManagerEval !== script) return;
         parent.removeListener('message', listener);
-        if (!message._error) resolve(message._result[0]);
+        if (!message._error) resolve(message._results);
         else reject(Util.makeError(message._error));
       };
       parent.on('message', listener);
