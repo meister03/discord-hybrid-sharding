@@ -18,6 +18,7 @@ declare module 'discord-hybrid-sharding' {
     public process: ChildProcess | null;
     public ready: boolean;
     public worker: any | null;
+    public data: data;
     public eval(script: string): Promise<any>;
     public eval<T>(fn: (client: client) => T): Promise<T[]>;
     public fetchClientValue(prop: string): Promise<any>;
@@ -118,14 +119,7 @@ declare module 'discord-hybrid-sharding' {
     public once(event: 'clusterCreate', listener: (cluster: Cluster) => void): this;
     public once(event: "debug", listener: (message: string) => void): this;
   }
-  export class data{
-    public SHARD_LIST: number[];
-    public TOTAL_SHARDS: number;
-    public CLUSTER_COUNT: number;
-    public CLUSTER: number;
-    public CLUSTER_MANAGER_MODE: ClusterManagerMode;
-  }
-    
+  export const data: data;
     
   type ClusterManagerMode = 'process' | 'worker';
   type client = DJsClient;
