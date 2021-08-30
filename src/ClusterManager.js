@@ -365,7 +365,7 @@ class ClusterManager extends EventEmitter {
         }, (options.timeout || 10000));
       });
       if (!sent) reject(new Error("CLUSTERING_IN_PROCESS or CLUSTERING_DIED"));
-    }).catch((e) => this._handleError(e.toString()))
+    }).catch((e) => (new Error(e.toString())))
   }
 
 
