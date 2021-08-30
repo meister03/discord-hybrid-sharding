@@ -21,7 +21,7 @@ There are Clusters/Master Shards, which are like normal shards on the sharding m
 Example: `A 4k Discord Bot`
 Normaly we would spawn 4 shards with the Sharding Manager, but we start here with 2 Clusters/MasterShards, which spawns 2 internal shards ==> We save 2 shards in comparision to the Sharding Manager.
 
-### See below for the Docs
+### See below for the Guide
 
 **If you need help feel free to join our <a href="https://discord.gg/YTdNBHh">discord server</a>. We will provied you all help ☺**
 # Download
@@ -37,6 +37,9 @@ npm i discord-hybrid-sharding
 - The methods `Manager#spawn()` accepts just seperate values, not a object like in v13 | e.g `Manager#spawn(undefined, undefined, -1)`
 
 # Setting Up
+
+**[Checkout our Documentation here](https://infinitytmbots.github.io/discord-hybrid-sharding)**
+
 First we include the module into the project (into your shard/cluster file).
 Filename: Cluster.js
 ```js
