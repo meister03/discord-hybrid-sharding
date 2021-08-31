@@ -350,7 +350,7 @@ class ClusterManager extends EventEmitter {
   */
   evalOnCluster(script, options) {
     if(options.hasOwnProperty('shard')){
-        options.cluster = parseInt(Object.entries(Object.assign({}, this.shardclusterlist)).find(i => i[1].includes(options.shard))?.[0]);
+        options.cluster = parseInt(Object.entries(Object.assign({}, this.shardclusterlist)).find(i => i[1].includes(options.shard)) ? i[1].includes(options.shard))[0]) : 0;
     }
     const cluster = this.clusters.get(options.cluster);
     if (!cluster) return Promise.reject(new Error('CLUSTER_DOES_NOT_EXIST', options.cluster));
