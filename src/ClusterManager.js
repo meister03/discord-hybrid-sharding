@@ -137,7 +137,7 @@ class ClusterManager extends EventEmitter {
     * A collection of all clusters the manager spawned
     * @type {Collection<number, Cluster>}
     */
-    this.clusters = new Discord.Collection();
+    this.clusters = new Map();
     this.shardclusterlist = null;
     process.env.SHARD_LIST = undefined;
     process.env.TOTAL_SHARDS = this.totalShards;
@@ -351,8 +351,10 @@ class ClusterManager extends EventEmitter {
   */
   evalOnCluster(script, options) {
     if(options.hasOwnProperty('shard')){
-        options.cluster = parseInt(Object.entries(Object.assign({}, this.shardclusterlist)).find(i => i[1].includes(options.shard)) ? i[1].includes(options.shard))[0]) : 0;
-    }
+        const findcluster = [...this.clusters.values()].find(i => i.shardlist.includes(options.shard));
+        options.cluster = findcluster ? findcluster.id : 0;
+        console.log(options.cluster)
+      }
     const cluster = this.clusters.get(options.cluster);
     if (!cluster) return Promise.reject(new Error('CLUSTER_DOES_NOT_EXIST', options.cluster));
     if (!cluster.process && !cluster.worker) return Promise.reject(new Error('CLUSTERING_NO_CHILD_EXISTS', cluster.id));
