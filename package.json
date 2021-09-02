@@ -5,7 +5,7 @@
   "main": "index.js",
   "types": "./typings.d.ts",
   "dependencies": {
-    "discord.js": "^12.5.3"
+    "node-fetch": "^2.6.1"
   },
   "script": {
     "generate-docs": "node_modules/.bin/jsdoc -c ./.jsdoc.conf.json"

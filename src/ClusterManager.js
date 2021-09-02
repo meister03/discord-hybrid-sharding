@@ -1,8 +1,9 @@
 const EventEmitter = require('events');
+
 const fs = require('fs');
 const path = require('path');
-const Discord = require('discord.js');
 const os = require('os');
+
 const Util = require('./Util.js');
 const Cluster = require('./Cluster.js')
 
@@ -166,7 +167,7 @@ class ClusterManager extends EventEmitter {
    */
   async spawn(amount = this.totalShards, delay = 6000, spawnTimeout) {
     if (amount === 'auto') {
-      amount = await Discord.fetchRecommendedShards(this.token, 1000);
+      amount = await Util.fetchRecommendedShards(this.token, 1000);
       this.totalShards = amount;
       this._debug(`Discord recommanded Total Shard Count of ${amount}`)
     } else {
@@ -212,7 +213,7 @@ class ClusterManager extends EventEmitter {
       const promises = [];
       const cluster = this.createCluster(i, this.shardclusterlist[i], this.totalShards)
       promises.push(cluster.spawn(spawnTimeout));
-      if (delay > 0 && this.clusters.size !== this.totalClusters) promises.push(Discord.Util.delayFor(delay * this.shardclusterlist[i].length));
+      if (delay > 0 && this.clusters.size !== this.totalClusters) promises.push(Util.delayFor(delay * this.shardclusterlist[i].length));
       await Promise.all(promises); // eslint-disable-line no-await-in-loop
     }
     return this.clusters;
@@ -316,7 +317,7 @@ class ClusterManager extends EventEmitter {
 
     for (const cluster of this.clusters.values()) {
       const promises = [cluster.respawn(respawnDelay, spawnTimeout)];
-      if (++s < this.clusters.size && shardDelay > 0) promises.push(Discord.Util.delayFor(this.shardclusterlist[cluster.id].length*shardDelay));
+      if (++s < this.clusters.size && shardDelay > 0) promises.push(Util.delayFor(this.shardclusterlist[cluster.id].length*shardDelay));
       await Promise.all(promises); // eslint-disable-line no-await-in-loop
     }
     this._debug('Respawning all Clusters')

@@ -17,5 +17,8 @@
     --> Add Chunk Function
     --> Add Option to Accept Internal Shard List
     --. Add private Properties
+
++ Util.js
+   --> Copy Discord.js Util Functions for making Library zero Dep
 ```
 

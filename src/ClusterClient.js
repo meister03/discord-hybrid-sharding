@@ -1,6 +1,6 @@
-const Discord = require('discord.js');
-const { Events } = Discord.Constants
-const Util = Discord.Util;
+
+const Util = require('./Util.js');
+const {Events} = require('./Constants.js') 
 ///communicates between the master workers and the process
 class ClusterClient {
   /**

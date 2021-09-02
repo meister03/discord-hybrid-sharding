@@ -1,7 +1,6 @@
 const EventEmitter = require('events');
 const path = require('path');
-const Discord = require('discord.js');
-const Util = Discord.Util;
+const Util = require('./Util.js');
 let childProcess = null;
 let Worker = null;
 
