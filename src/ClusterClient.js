@@ -248,6 +248,7 @@ class ClusterClient {
    * @param {string|Function} script JavaScript to run on the ClusterClient
    * @param {Object} options Some options such as the TargetCluster or the Evaltimeout
    * @param {number} [options.cluster] The Id od the target Cluster
+   * @param {number} [options.shard] The Id od the target Shard, when the Cluster has not been provided.
    * @param {number} [options.timeout=10000] The time in ms to wait, until the eval will be rejected without any response
    * @returns {Promise<*>|Promise<Array<*>>} Result of the script execution
    * @example
