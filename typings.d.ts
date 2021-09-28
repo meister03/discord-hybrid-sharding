@@ -50,8 +50,8 @@ declare module 'discord-hybrid-sharding' {
     public readonly id: number;
     public readonly ids: number[];
     public mode: ClusterManagerMode;
-    public static getinfo: data;
-    public getinfo: data;
+    public static getinfo: processData;
+    public getinfo: processData;
     public parentPort: any | null;
     public evalOnManager(script: string): Promise<any[]>;
     public evalOnCluster(script: string, options: { cluster: number; timeout?: number }): Promise<any[]>;
@@ -129,7 +129,7 @@ declare module 'discord-hybrid-sharding' {
     
   type ClusterManagerMode = 'process' | 'worker';
   type client = DJsClient;
-  export type data = {
+  export type processData = {
     SHARD_LIST: number[];
     TOTAL_SHARDS: number;
     CLUSTER_COUNT: number;
