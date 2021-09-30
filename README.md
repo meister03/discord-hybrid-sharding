@@ -146,7 +146,7 @@ Decentral ClusterClient Eval function, which doesn't open any listeners and mini
 - Inbuilt Eval Timeout, how long to wait until getting response back
 - No addition Listeners ==> less memory leak, better than .broadCastEval
 - Client has not to be ready
-- All Clusters has not to be ready (just traget Cluster)
+- All Clusters has not to be ready (just target Cluster)
 
 client.cluster.evalOnCluster(`this.cluster.id`, {cluster: 0, timeout: 10000})
 ```
