@@ -18,6 +18,10 @@ declare module 'discord-hybrid-sharding' {
     public process: ChildProcess | null;
     public ready: boolean;
     public worker: any | null;
+    public heartbeat: object;
+
+    private _restarts: object;
+
     public eval(script: string): Promise<any>;
     public eval<T>(fn: (client: client) => T): Promise<T[]>;
     public fetchClientValue(prop: string): Promise<any>;
@@ -25,6 +29,9 @@ declare module 'discord-hybrid-sharding' {
     public respawn(delay?: number, spawnTimeout?: number): Promise<ChildProcess>;
     public send(message: any): Promise<Cluster>;
     public spawn(spawnTimeout?: number): Promise<ChildProcess>;
+
+    private _checkIfClusterAlive(): Promise<any[]>;
+    private _cleanupHearbeat(): Promise<any[]>;
 
     public on(event: 'spawn' | 'death', listener: (child: ChildProcess) => void): this;
     public on(event: 'disconnect' | 'ready' | 'reconnecting', listener: () => void): this;
@@ -49,6 +56,7 @@ declare module 'discord-hybrid-sharding' {
     public readonly count: number;
     public readonly id: number;
     public readonly ids: number[];
+    public readonly keepAliveInterval: number;
     public mode: ClusterManagerMode;
     public static getinfo: processData;
     public getinfo: processData;
@@ -66,6 +74,9 @@ declare module 'discord-hybrid-sharding' {
     public respawnAll(clusterDelay?: number, respawnDelay?: number, spawnTimeout?: number): Promise<void>;
     public send(message: any): Promise<void>;
 
+    private _checkIfClusterAlive(): Promise<any[]>;
+    private _cleanupHearbeat(): Promise<any[]>;
+
     public static singleton(client: client, mode: ClusterManagerMode): client;
   }
 
@@ -82,6 +93,7 @@ declare module 'discord-hybrid-sharding' {
         token?: string;
         execArgv?: string[];
         usev13?: boolean;
+        keepAlive?: keepAliveOptions;
       },
     );
     private _performOnShards(method: string, args: any[]): Promise<any[]>;
@@ -97,6 +109,7 @@ declare module 'discord-hybrid-sharding' {
     public totalClusters: number | 'auto';
     public totalShards: number | 'auto';
     public shardList: number[] | 'auto';
+    public keepAlive: keepAliveOptions;
     public broadcast(message: any): Promise<Cluster[]>;
     public broadcastEval(script: string): Promise<any[]>;
     public broadcastEval(script: string, cluster: number): Promise<any>;
@@ -118,15 +131,16 @@ declare module 'discord-hybrid-sharding' {
     public once(event: 'clusterCreate', listener: (cluster: Cluster) => void): this;
     public once(event: "debug", listener: (message: string) => void): this;
   }
-  export class data{
+  export class data {
     public SHARD_LIST: number[];
-    public TOTAL_SHARDS: number; 
-    public CLUSTER_COUNT: number; 
+    public TOTAL_SHARDS: number;
+    public CLUSTER_COUNT: number;
     public CLUSTER: number;
     public CLUSTER_MANAGER_MODE: ClusterManagerMode;
+    public KEEP_ALIVE_INTERVAL: number;
   }
-    
-    
+
+
   type ClusterManagerMode = 'process' | 'worker';
   type client = DJsClient;
   export type processData = {
@@ -135,6 +149,13 @@ declare module 'discord-hybrid-sharding' {
     CLUSTER_COUNT: number;
     CLUSTER: number;
     CLUSTER_MANAGER_MODE: ClusterManagerMode;
+    KEEP_ALIVE_INTERVAL: number;
+  }
+
+  export type keepAliveOptions = {
+    interval: number | 10000;
+    maxClusterRestarts: number | 3;
+    maxMissedHeartbeats: number | 5;
   }
 
 }

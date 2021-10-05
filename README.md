@@ -12,6 +12,12 @@ When you are interested on auto-scaling & cross hosting on Machines. Look on thi
 The Sharding Manager is very heavy and it uses more than 300mb on a light usage for every shard, during internal sharding just uses 20% of it. Internal Sharding reaches their limit on more than 14000 Guilds and it becomes slow when your bot gets bigger.
 Your only solution is to convert to the Sharding Manager. Thatsway this new Package will solve all your problems, because it spawns Shards, which has Internal Shards. **You can save up to 60% on resources**
 
+- **Decentral Eval Function -> Listenerless, Less Memory Leaks & Cluster or Client has not to be ready
+- Heartbeat System -> Respawn Unresponsive or Death ClusterClient's
+- Memory Efficient -> <60% less memory, when clustering**
+- Debug Event -> A good overview of Cluster Informations
+- EvalOnManager Function & Other Cool Functions you need...
+
 **Scroll down to check our new Functions.**
 
 ## How does it Work?
@@ -95,6 +101,7 @@ client.cluster.broadcastEval(c => c.guilds.cache.size)
 | token | string | not-required | The Bot token is just required, when you set the totalShards on auto |
 
 The Manager.spawn option are the same like Sharding Manager
+**[Checkout our Documentation here](https://infinitytmbots.github.io/discord-hybrid-sharding)**
 
 # Cluster Events
 | Event |  Description |
@@ -141,13 +148,29 @@ Get all ShardID's in the current Cluster:
 ```
 
 # New Functions & Event:
-Decentral ClusterClient Eval function, which doesn't open any listeners and minimalizes the chances creating a memory leak during broadcastEvaling.
-```js
-- Inbuilt Eval Timeout, how long to wait until getting response back
-- No addition Listeners ==> less memory leak, better than .broadCastEval
-- Client has not to be ready
-- All Clusters has not to be ready (just traget Cluster)
 
+## `HeartbeatSystem`:
+- Check if the Cluster/Client sends the Heartbeat on the given Interval 
+- When the Client does not, it will be marked as Death or Unresponsive
+- The Cluster will be respawned, when the given amount of missed Heartbeats have been reached
+```js
+const manager = new Cluster.Manager(`${__dirname}/bot.js`,{
+                                       totalShards: 7 ,
+                                       totalClusters: 2, 
+                                       keepAlive: {
+                                          interval: 2000, ///The Interval to send the Heartbeat
+                                          maxMissedHeartbeats: 5, // The maximal Amount of missing Heartbeats until Cluster will be respawned
+                                          maxClusterRestarts: 3 ///The maximal Amount of restarts, which can be done in 1 hour with the HeartbeatSystem
+                                       }
+                                    })
+```
+
+## `EvalOnCluster`:
+Decentral ClusterClient Eval function, which doesn't open any listeners and minimalizes the chances creating a memory leak during broadcastEvaling.
+- Inbuilt Eval Timeout, which resolves after the given Time
+- No additional Listeners ==> less memory leak, better than .broadCastEval
+- Client & all Clusters has not to be ready
+```js
 client.cluster.evalOnCluster(`this.cluster.id`, {cluster: 0, timeout: 10000})
 ```
 Evals a Script on the ClusterManager

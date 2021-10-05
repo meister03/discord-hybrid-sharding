@@ -61,6 +61,7 @@ class Cluster extends EventEmitter {
       CLUSTER_MANAGER: true,
       CLUSTER: this.id,
       CLUSTER_COUNT: this.manager.totalClusters,
+      KEEP_ALIVE_INTERVAL: this.manager.keepAlive.interval,
       DISCORD_TOKEN: this.manager.token,
     });
     /**
@@ -79,6 +80,28 @@ class Cluster extends EventEmitter {
      * @type {?Worker}
      */
     this.worker = null;
+
+    /**
+    * The Hearbeat Object, which contains the missed Hearbeats, the last Hearbeat and the Hearbeat Interval
+    * @type {Object}
+    */
+    this.heartbeat = {};
+
+    
+    /**
+    * The Amount of maximal Restarts, which can be executed by the HeartBeat Checkup
+    * @type {Object}
+    */
+    this._restarts = {};
+    if(this.manager.keepAlive){
+      if(Object.keys(this.manager.keepAlive)){
+        this._restarts.current = 0;
+        this._restarts.interval = setInterval(() => {
+          this._restarts.current = 0;
+        }, 60000*60);
+      }
+    }
+
 
     /**
      * Ongoing promises for calls to {@link Cluster#eval}, mapped by the `script` they were called with
@@ -144,7 +167,7 @@ class Cluster extends EventEmitter {
     this.emit('spawn', this.process || this.worker);
 
     if (spawnTimeout === -1 || spawnTimeout === Infinity) return this.process || this.worker;
-    spawnTimeout = spawnTimeout*this.shardlist.length;
+    spawnTimeout = spawnTimeout * this.shardlist.length;
     await new Promise((resolve, reject) => {
       const cleanup = () => {
         clearTimeout(spawnTimeoutTimer);
@@ -154,6 +177,7 @@ class Cluster extends EventEmitter {
       };
 
       const onReady = () => {
+        this._cleanupHearbeat()
         cleanup();
         resolve();
       };
@@ -181,9 +205,11 @@ class Cluster extends EventEmitter {
     return this.process || this.worker;
   }
   /**
- * Immediately kills the clusters's process/worker and does not restart it.
- */
-  kill() {
+  * Immediately kills the clusters's process/worker and does not restart it.
+  * @param {Object} options Some Options for managing the Kill
+  * @param {Object} options.force Whether the Cluster should be force kill and be ever respawned...
+  */
+  kill(options = {}) {
     if (this.process) {
       this.process.removeListener('exit', this._exitListener);
       this.process.kill();
@@ -191,7 +217,7 @@ class Cluster extends EventEmitter {
       this.worker.removeListener('exit', this._exitListener);
       this.worker.terminate();
     }
-
+    if(options.force) this._cleanupHearbeat()
     this._handleExit(false);
   }
   /**
@@ -202,7 +228,7 @@ class Cluster extends EventEmitter {
   * @returns {Promise<ChildProcess>}
   */
   async respawn(delay = 500, spawnTimeout) {
-    this.kill(false);
+    if(this.worker || this.process) this.kill({force: true});
     if (delay > 0) await Util.delayFor(delay);
     return this.spawn(spawnTimeout);
   }
@@ -219,6 +245,7 @@ class Cluster extends EventEmitter {
           else resolve(this);
         });
       } else {
+        if (!this.worker) return resolve({ err: 'WORKER_DOES_NOT_EXIST' });
         this.worker.postMessage(message);
         resolve(this);
       }
@@ -315,6 +342,8 @@ class Cluster extends EventEmitter {
          */
         this.emit('ready');
         this.manager._debug('Ready', this.id);
+        this._cleanupHearbeat()
+        this._checkIfClusterAlive()
         return;
       }
 
@@ -339,6 +368,12 @@ class Cluster extends EventEmitter {
          */
         this.emit('reconnecting');
         this.manager._debug('[RECONNECTING] Some Shards are attempting reconnect', this.id);
+        return;
+      }
+
+      //The Hearbeat, which has been sent by Client
+      if (message._keepAlive) {
+        if (this.manager.keepAlive) this._heartbeatMessage(message);
         return;
       }
 
@@ -372,34 +407,34 @@ class Cluster extends EventEmitter {
 
       //Evals a Request on a Cluster
       if (message.hasOwnProperty('_sManagerEval')) {
-        this.manager.evalOnManager(message._sManagerEval).then((result) =>{
-          if(result._results) return this.send({ _results: result._results, _sManagerEval: message._sManagerEval });
-          if(result._error) return this.send({ _error: Util.makePlainError(result._error), _sManagerEval: message._sManagerEval })
+        this.manager.evalOnManager(message._sManagerEval).then((result) => {
+          if (result._results) return this.send({ _results: result._results, _sManagerEval: message._sManagerEval });
+          if (result._error) return this.send({ _error: Util.makePlainError(result._error), _sManagerEval: message._sManagerEval })
         });
         return;
       }
 
       //Evals a Request on a Cluster
       if (message.hasOwnProperty('_sClusterEval')) {
-        this.manager.evalOnCluster(message._sClusterEval, {...message, requestcluster: this.id}).catch((e) => new Error(e))
+        this.manager.evalOnCluster(message._sClusterEval, { ...message, requestcluster: this.id }).catch((e) => new Error(e))
         return;
       }
 
       //If Message is a Eval Response
       if (message.hasOwnProperty('_sClusterEvalResponse')) {
         const promise = this.manager._nonce.get(message.nonce);
-        if(!promise) return;
+        if (!promise) return;
         if (promise) {
           if (message._error) {
             promise.reject(message._error)
             this.manager._nonce.delete(message.nonce);
-            if(this.manager.clusters.has(promise.requestcluster)){
+            if (this.manager.clusters.has(promise.requestcluster)) {
               this.manager.clusters.get(promise.requestcluster).send(message)
             }
           } else {
             promise.resolve(message._sClusterEvalResponse)
             this.manager._nonce.delete(message.nonce);
-            if(this.manager.clusters.has(promise.requestcluster)){
+            if (this.manager.clusters.has(promise.requestcluster)) {
               this.manager.clusters.get(promise.requestcluster).send(message)
             }
           }
@@ -464,6 +499,57 @@ class Cluster extends EventEmitter {
     this.manager.emit('error', error);
   }
 
+
+  /**
+  * Handles the keepAlive Heartbeat and validates it.
+  * @param {Object} [message] the heartbeat message, which has been recieved
+  * @private
+  */
+  _heartbeatMessage(message) {
+    if (!this.manager.keepAlive) return;
+    if(Object.keys(this.manager.keepAlive).length === 0) return;
+    this.heartbeat.last = Date.now();
+    this.heartbeat.missed = 0;
+  }
+
+
+  _checkIfClusterAlive() {
+    if(!this.manager.keepAlive) return;
+    if(Object.keys(this.manager.keepAlive).length === 0) return;
+    this.manager._debug('Hearbeat Interval CheckUp has started', this.id);
+    this.heartbeat.interval = setInterval(() => {
+      if (!this.heartbeat) return;
+      const diff = Date.now() - Number(this.heartbeat.last);
+      if (isNaN(diff)) return;
+      if (diff > (this.manager.keepAlive.interval + 2000)) {
+        this.heartbeat.missed++
+        if (this.heartbeat.missed < this.manager.keepAlive.maxMissedHeartbeats) this.manager._debug(`[Heartbeat_MISSING] ${this.heartbeat.missed} Heartbeat(s) have been missed.`, this.id);
+        if (this.heartbeat.missed > this.manager.keepAlive.maxMissedHeartbeats) {
+          if(this._restarts){
+            if(this._restarts.current !== undefined){
+              this._restarts.current++
+              if(this._restarts.current === this.manager.keepAlive.maxClusterRestarts){
+                return this.manager._debug(`[Heartbeat_MISSING] Already attempted maximal Amount of Respawns in less then 1 hour | Cluster will be respawned, when the cooldown ends.`, this.id);
+              }
+              if(this._restarts.current > this.manager.keepAlive.maxClusterRestarts) return;
+            }
+          }
+          this.manager._debug(`[Heartbeat_MISSING] Attempting respawn | To much hearbeats were missing.`, this.id);
+          this._cleanupHearbeat()
+          this.respawn()
+        }
+      } else return;
+    }, this.manager.keepAlive.interval);
+    return this.heartbeat;
+  }
+
+  _cleanupHearbeat() {
+    clearInterval(this.heartbeat.interval);
+    if(Object.keys(this.manager.keepAlive).length === 0) return;
+    this.heartbeat = {};
+    this.manager._debug('[Heartbeat] Heartbeat has been cleared', this.id);
+    return this.heartbeat;
+  }
 }
 
 module.exports = Cluster;

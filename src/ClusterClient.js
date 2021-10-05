@@ -1,6 +1,6 @@
 
 const Util = require('./Util.js');
-const {Events} = require('./Constants.js') 
+const { Events } = require('./Constants.js')
 ///communicates between the master workers and the process
 class ClusterClient {
   /**
@@ -28,6 +28,17 @@ class ClusterClient {
     */
     this._nonce = new Map();
 
+    /**
+    * The Interval of the Heartbeat Messages and the Heartbeat CheckUp to respawn unresponsive Clusters.
+    * @type {Number}
+    */
+    this.keepAliveInterval = isNaN(Number(this.info.KEEP_ALIVE_INTERVAL)) ? 0 : this.info.KEEP_ALIVE_INTERVAL;
+
+    /**
+    * The Hearbeat Object, which contains the missed Hearbeats, the last Hearbeat and the Hearbeat Interval
+    * @type {Object}
+    */
+    this.heartbeat = {};
 
     this.usev13 = usev13 || false;
     /**
@@ -40,6 +51,8 @@ class ClusterClient {
       process.on('message', this._handleMessage.bind(this));
       client.on('ready', () => {
         process.send({ _ready: true });
+        if(this.keepAliveInterval) this._cleanupHearbeat()
+        if(this.keepAliveInterval) this._checkIfClusterAlive()
       });
       client.on('disconnect', () => {
         process.send({ _disconnect: true });
@@ -52,6 +65,8 @@ class ClusterClient {
       this.parentPort.on('message', this._handleMessage.bind(this));
       client.on('ready', () => {
         this.parentPort.postMessage({ _ready: true });
+        if(this.keepAliveInterval) this._cleanupHearbeat()
+        if(this.keepAliveInterval) this._checkIfClusterAlive()
       });
       client.on('disconnect', () => {
         this.parentPort.postMessage({ _disconnect: true });
@@ -100,7 +115,7 @@ class ClusterClient {
       const shardlist = [];
       let parseshardlist = process.env.SHARD_LIST.split(",")
       parseshardlist.forEach(c => shardlist.push(Number(c)))
-      data = { SHARD_LIST: shardlist, TOTAL_SHARDS: Number(process.env.TOTAL_SHARDS), CLUSTER_COUNT: Number(process.env.CLUSTER_COUNT), CLUSTER: Number(process.env.CLUSTER), CLUSTER_MANAGER_MODE: clustermode }
+      data = { SHARD_LIST: shardlist, TOTAL_SHARDS: Number(process.env.TOTAL_SHARDS), CLUSTER_COUNT: Number(process.env.CLUSTER_COUNT), CLUSTER: Number(process.env.CLUSTER), CLUSTER_MANAGER_MODE: clustermode, KEEP_ALIVE_INTERVAL: Number(process.env.KEEP_ALIVE_INTERVAL) }
     } else {
       data = require("worker_threads").workerData
     }
@@ -213,16 +228,16 @@ class ClusterClient {
     });
   }
 
-   /**
- * Evaluates a script or function on the Cluster Manager
- * @param {string|Function} script JavaScript to run on the Manager
- * @returns {Promise<*>|Promise<Array<*>>} Result of the script execution
- * @example
- * client.cluster.evalOnManager('process.uptime')
- *   .then(result => console.log(result))
- *   .catch(console.error);
- * @see {@link ClusterManager#evalOnManager}
- */
+  /**
+* Evaluates a script or function on the Cluster Manager
+* @param {string|Function} script JavaScript to run on the Manager
+* @returns {Promise<*>|Promise<Array<*>>} Result of the script execution
+* @example
+* client.cluster.evalOnManager('process.uptime')
+*   .then(result => console.log(result))
+*   .catch(console.error);
+* @see {@link ClusterManager#evalOnManager}
+*/
   evalOnManager(script) {
     return new Promise((resolve, reject) => {
       const parent = this.parentPort || process;
@@ -243,20 +258,20 @@ class ClusterClient {
     })
   }
 
- /**
-   * Evaluates a script or function on the ClusterClient
-   * @param {string|Function} script JavaScript to run on the ClusterClient
-   * @param {Object} options Some options such as the TargetCluster or the Evaltimeout
-   * @param {number} [options.cluster] The Id od the target Cluster
-   * @param {number} [options.shard] The Id od the target Shard, when the Cluster has not been provided.
-   * @param {number} [options.timeout=10000] The time in ms to wait, until the eval will be rejected without any response
-   * @returns {Promise<*>|Promise<Array<*>>} Result of the script execution
-   * @example
-   * client.cluster.evalOnCluster('this.cluster.id',  {timeout: 10000, cluster: 0})
-   *   .then(result => console.log(result))
-   *   .catch(console.error);
-   * @see {@link ClusterManager#evalOnCluster}
-   */
+  /**
+    * Evaluates a script or function on the ClusterClient
+    * @param {string|Function} script JavaScript to run on the ClusterClient
+    * @param {Object} options Some options such as the TargetCluster or the Evaltimeout
+    * @param {number} [options.cluster] The Id od the target Cluster
+    * @param {number} [options.shard] The Id od the target Shard, when the Cluster has not been provided.
+    * @param {number} [options.timeout=10000] The time in ms to wait, until the eval will be rejected without any response
+    * @returns {Promise<*>|Promise<Array<*>>} Result of the script execution
+    * @example
+    * client.cluster.evalOnCluster('this.cluster.id',  {timeout: 10000, cluster: 0})
+    *   .then(result => console.log(result))
+    *   .catch(console.error);
+    * @see {@link ClusterManager#evalOnCluster}
+    */
   evalOnCluster(script, options = {}) {
     return new Promise((resolve, reject) => {
       if (!options.hasOwnProperty('cluster') && !options.hasOwnProperty('shard')) reject('TARGET CLUSTER HAS NOT BEEN PROVIDED');
@@ -346,6 +361,23 @@ class ClusterClient {
     });
   }
 
+  /*Hearbeat System*/
+  _checkIfClusterAlive() {
+    this.heartbeat.interval = setInterval(() => {
+      this.send({_keepAlive: true, heartbeat: {last: Date.now()}})
+    }, this.keepAliveInterval);
+    return this.heartbeat.interval;
+  }
+
+  _cleanupHearbeat() {
+    clearInterval(this.heartbeat.interval);
+    this.heartbeat = {};
+    return this.heartbeat;
+  }
+
+
+
+
   /**
    * Creates/gets the singleton of this class.
    * @param {Client} client The client to use
@@ -376,7 +408,7 @@ class ClusterClient {
       const shardlist = [];
       let parseshardlist = process.env.SHARD_LIST.split(",")
       parseshardlist.forEach(c => shardlist.push(Number(c)))
-      data = { SHARD_LIST: shardlist, TOTAL_SHARDS: Number(process.env.TOTAL_SHARDS), CLUSTER_COUNT: Number(process.env.CLUSTER_COUNT), CLUSTER: Number(process.env.CLUSTER), CLUSTER_MANAGER_MODE: clustermode }
+      data = { SHARD_LIST: shardlist, TOTAL_SHARDS: Number(process.env.TOTAL_SHARDS), CLUSTER_COUNT: Number(process.env.CLUSTER_COUNT), CLUSTER: Number(process.env.CLUSTER), CLUSTER_MANAGER_MODE: clustermode, KEEP_ALIVE_INTERVAL: Number(process.env.KEEP_ALIVE_INTERVAL) }
     } else {
       data = require("worker_threads").workerData
     }

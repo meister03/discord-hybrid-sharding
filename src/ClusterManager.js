@@ -20,6 +20,10 @@ class ClusterManager extends EventEmitter {
   * (only available when using the `process` mode)
   * @param {ClusterManagerMode} [options.mode='worker'] Which mode to use for clustering
   * @param {number[]} [options.shardList] A Array of Internal Shards Ids, which should get spawned
+  * @param {Object} [options.keepAlive] Whether Clusters should be automatically respawned, when Heartbeats have not been recieved for a given period of time
+  * @param {Number} [options.keepAlive.interval=10000] The Interval for the Hearbeat CheckUp
+  * @param {Number} [options.keepAlive.maxClusterRestarts=3] The maximal Amount of Cluster Restarts, which can be executed by the keepAlive Function in less than 1 hour.
+  * @param {Number} [options.keepAlive.maxMissedHeartbeats=5] The maximal Amount of missed Hearbeats, upon the Cluster should be respawned.
   * @param {string} [options.token] Token to use for automatic internal shard count and passing to bot file
   */
   constructor(file, options = {}) {
@@ -33,6 +37,7 @@ class ClusterManager extends EventEmitter {
         execArgv: [],
         respawn: true,
         mode: 'process',
+        keepAlive: {},
         token: process.env.DISCORD_TOKEN,
       },
       options,
@@ -126,6 +131,22 @@ class ClusterManager extends EventEmitter {
     }
 
 
+    /**
+    * Whether Clusters should be respawned, when the ClusterClient did not sent any Heartbeats.
+    * @type {Object}
+    */
+    this.keepAlive = options.keepAlive;
+    if (typeof this.keepAlive !== 'object') {
+      throw new TypeError('CLIENT_INVALID_OPTION', 'keepAlive Options', 'a Object');
+    }
+    if(Object.keys(options.keepAlive).length !== 0){
+      this.keepAlive.interval = options.keepAlive.interval || 10000;
+      this.keepAlive.maxMissedHeartbeats = options.keepAlive.maxMissedHeartbeats || 5;
+      this.keepAlive.maxClusterRestarts = options.keepAlive.maxClusterRestarts || 3;
+    }
+
+  
+
 
 
     /**
@@ -145,6 +166,7 @@ class ClusterManager extends EventEmitter {
     process.env.CLUSTER_COUNT = this.totalClusters;
     process.env.CLUSTER_MANAGER = true;
     process.env.CLUSTER_MANAGER_MODE = this.mode;
+    process.env.KEEP_ALIVE_INTERVAL = this.keepAlive.interval;
     process.env.DISCORD_TOKEN = this.token;
 
 
@@ -353,8 +375,7 @@ class ClusterManager extends EventEmitter {
     if(options.hasOwnProperty('shard')){
         const findcluster = [...this.clusters.values()].find(i => i.shardlist.includes(options.shard));
         options.cluster = findcluster ? findcluster.id : 0;
-        console.log(options.cluster)
-      }
+    }
     const cluster = this.clusters.get(options.cluster);
     if (!cluster) return Promise.reject(new Error('CLUSTER_DOES_NOT_EXIST', options.cluster));
     if (!cluster.process && !cluster.worker) return Promise.reject(new Error('CLUSTERING_NO_CHILD_EXISTS', cluster.id));
