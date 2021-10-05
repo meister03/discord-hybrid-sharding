@@ -12,9 +12,9 @@ When you are interested on auto-scaling & cross hosting on Machines. Look on thi
 The Sharding Manager is very heavy and it uses more than 300mb on a light usage for every shard, during internal sharding just uses 20% of it. Internal Sharding reaches their limit on more than 14000 Guilds and it becomes slow when your bot gets bigger.
 Your only solution is to convert to the Sharding Manager. Thatsway this new Package will solve all your problems, because it spawns Shards, which has Internal Shards. **You can save up to 60% on resources**
 
-- **Decentral Eval Function -> Listenerless, Less Memory Leaks & Cluster or Client has not to be ready
-- Heartbeat System -> Respawn Unresponsive or Death ClusterClient's
-- Memory Efficient -> <60% less memory, when clustering**
+- **Decentral Eval Function -> Listenerless, Less Memory Leaks & Cluster/Client has not to be ready**
+- **Heartbeat System -> Respawn Unresponsive or Death ClusterClient's**
+- Memory Efficient -> <60% less memory, when clustering
 - Debug Event -> A good overview of Cluster Informations
 - EvalOnManager Function & Other Cool Functions you need...
 
