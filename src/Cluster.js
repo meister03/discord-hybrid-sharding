@@ -510,6 +510,7 @@ class Cluster extends EventEmitter {
     if(Object.keys(this.manager.keepAlive).length === 0) return;
     this.heartbeat.last = Date.now();
     this.heartbeat.missed = 0;
+    this.send({ack: true, last: Date.now()}).catch(e => this.manager._debug('[ACK_FAILED] ACK could not be sent. IPC Channel is dead or busy', this.id))
   }
 
 

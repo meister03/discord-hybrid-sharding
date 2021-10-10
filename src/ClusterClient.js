@@ -52,7 +52,10 @@ class ClusterClient {
       client.on('ready', () => {
         process.send({ _ready: true });
         if(this.keepAliveInterval) this._cleanupHearbeat()
-        if(this.keepAliveInterval) this._checkIfClusterAlive()
+        if(this.keepAliveInterval) {
+          this._checkIfClusterAlive()
+          this._checkIfAckRecieved()
+        }
       });
       client.on('disconnect', () => {
         process.send({ _disconnect: true });
@@ -66,7 +69,10 @@ class ClusterClient {
       client.on('ready', () => {
         this.parentPort.postMessage({ _ready: true });
         if(this.keepAliveInterval) this._cleanupHearbeat()
-        if(this.keepAliveInterval) this._checkIfClusterAlive()
+        if(this.keepAliveInterval) {
+          this._checkIfClusterAlive()
+          this._checkIfAckRecieved()
+        }
       });
       client.on('disconnect', () => {
         this.parentPort.postMessage({ _disconnect: true });
@@ -338,6 +344,8 @@ class ClusterClient {
         this._nonce.delete(message.nonce);
       }
       return;
+    }else if(message.ack){
+      return this._heartbeatAckMessage();
     }
   }
 
@@ -362,15 +370,40 @@ class ClusterClient {
   }
 
   /*Hearbeat System*/
+  _heartbeatAckMessage(){
+    this.heartbeat.last = Date.now();
+    this.heartbeat.missed = 0;
+  }
+
+  _checkIfAckRecieved(){
+    this.client.emit('clusterDebug',`[ClusterClient ${this.id}] Heartbeat Ack Interval CheckUp Started`, this.id);
+    this.heartbeat.ack = setInterval(() => {
+      if (!this.heartbeat) return;
+      const diff = Date.now() - Number(this.heartbeat.last);
+      if (isNaN(diff)) return;
+      if (diff > (this.keepAliveInterval + 2000)) {
+        this.heartbeat.missed = (this.heartbeat.missed ||0 ) + 1;
+        if (this.heartbeat.missed < 5) {
+          this.client.emit('clusterDebug',`[ClusterClient ${this.id}][Heartbeat_ACK_MISSING] ${this.heartbeat.missed} Heartbeat(s) Ack have been missed.`, this.id);
+          return; 
+        }
+        else this._cleanupHearbeat();
+      }
+    }, this.keepAliveInterval);
+    return this.heartbeat;
+  }
+
+
   _checkIfClusterAlive() {
     this.heartbeat.interval = setInterval(() => {
-      this.send({_keepAlive: true, heartbeat: {last: Date.now()}})
+        this.send({_keepAlive: true, heartbeat: {last: Date.now()}})
     }, this.keepAliveInterval);
     return this.heartbeat.interval;
   }
 
   _cleanupHearbeat() {
     clearInterval(this.heartbeat.interval);
+    clearInterval(this.heartbeat.ack);
     this.heartbeat = {};
     return this.heartbeat;
   }

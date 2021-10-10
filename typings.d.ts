@@ -68,12 +68,14 @@ declare module 'discord-hybrid-sharding' {
     public broadcastEval(script: string): Promise<any[]>;
     public broadcastEval(script: string, cluster: number): Promise<any>;
     public broadcastEval<T>(fn: (client: client) => T): Promise<T[]>;
-    public broadcastEval<T>(fn: (client: client) => T, cluster: number): Promise<T>;
+    public broadcastEval<T>(fn: (client: client) => T, options: {cluster: number, context: any}): Promise<T>;
     public fetchClientValues(prop: string): Promise<any[]>;
     public fetchClientValues(prop: string, cluster: number): Promise<any>;
     public respawnAll(clusterDelay?: number, respawnDelay?: number, spawnTimeout?: number): Promise<void>;
     public send(message: any): Promise<void>;
 
+    private _heartbeatAckMessage(): Promise<any[]>;
+    private _checkIfAckRecieved(): Promise<any[]>;
     private _checkIfClusterAlive(): Promise<any[]>;
     private _cleanupHearbeat(): Promise<any[]>;
 
@@ -113,6 +115,8 @@ declare module 'discord-hybrid-sharding' {
     public broadcast(message: any): Promise<Cluster[]>;
     public broadcastEval(script: string): Promise<any[]>;
     public broadcastEval(script: string, cluster: number): Promise<any>;
+    public broadcastEval<T>(fn: (client: client) => T): Promise<T[]>;
+    public broadcastEval<T>(fn: (client: client) => T, options: {cluster: number, context: any}): Promise<T>;
     public createCluster(id: number, clusterstospawn: number[], totalshards: number): Cluster;
     public fetchClientValues(prop: string): Promise<any[]>;
     public fetchClientValues(prop: string, cluster: number): Promise<any>;
