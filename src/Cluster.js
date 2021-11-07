@@ -572,7 +572,7 @@ class Cluster extends EventEmitter {
               if(this._restarts.current > this.manager.keepAlive.maxClusterRestarts) return;
             }
           }
-          this.manager._debug(`[Heartbeat_MISSING] Attempting respawn | To much hearbeats were missing.`, this.id);
+          this.manager._debug(`[Heartbeat_MISSING] Attempting respawn | To much heartbeats were missing.`, this.id);
           this._cleanupHearbeat()
           this.respawn()
         }
