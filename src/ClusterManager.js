@@ -395,7 +395,7 @@ class ClusterManager extends EventEmitter {
     }).catch((e) => (new Error(e.toString())))
   }
 
-
+  
   /**
    * Logsout the Debug Messages
    * <warn>Using this method just emits the Debug Event.</warn>

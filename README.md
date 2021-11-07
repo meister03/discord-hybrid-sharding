@@ -14,6 +14,7 @@ Your only solution is to convert to the Sharding Manager. Thatsway this new Pack
 
 - **Decentral Eval Function -> Listenerless, Less Memory Leaks & Cluster/Client has not to be ready**
 - **Heartbeat System -> Respawn Unresponsive or Death ClusterClient's**
+- **IPC System -> Client <-> ClusterManager -> `.request()`, `.reply()`, `.send()`**
 - Memory Efficient -> <60% less memory, when clustering
 - Debug Event -> A good overview of Cluster Informations
 - EvalOnManager Function & Other Cool Functions you need...
@@ -172,6 +173,54 @@ Decentral ClusterClient Eval function, which doesn't open any listeners and mini
 - Client & all Clusters has not to be ready
 ```js
 client.cluster.evalOnCluster(`this.cluster.id`, {cluster: 0, timeout: 10000})
+```
+
+## `IPC System`:
+* The IPC System allows you to listen on your messages, which you sent.
+* You can communicate between the Cluster and the Client
+* This allows you to send requests from the Client to the Cluster and reply to them and viceversa
+* You can also send normal messages, which does not need to be replied
+
+ClusterManager | cluster.js
+```js
+const Cluster = require("discord-hybrid-sharding");
+const manager = new Cluster.Manager(`./testbot.js`,{
+                                       totalShards:1,
+                                       totalClusters:1,
+                                    })
+manager.on('clusterCreate', cluster => {
+
+   cluster.on('message',  (message) => {
+      console.log(message)
+      if(!message._sRequest) return; ///Check if message neeeds a reply
+      message.reply({content: 'hello'})
+   })
+   setInterval(() => {
+      cluster.send({content: 'I am alive'}) ///Send a Message to the Client
+      cluster.request({content: 'Are you alive?', alive: true}).then(e => console.log(e)) ///Send a Message to the Client
+   }, 5000);
+});
+manager.spawn(undefined, undefined, -1)
+```
+
+ClusterClient | client.js
+```js
+const Cluster = require("discord-hybrid-sharding");
+const Discord = require("discord.js");
+const client = new Discord.Client({
+ 	shards: Cluster.data.SHARD_LIST,        //  A Array of Shard list, which will get spawned
+	shardCount: Cluster.data.TOTAL_SHARDS, // The Number of Total Shards
+});
+client.cluster = new Cluster.Client(client); 
+client.cluster.on('message', (message) => {
+	console.log(message)
+	if(!message._sRequest) return; ///Check if message neeeds a reply
+	if(message.alive) message.reply({content: 'Yes I am!'})
+})
+setInterval(()=>{
+   client.cluster.send({content: 'I am alive too!'})
+}, 5000)
+client.login("Your_Token");
 ```
 Evals a Script on the ClusterManager
 ```diff

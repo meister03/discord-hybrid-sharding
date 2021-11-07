@@ -1,6 +1,7 @@
 const EventEmitter = require('events');
 const path = require('path');
 const Util = require('./Util.js');
+const {IPCMessage, BaseMessage} = require('./IPCMessage.js')
 let childProcess = null;
 let Worker = null;
 
@@ -238,6 +239,7 @@ class Cluster extends EventEmitter {
   * @returns {Promise<Shard>}
   */
   send(message) {
+    if(typeof message === 'object') message = new BaseMessage(message).toJSON();
     return new Promise((resolve, reject) => {
       if (this.process) {
         this.process.send(message, err => {
@@ -251,15 +253,37 @@ class Cluster extends EventEmitter {
       }
     });
   }
+
+
+  request(message = {}){
+    message._sRequest = true;
+    message._sReply = false;
+    message = new BaseMessage(message).toJSON()
+    return new Promise((resolve, reject) => {
+      const nonce = message.nonce;
+      this.manager._nonce.set(nonce, { resolve, reject});
+      const sent = this.send(message, void 0, void 0, e => {
+        if (e) reject(new Error(`Failed to deliver Message to cluster: ${e}`));
+        setTimeout(() => {
+          if (this.manager._nonce.has(nonce)) {
+            this.manager._nonce.get(nonce).reject(new Error("Eval Request Timedout"));
+            this.manager._nonce.delete(nonce);
+          }
+        }, (message.timeout || 10000));
+      });
+      if (!sent) reject(new Error("CLUSTERING_IN_PROCESS or CLUSTERING_DIED"));
+    }).catch((e) => ({...message, error: new Error(e.toString())}))
+  }
+
   /**
- * Fetches a client property value of the cluster.
- * @param {string} prop Name of the client property to get, using periods for nesting
- * @returns {Promise<*>}
- * @example
- * cluster.fetchClientValue('guilds.cache.size')
- *   .then(count => console.log(`${count} guilds in cluster ${cluster.id}`))
- *   .catch(console.error);
- */
+  * Fetches a client property value of the cluster.
+  * @param {string} prop Name of the client property to get, using periods for nesting
+  * @returns {Promise<*>}
+  * @example
+  * cluster.fetchClientValue('guilds.cache.size')
+  *   .then(count => console.log(`${count} guilds in cluster ${cluster.id}`))
+  *   .catch(console.error);
+  */
   fetchClientValue(prop) {
     // Shard is dead (maybe respawning), don't cache anything and error immediately
     if (!this.process && !this.worker) return Promise.reject(new Error('CLUSTERING_NO_CHILD_EXISTS', this.id));
@@ -439,6 +463,7 @@ class Cluster extends EventEmitter {
             }
           }
         }
+        return;
       }
 
       // Cluster is requesting a respawn of all shards
@@ -450,14 +475,26 @@ class Cluster extends EventEmitter {
         });
         return;
       }
+
+      if(message._sCustom){
+        if(message._sReply){
+          const promise = this.manager._nonce.get(message.nonce);
+          if(promise){
+            promise.resolve(message)
+            this.manager._nonce.delete(message.nonce);
+          }
+        }else if(message._sRequest){
+         // this.manager.request(message).then(e => this.send(e)).catch(e => this.send({...message, error: e}))
+        }
+      }
     }
 
     /**
-     * Emitted upon receiving a message from the child process/worker.
-     * @event Shard#message
-     * @param {*} message Message that was received
-     */
-    this.emit('message', message);
+    * Emitted upon receiving a message from the child process/worker.
+    * @event Shard#message
+    * @param {*} message Message that was received
+    */
+    this.emit('message', new IPCMessage(this, message));
   }
 
   /**
