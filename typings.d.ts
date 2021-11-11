@@ -28,6 +28,7 @@ declare module 'discord-hybrid-sharding' {
     public kill(): void;
     public respawn(delay?: number, spawnTimeout?: number): Promise<ChildProcess>;
     public send(message: any): Promise<Cluster>;
+    public request(message: BaseMessage): Promise<BaseMessage>;
     public spawn(spawnTimeout?: number): Promise<ChildProcess>;
 
     private _checkIfClusterAlive(): Promise<any[]>;
@@ -46,7 +47,7 @@ declare module 'discord-hybrid-sharding' {
     public once(event: string, listener: (...args: any[]) => void): this;
   }
 
-  export class Client {
+  export class Client extends EventEmitter{
     constructor(client: client, usev13?: boolean);
     private _handleMessage(message: any): void;
     private _respond(type: string, message: any): void;
@@ -73,6 +74,7 @@ declare module 'discord-hybrid-sharding' {
     public fetchClientValues(prop: string, cluster: number): Promise<any>;
     public respawnAll(clusterDelay?: number, respawnDelay?: number, spawnTimeout?: number): Promise<void>;
     public send(message: any): Promise<void>;
+    public request(message: Object): Promise<BaseMessage>;
 
     private _heartbeatAckMessage(): Promise<any[]>;
     private _checkIfAckRecieved(): Promise<any[]>;
@@ -135,6 +137,23 @@ declare module 'discord-hybrid-sharding' {
     public once(event: 'clusterCreate', listener: (cluster: Cluster) => void): this;
     public once(event: "debug", listener: (message: string) => void): this;
   }
+
+  export class BaseMessage{
+    public _sCustom: true;
+    public nonce: String;
+    private destructMessage(message: Object): Promise<Object>;
+    public toJSON(): Promise<Object>;
+  }
+
+  export class IPCMessage{
+    public instance: Cluster | Client;
+    public raw: BaseMessage;
+    public send(message: Object): Promise<Cluster|Client>;
+    public request(message: Object): Promise<Object>;
+    public reply(message: Object): Promise<Object>;
+
+  }
+
   export class data {
     public SHARD_LIST: number[];
     public TOTAL_SHARDS: number;

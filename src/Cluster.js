@@ -235,7 +235,7 @@ class Cluster extends EventEmitter {
   }
   /**
   * Sends a message to the cluster's process/worker.
-  * @param {*} message Message to send to the cluster
+  * @param {*|BaseMessage} message Message to send to the cluster
   * @returns {Promise<Shard>}
   */
   send(message) {
@@ -254,7 +254,16 @@ class Cluster extends EventEmitter {
     });
   }
 
-
+  /**
+  * Sends a Request to the ClusterClient and returns the reply
+  * @param {BaseMessage} message Message, which should be sent as request
+  * @returns {Promise<*>} Reply of the Message
+  * @example
+  * client.cluster.request({content: 'hello'})
+  *   .then(result => console.log(result)) //hi
+  *   .catch(console.error);
+  * @see {@link IPCMessage#reply}
+  */
   request(message = {}){
     message._sRequest = true;
     message._sReply = false;
@@ -489,12 +498,15 @@ class Cluster extends EventEmitter {
       }
     }
 
+    let emitmessage;
+    if(typeof message === 'object') emitmessage = new IPCMessage(this, message)
+    else emitmessage = message;
     /**
     * Emitted upon receiving a message from the child process/worker.
     * @event Shard#message
-    * @param {*} message Message that was received
+    * @param {*|IPCMessage} message Message that was received
     */
-    this.emit('message', new IPCMessage(this, message));
+    this.emit('message', emitmessage);
   }
 
   /**
@@ -572,7 +584,7 @@ class Cluster extends EventEmitter {
               if(this._restarts.current > this.manager.keepAlive.maxClusterRestarts) return;
             }
           }
-          this.manager._debug(`[Heartbeat_MISSING] Attempting respawn | To much heartbeats were missing.`, this.id);
+          this.manager._debug(`[Heartbeat_MISSING] Attempting respawn | To much hearbeats were missing.`, this.id);
           this._cleanupHearbeat()
           this.respawn()
         }

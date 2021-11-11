@@ -297,6 +297,16 @@ class ClusterClient extends EventEmitter {
     })
   }
 
+  /**
+  * Sends a Request to the ParentCluster and returns the reply
+  * @param {BaseMessage} message Message, which should be sent as request
+  * @returns {Promise<*>} Reply of the Message
+  * @example
+  * client.cluster.request({content: 'hello'})
+  *   .then(result => console.log(result)) //hi
+  *   .catch(console.error);
+  * @see {@link IPCMessage#reply}
+  */
   request(message = {}){
     message._sRequest = true;
     message._sReply = false;
@@ -434,7 +444,6 @@ class ClusterClient extends EventEmitter {
     }, this.keepAliveInterval);
     return this.heartbeat;
   }
-
 
   _checkIfClusterAlive() {
     this.heartbeat.interval = setInterval(() => {
