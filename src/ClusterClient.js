@@ -397,7 +397,7 @@ class ClusterClient extends EventEmitter {
       * @event ClusterClient#message
       * @param {*} message Message that was received
       */
-      this.emit('message', message)
+      this.emit('message', emitmessage)
     }
   }
 
