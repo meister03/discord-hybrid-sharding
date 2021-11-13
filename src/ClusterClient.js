@@ -1,12 +1,14 @@
-const Discord = require('discord.js');
-const { Events } = Discord.Constants
-const Util = Discord.Util;
+const {IPCMessage, BaseMessage} = require('./IPCMessage.js')
+const Util = require('./Util.js');
+const { Events } = require('./Constants.js');
+const EventEmitter = require('events');
 ///communicates between the master workers and the process
-class ClusterClient {
+class ClusterClient extends EventEmitter {
   /**
   * @param {Client} client Client of the current cluster
   */
   constructor(client, usev13) {
+    super();
     /**
      * Client for the Cluser
      * @type {Client}
@@ -28,6 +30,17 @@ class ClusterClient {
     */
     this._nonce = new Map();
 
+    /**
+    * The Interval of the Heartbeat Messages and the Heartbeat CheckUp to respawn unresponsive Clusters.
+    * @type {Number}
+    */
+    this.keepAliveInterval = isNaN(Number(this.info.KEEP_ALIVE_INTERVAL)) ? 0 : this.info.KEEP_ALIVE_INTERVAL;
+
+    /**
+    * The Hearbeat Object, which contains the missed Hearbeats, the last Hearbeat and the Hearbeat Interval
+    * @type {Object}
+    */
+    this.heartbeat = {};
 
     this.usev13 = usev13 || false;
     /**
@@ -40,6 +53,11 @@ class ClusterClient {
       process.on('message', this._handleMessage.bind(this));
       client.on('ready', () => {
         process.send({ _ready: true });
+        if (this.keepAliveInterval) this._cleanupHearbeat()
+        if (this.keepAliveInterval) {
+          this._checkIfClusterAlive()
+          this._checkIfAckRecieved()
+        }
       });
       client.on('disconnect', () => {
         process.send({ _disconnect: true });
@@ -52,6 +70,11 @@ class ClusterClient {
       this.parentPort.on('message', this._handleMessage.bind(this));
       client.on('ready', () => {
         this.parentPort.postMessage({ _ready: true });
+        if (this.keepAliveInterval) this._cleanupHearbeat()
+        if (this.keepAliveInterval) {
+          this._checkIfClusterAlive()
+          this._checkIfAckRecieved()
+        }
       });
       client.on('disconnect', () => {
         this.parentPort.postMessage({ _disconnect: true });
@@ -100,7 +123,7 @@ class ClusterClient {
       const shardlist = [];
       let parseshardlist = process.env.SHARD_LIST.split(",")
       parseshardlist.forEach(c => shardlist.push(Number(c)))
-      data = { SHARD_LIST: shardlist, TOTAL_SHARDS: Number(process.env.TOTAL_SHARDS), CLUSTER_COUNT: Number(process.env.CLUSTER_COUNT), CLUSTER: Number(process.env.CLUSTER), CLUSTER_MANAGER_MODE: clustermode }
+      data = { SHARD_LIST: shardlist, TOTAL_SHARDS: Number(process.env.TOTAL_SHARDS), CLUSTER_COUNT: Number(process.env.CLUSTER_COUNT), CLUSTER: Number(process.env.CLUSTER), CLUSTER_MANAGER_MODE: clustermode, KEEP_ALIVE_INTERVAL: Number(process.env.KEEP_ALIVE_INTERVAL) }
     } else {
       data = require("worker_threads").workerData
     }
@@ -113,7 +136,7 @@ class ClusterClient {
   * @emits Cluster#message
   */
   send(message) {
-    //console.log(message)
+    if(typeof message === 'object') message = new BaseMessage(message).toJSON();
     return new Promise((resolve, reject) => {
       if (this.mode === 'process') {
         process.send(message, err => {
@@ -213,16 +236,16 @@ class ClusterClient {
     });
   }
 
-   /**
- * Evaluates a script or function on the Cluster Manager
- * @param {string|Function} script JavaScript to run on the Manager
- * @returns {Promise<*>|Promise<Array<*>>} Result of the script execution
- * @example
- * client.cluster.evalOnManager('process.uptime')
- *   .then(result => console.log(result))
- *   .catch(console.error);
- * @see {@link ClusterManager#evalOnManager}
- */
+  /**
+  * Evaluates a script or function on the Cluster Manager
+  * @param {string|Function} script JavaScript to run on the Manager
+  * @returns {Promise<*>|Promise<Array<*>>} Result of the script execution
+  * @example
+  * client.cluster.evalOnManager('process.uptime')
+  *   .then(result => console.log(result))
+  *   .catch(console.error);
+  * @see {@link ClusterManager#evalOnManager}
+  */
   evalOnManager(script) {
     return new Promise((resolve, reject) => {
       const parent = this.parentPort || process;
@@ -243,19 +266,20 @@ class ClusterClient {
     })
   }
 
- /**
-   * Evaluates a script or function on the ClusterClient
-   * @param {string|Function} script JavaScript to run on the ClusterClient
-   * @param {Object} options Some options such as the TargetCluster or the Evaltimeout
-   * @param {number} [options.cluster] The Id od the target Cluster
-   * @param {number} [options.timeout=10000] The time in ms to wait, until the eval will be rejected without any response
-   * @returns {Promise<*>|Promise<Array<*>>} Result of the script execution
-   * @example
-   * client.cluster.evalOnCluster('this.cluster.id',  {timeout: 10000, cluster: 0})
-   *   .then(result => console.log(result))
-   *   .catch(console.error);
-   * @see {@link ClusterManager#evalOnCluster}
-   */
+  /**
+  * Evaluates a script or function on the ClusterClient
+  * @param {string|Function} script JavaScript to run on the ClusterClient
+  * @param {Object} options Some options such as the TargetCluster or the Evaltimeout
+  * @param {number} [options.cluster] The Id od the target Cluster
+  * @param {number} [options.shard] The Id od the target Shard, when the Cluster has not been provided.
+  * @param {number} [options.timeout=10000] The time in ms to wait, until the eval will be rejected without any response
+  * @returns {Promise<*>|Promise<Array<*>>} Result of the script execution
+  * @example
+  * client.cluster.evalOnCluster('this.cluster.id',  {timeout: 10000, cluster: 0})
+  *   .then(result => console.log(result))
+  *   .catch(console.error);
+  * @see {@link ClusterManager#evalOnCluster}
+  */
   evalOnCluster(script, options = {}) {
     return new Promise((resolve, reject) => {
       if (!options.hasOwnProperty('cluster') && !options.hasOwnProperty('shard')) reject('TARGET CLUSTER HAS NOT BEEN PROVIDED');
@@ -274,15 +298,41 @@ class ClusterClient {
   }
 
   /**
-   * Requests a respawn of all clusters.
-   * @param {number} [clusterDelay=5000] How long to wait between clusters (in milliseconds)
-   * @param {number} [respawnDelay=500] How long to wait between killing a cluster's process/worker and restarting it
-   * (in milliseconds)
-   * @param {number} [spawnTimeout=30000] The amount in milliseconds to wait for a cluster to become ready before
-   * continuing to another. (-1 or Infinity for no wait)
-   * @returns {Promise<void>} Resolves upon the message being sent
-   * @see {@link ClusterManager#respawnAll}
-   */
+  * Sends a Request to the ParentCluster and returns the reply
+  * @param {BaseMessage} message Message, which should be sent as request
+  * @returns {Promise<*>} Reply of the Message
+  * @example
+  * client.cluster.request({content: 'hello'})
+  *   .then(result => console.log(result)) //hi
+  *   .catch(console.error);
+  * @see {@link IPCMessage#reply}
+  */
+  request(message = {}){
+    message._sRequest = true;
+    message._sReply = false;
+    message  = new BaseMessage(message).toJSON()
+    return new Promise((resolve, reject) => {
+      this._nonce.set(message.nonce, { resolve, reject });
+      setTimeout(() => {
+        if (this._nonce.has(message.nonce)) {
+          this._nonce.get(message.nonce).reject(new Error("EVAL Request Timed out"));
+          this._nonce.delete(message.nonce);
+        }
+      }, (message.timeout|| 10000));
+      this.send(message);
+    }).catch(e => ({...message, error: e}))
+  }
+
+  /**
+  * Requests a respawn of all clusters.
+  * @param {number} [clusterDelay=5000] How long to wait between clusters (in milliseconds)
+  * @param {number} [respawnDelay=500] How long to wait between killing a cluster's process/worker and restarting it
+  * (in milliseconds)
+  * @param {number} [spawnTimeout=30000] The amount in milliseconds to wait for a cluster to become ready before
+  * continuing to another. (-1 or Infinity for no wait)
+  * @returns {Promise<void>} Resolves upon the message being sent
+  * @see {@link ClusterManager#respawnAll}
+  */
   respawnAll(clusterDelay = 5000, respawnDelay = 500, spawnTimeout = 30000) {
     return this.send({ _sRespawnAll: { clusterDelay, respawnDelay, spawnTimeout } });
   }
@@ -299,18 +349,21 @@ class ClusterClient {
       let value = this.client;
       for (const prop of props) value = value[prop];
       this._respond('fetchProp', { _fetchProp: message._fetchProp, _result: value });
+      return;
     } else if (message._eval) {
       try {
         this._respond('eval', { _eval: message._eval, _result: await this.client._eval(message._eval) });
       } catch (err) {
         this._respond('eval', { _eval: message._eval, _error: Util.makePlainError(err) });
       }
+      return;
     } else if (message.hasOwnProperty('_sClusterEvalRequest')) {
       try {
         this._respond('evalOnCluster', { _sClusterEvalResponse: await this.client._eval(message._sClusterEvalRequest), nonce: message.nonce, cluster: message.cluster });
       } catch (err) {
         this._respond('evalOnCluster', { _sClusterEvalResponse: {}, _error: Util.makePlainError(err), nonce: message.nonce });
       }
+      return;
     } else if (message.hasOwnProperty('_sClusterEvalResponse')) {
       const promise = this._nonce.get(message.nonce);
       if (!promise) return;
@@ -322,15 +375,38 @@ class ClusterClient {
         this._nonce.delete(message.nonce);
       }
       return;
+    } else if (message.ack) {
+      return this._heartbeatAckMessage();
+    } else if(message._sCustom){
+      if(message._sReply){
+        const promise = this._nonce.get(message.nonce);
+        if(promise){
+          promise.resolve(message)
+          this._nonce.delete(message.nonce);
+        }
+        return;
+      }else if(message._sRequest){
+        //this.request(message).then(e => this.send(e)).catch(e => this.send({...message, error: e}))
+      }
+
+      let emitmessage;
+      if(typeof message === 'object') emitmessage = new IPCMessage(this, message)
+      else emitmessage = message;
+      /**
+      * Emitted upon receiving a message from the parent process/worker.
+      * @event ClusterClient#message
+      * @param {*} message Message that was received
+      */
+      this.emit('message', emitmessage)
     }
   }
 
   /**
-   * Sends a message to the master process, emitting an error from the client upon failure.
-   * @param {string} type Type of response to send
-   * @param {*} message Message to send, which can be a Object or a String
-   * @private
-   */
+  * Sends a message to the master process, emitting an error from the client upon failure.
+  * @param {string} type Type of response to send
+  * @param {*} message Message to send, which can be a Object or a String
+  * @private
+  */
   _respond(type, message) {
     this.send(message).catch(err => {
       let error = { err };
@@ -345,12 +421,53 @@ class ClusterClient {
     });
   }
 
+  /*Hearbeat System*/
+  _heartbeatAckMessage() {
+    this.heartbeat.last = Date.now();
+    this.heartbeat.missed = 0;
+  }
+
+  _checkIfAckRecieved() {
+    this.client.emit('clusterDebug', `[ClusterClient ${this.id}] Heartbeat Ack Interval CheckUp Started`, this.id);
+    this.heartbeat.ack = setInterval(() => {
+      if (!this.heartbeat) return;
+      const diff = Date.now() - Number(this.heartbeat.last);
+      if (isNaN(diff)) return;
+      if (diff > (this.keepAliveInterval + 2000)) {
+        this.heartbeat.missed = (this.heartbeat.missed || 0) + 1;
+        if (this.heartbeat.missed < 5) {
+          this.client.emit('clusterDebug', `[ClusterClient ${this.id}][Heartbeat_ACK_MISSING] ${this.heartbeat.missed} Heartbeat(s) Ack have been missed.`, this.id);
+          return;
+        }
+        else this._cleanupHearbeat();
+      }
+    }, this.keepAliveInterval);
+    return this.heartbeat;
+  }
+
+  _checkIfClusterAlive() {
+    this.heartbeat.interval = setInterval(() => {
+      this.send({ _keepAlive: true, heartbeat: { last: Date.now() } })
+    }, this.keepAliveInterval);
+    return this.heartbeat.interval;
+  }
+
+  _cleanupHearbeat() {
+    clearInterval(this.heartbeat.interval);
+    clearInterval(this.heartbeat.ack);
+    this.heartbeat = {};
+    return this.heartbeat;
+  }
+
+
+
+
   /**
-   * Creates/gets the singleton of this class.
-   * @param {Client} client The client to use
-   * @param {ClusterManagerMode} mode Mode the cluster was spawned with
-   * @returns {ShardClientUtil}
-   */
+  * Creates/gets the singleton of this class.
+  * @param {Client} client The client to use
+  * @param {ClusterManagerMode} mode Mode the cluster was spawned with
+  * @returns {ShardClientUtil}
+  */
   static singleton(client, mode) {
     if (!this._singleton) {
       this._singleton = new this(client, mode);
@@ -375,7 +492,7 @@ class ClusterClient {
       const shardlist = [];
       let parseshardlist = process.env.SHARD_LIST.split(",")
       parseshardlist.forEach(c => shardlist.push(Number(c)))
-      data = { SHARD_LIST: shardlist, TOTAL_SHARDS: Number(process.env.TOTAL_SHARDS), CLUSTER_COUNT: Number(process.env.CLUSTER_COUNT), CLUSTER: Number(process.env.CLUSTER), CLUSTER_MANAGER_MODE: clustermode }
+      data = { SHARD_LIST: shardlist, TOTAL_SHARDS: Number(process.env.TOTAL_SHARDS), CLUSTER_COUNT: Number(process.env.CLUSTER_COUNT), CLUSTER: Number(process.env.CLUSTER), CLUSTER_MANAGER_MODE: clustermode, KEEP_ALIVE_INTERVAL: Number(process.env.KEEP_ALIVE_INTERVAL) }
     } else {
       data = require("worker_threads").workerData
     }

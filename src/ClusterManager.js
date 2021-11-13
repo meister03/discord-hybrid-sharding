@@ -1,8 +1,9 @@
 const EventEmitter = require('events');
+
 const fs = require('fs');
 const path = require('path');
-const Discord = require('discord.js');
 const os = require('os');
+
 const Util = require('./Util.js');
 const Cluster = require('./Cluster.js')
 
@@ -19,6 +20,10 @@ class ClusterManager extends EventEmitter {
   * (only available when using the `process` mode)
   * @param {ClusterManagerMode} [options.mode='worker'] Which mode to use for clustering
   * @param {number[]} [options.shardList] A Array of Internal Shards Ids, which should get spawned
+  * @param {Object} [options.keepAlive] Whether Clusters should be automatically respawned, when Heartbeats have not been recieved for a given period of time
+  * @param {Number} [options.keepAlive.interval=10000] The Interval for the Hearbeat CheckUp
+  * @param {Number} [options.keepAlive.maxClusterRestarts=3] The maximal Amount of Cluster Restarts, which can be executed by the keepAlive Function in less than 1 hour.
+  * @param {Number} [options.keepAlive.maxMissedHeartbeats=5] The maximal Amount of missed Hearbeats, upon the Cluster should be respawned.
   * @param {string} [options.token] Token to use for automatic internal shard count and passing to bot file
   */
   constructor(file, options = {}) {
@@ -32,6 +37,7 @@ class ClusterManager extends EventEmitter {
         execArgv: [],
         respawn: true,
         mode: 'process',
+        keepAlive: {},
         token: process.env.DISCORD_TOKEN,
       },
       options,
@@ -125,6 +131,22 @@ class ClusterManager extends EventEmitter {
     }
 
 
+    /**
+    * Whether Clusters should be respawned, when the ClusterClient did not sent any Heartbeats.
+    * @type {Object}
+    */
+    this.keepAlive = options.keepAlive;
+    if (typeof this.keepAlive !== 'object') {
+      throw new TypeError('CLIENT_INVALID_OPTION', 'keepAlive Options', 'a Object');
+    }
+    if(Object.keys(options.keepAlive).length !== 0){
+      this.keepAlive.interval = options.keepAlive.interval || 10000;
+      this.keepAlive.maxMissedHeartbeats = options.keepAlive.maxMissedHeartbeats || 5;
+      this.keepAlive.maxClusterRestarts = options.keepAlive.maxClusterRestarts || 3;
+    }
+
+  
+
 
 
     /**
@@ -136,7 +158,7 @@ class ClusterManager extends EventEmitter {
     * A collection of all clusters the manager spawned
     * @type {Collection<number, Cluster>}
     */
-    this.clusters = new Discord.Collection();
+    this.clusters = new Map();
     this.shardclusterlist = null;
     process.env.SHARD_LIST = undefined;
     process.env.TOTAL_SHARDS = this.totalShards;
@@ -144,6 +166,7 @@ class ClusterManager extends EventEmitter {
     process.env.CLUSTER_COUNT = this.totalClusters;
     process.env.CLUSTER_MANAGER = true;
     process.env.CLUSTER_MANAGER_MODE = this.mode;
+    process.env.KEEP_ALIVE_INTERVAL = this.keepAlive.interval;
     process.env.DISCORD_TOKEN = this.token;
 
 
@@ -166,7 +189,7 @@ class ClusterManager extends EventEmitter {
    */
   async spawn(amount = this.totalShards, delay = 6000, spawnTimeout) {
     if (amount === 'auto') {
-      amount = await Discord.fetchRecommendedShards(this.token, 1000);
+      amount = await Util.fetchRecommendedShards(this.token, 1000);
       this.totalShards = amount;
       this._debug(`Discord recommanded Total Shard Count of ${amount}`)
     } else {
@@ -212,7 +235,7 @@ class ClusterManager extends EventEmitter {
       const promises = [];
       const cluster = this.createCluster(i, this.shardclusterlist[i], this.totalShards)
       promises.push(cluster.spawn(spawnTimeout));
-      if (delay > 0 && this.clusters.size !== this.totalClusters) promises.push(Discord.Util.delayFor(delay * this.shardclusterlist[i].length));
+      if (delay > 0 && this.clusters.size !== this.totalClusters) promises.push(Util.delayFor(delay * this.shardclusterlist[i].length));
       await Promise.all(promises); // eslint-disable-line no-await-in-loop
     }
     return this.clusters;
@@ -316,7 +339,7 @@ class ClusterManager extends EventEmitter {
 
     for (const cluster of this.clusters.values()) {
       const promises = [cluster.respawn(respawnDelay, spawnTimeout)];
-      if (++s < this.clusters.size && shardDelay > 0) promises.push(Discord.Util.delayFor(this.shardclusterlist[cluster.id].length*shardDelay));
+      if (++s < this.clusters.size && shardDelay > 0) promises.push(Util.delayFor(this.shardclusterlist[cluster.id].length*shardDelay));
       await Promise.all(promises); // eslint-disable-line no-await-in-loop
     }
     this._debug('Respawning all Clusters')
@@ -350,7 +373,8 @@ class ClusterManager extends EventEmitter {
   */
   evalOnCluster(script, options) {
     if(options.hasOwnProperty('shard')){
-        options.cluster = parseInt(Object.entries(Object.assign({}, this.shardclusterlist)).find(i => i[1].includes(options.shard)) ? i[1].includes(options.shard))[0]) : 0;
+        const findcluster = [...this.clusters.values()].find(i => i.shardlist.includes(options.shard));
+        options.cluster = findcluster ? findcluster.id : 0;
     }
     const cluster = this.clusters.get(options.cluster);
     if (!cluster) return Promise.reject(new Error('CLUSTER_DOES_NOT_EXIST', options.cluster));
@@ -371,7 +395,7 @@ class ClusterManager extends EventEmitter {
     }).catch((e) => (new Error(e.toString())))
   }
 
-
+  
   /**
    * Logsout the Debug Messages
    * <warn>Using this method just emits the Debug Event.</warn>
