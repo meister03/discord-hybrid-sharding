@@ -45,7 +45,7 @@ npm i discord-hybrid-sharding
 
 # Setting Up
 
-**[Checkout our Documentation here](https://infinitytmbots.github.io/discord-hybrid-sharding)**
+**[Checkout our Documentation here](https://sharding.js.org)**
 
 First we include the module into the project (into your shard/cluster file).
 Filename: Cluster.js
@@ -53,9 +53,10 @@ Filename: Cluster.js
 const Cluster = require("discord-hybrid-sharding");
 let {token} = require("./config.json");
 const manager = new Cluster.Manager(`${__dirname}/bot.js`,{
-                                       totalShards: 7 ,
+                                       totalShards: 7 , //or 'auto'
                                       ///See below for more options
-                                       totalClusters: 2, 
+                                       shardsPerClusters: 2, 
+                                       //totalClusters: 7,
                                        mode: "process" ,  //you can also choose worker
                                        token: token,
                                        usev13: true //When you do not use v13 turn it to false
@@ -97,6 +98,7 @@ client.cluster.broadcastEval(c => c.guilds.cache.size)
 | ------------- | ------------- | ------------- | ------------- |
 | totalShards | number/string| 'auto'| The Number of Internal Shards, which should be spawned |
 | totalClusters | number/string| 'auto' | The Number of Processes/Clusters which should be spawned |
+| shardsPerClusters | number/string| 'auto' | The Number of Shards, which should be in one Processes/Cluster |
 | shardList | Array[Number] | not-required | On Cross hosting or spawning specific shards you can provided a shardList of internal Shards id, which should get spawned |
 | mode | "worker/process" | worker | The Cluster.Manager Mode for the processes |
 | token | string | not-required | The Bot token is just required, when you set the totalShards on auto |

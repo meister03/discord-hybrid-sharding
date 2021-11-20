@@ -89,6 +89,22 @@ class ClusterManager extends EventEmitter {
         throw new RangeError('CLIENT_INVALID_OPTION', 'Amount of Clusters', 'an integer.');
       }
     }
+
+    /**
+    * Amount of Shards per Clusters
+    * @type {number}
+    */
+     this.shardsPerClusters = options.shardsPerClusters;
+     if (this.shardsPerClusters) {
+       if (typeof this.shardsPerClusters !== 'number' || isNaN(this.shardsPerClusters)) {
+         throw new TypeError('CLIENT_INVALID_OPTION', 'Amount of ShardsPerClusters', 'a number.');
+       }
+       if (this.shardsPerClusters < 1) throw new RangeError('CLIENT_INVALID_OPTION', 'Amount of shardsPerClusters', 'at least 1.');
+       if (!Number.isInteger(this.shardsPerClusters)) {
+         throw new RangeError('CLIENT_INVALID_OPTION', 'Amount of Shards Per Clusters', 'an integer.');
+       }
+     }
+
     /**
     * Mode for shards to spawn with
     * @type {ClusterManagerMode}
@@ -216,6 +232,11 @@ class ClusterManager extends EventEmitter {
     }
 
     if (this.shardList === "auto") this.shardList = [...Array(amount).keys()];
+
+    //Calculate Shards per Cluster:
+    if(this.shardsPerClusters) this.totalClusters = Math.ceil(this.shardList.length/this.shardsPerClusters);
+
+
     this.shardclusterlist = this.shardList.chunk(Math.ceil(this.shardList.length / this.totalClusters));
     if (this.shardclusterlist.length !== this.totalClusters) {
       this.totalClusters = this.shardclusterlist.length;

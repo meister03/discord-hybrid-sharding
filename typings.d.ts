@@ -1,7 +1,7 @@
 declare module 'discord-hybrid-sharding' {
   import { EventEmitter } from 'events';
   import { ChildProcess } from 'child_process';
-  import { Client as DJsClient } from "discord.js"
+  import { Client as DJsClient } from "discord.js";
   export class Cluster extends EventEmitter {
     constructor(manager: Manager, id: number);
     private _evals: Map<string, Promise<any>>;
@@ -111,6 +111,7 @@ declare module 'discord-hybrid-sharding' {
     public clusters: Map<number, Cluster>;
     public token: string | null;
     public totalClusters: number | 'auto';
+    public shardsPerClusters: number | 'auto';
     public totalShards: number | 'auto';
     public shardList: number[] | 'auto';
     public keepAlive: keepAliveOptions;
