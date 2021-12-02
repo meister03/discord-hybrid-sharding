@@ -156,12 +156,12 @@ declare module 'discord-hybrid-sharding' {
   }
 
   export class data {
-    public SHARD_LIST: number[];
-    public TOTAL_SHARDS: number;
-    public CLUSTER_COUNT: number;
-    public CLUSTER: number;
-    public CLUSTER_MANAGER_MODE: ClusterManagerMode;
-    public KEEP_ALIVE_INTERVAL: number;
+    static SHARD_LIST: number[];
+    static TOTAL_SHARDS: number;
+    static CLUSTER_COUNT: number;
+    static CLUSTER: number;
+    static CLUSTER_MANAGER_MODE: ClusterManagerMode;
+    static KEEP_ALIVE_INTERVAL: number;
   }
 
 
