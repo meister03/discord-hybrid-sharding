@@ -198,12 +198,12 @@ class ClusterManager extends EventEmitter {
   /**
    * Spawns multiple internal shards.
    * @param {number|string} [amount=this.totalShards] Number of internal shards to spawn
-   * @param {number} [delay=5500] How long to wait in between spawning each cluster (in milliseconds)
+   * @param {number} [delay=7000] How long to wait in between spawning each cluster (in milliseconds)
    * @param {number} [spawnTimeout=30000] The amount in milliseconds to wait until the {@link Client} has become ready
    * before resolving. (-1 or Infinity for no wait)
    * @returns {Promise<Collection<number, Shard>>}
    */
-  async spawn(amount = this.totalShards, delay = 6000, spawnTimeout) {
+  async spawn(amount = this.totalShards, delay = 7000, spawnTimeout) {
     if (amount === 'auto') {
       amount = await Util.fetchRecommendedShards(this.token, 1000);
       this.totalShards = amount;
