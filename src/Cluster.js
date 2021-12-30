@@ -147,7 +147,8 @@ class Cluster extends EventEmitter {
           execArgv: this.execArgv,
         })
         .on('message', this._handleMessage.bind(this))
-        .on('exit', this._exitListener);
+        .on('exit', this._exitListener)
+        .on('error', this._handleError.bind(this));
     } else if (this.manager.mode === 'worker') {
       this.worker = new Worker(path.resolve(this.manager.file), { workerData: this.env })
         .on('message', this._handleMessage.bind(this))

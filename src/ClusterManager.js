@@ -94,16 +94,16 @@ class ClusterManager extends EventEmitter {
     * Amount of Shards per Clusters
     * @type {number}
     */
-     this.shardsPerClusters = options.shardsPerClusters;
-     if (this.shardsPerClusters) {
-       if (typeof this.shardsPerClusters !== 'number' || isNaN(this.shardsPerClusters)) {
-         throw new TypeError('CLIENT_INVALID_OPTION', 'Amount of ShardsPerClusters', 'a number.');
-       }
-       if (this.shardsPerClusters < 1) throw new RangeError('CLIENT_INVALID_OPTION', 'Amount of shardsPerClusters', 'at least 1.');
-       if (!Number.isInteger(this.shardsPerClusters)) {
-         throw new RangeError('CLIENT_INVALID_OPTION', 'Amount of Shards Per Clusters', 'an integer.');
-       }
-     }
+    this.shardsPerClusters = options.shardsPerClusters;
+    if (this.shardsPerClusters) {
+      if (typeof this.shardsPerClusters !== 'number' || isNaN(this.shardsPerClusters)) {
+        throw new TypeError('CLIENT_INVALID_OPTION', 'Amount of ShardsPerClusters', 'a number.');
+      }
+      if (this.shardsPerClusters < 1) throw new RangeError('CLIENT_INVALID_OPTION', 'Amount of shardsPerClusters', 'at least 1.');
+      if (!Number.isInteger(this.shardsPerClusters)) {
+        throw new RangeError('CLIENT_INVALID_OPTION', 'Amount of Shards Per Clusters', 'an integer.');
+      }
+    }
 
     /**
     * Mode for shards to spawn with
@@ -155,13 +155,13 @@ class ClusterManager extends EventEmitter {
     if (typeof this.keepAlive !== 'object') {
       throw new TypeError('CLIENT_INVALID_OPTION', 'keepAlive Options', 'a Object');
     }
-    if(Object.keys(options.keepAlive).length !== 0){
+    if (Object.keys(options.keepAlive).length !== 0) {
       this.keepAlive.interval = options.keepAlive.interval || 10000;
       this.keepAlive.maxMissedHeartbeats = options.keepAlive.maxMissedHeartbeats || 5;
       this.keepAlive.maxClusterRestarts = options.keepAlive.maxClusterRestarts || 3;
     }
 
-  
+
 
 
 
@@ -234,7 +234,7 @@ class ClusterManager extends EventEmitter {
     if (this.shardList === "auto") this.shardList = [...Array(amount).keys()];
 
     //Calculate Shards per Cluster:
-    if(this.shardsPerClusters) this.totalClusters = Math.ceil(this.shardList.length/this.shardsPerClusters);
+    if (this.shardsPerClusters) this.totalClusters = Math.ceil(this.shardList.length / this.shardsPerClusters);
 
 
     this.shardclusterlist = this.shardList.chunk(Math.ceil(this.shardList.length / this.totalClusters));
@@ -299,12 +299,17 @@ class ClusterManager extends EventEmitter {
   * @returns {Promise<*>|Promise<Array<*>>} Results of the script execution
   */
   broadcastEval(script, cluster) {
-    if (this.usev13) {
-
+    if (this.usev13 && cluster.usev13 !== false) {
       const options = cluster || {};
+      if (options.usev13 === false) {
+        //usev13 deactivated, when Cross-Hosting is used
+        return this._performOnShards('eval', [script], options.cluster);
+      }
       if (typeof script !== 'function') return Promise.reject(new TypeError('ClUSTERING_INVALID_EVAL_BROADCAST'));
       return this._performOnShards('eval', [`(${script})(this, ${JSON.stringify(options.context)})`], options.cluster);
     }
+
+    if(typeof cluster === 'object') cluster = cluster.cluster;
     return this._performOnShards('eval', [script], cluster);
   }
   /**
@@ -360,7 +365,7 @@ class ClusterManager extends EventEmitter {
 
     for (const cluster of this.clusters.values()) {
       const promises = [cluster.respawn(respawnDelay, spawnTimeout)];
-      if (++s < this.clusters.size && shardDelay > 0) promises.push(Util.delayFor(this.shardclusterlist[cluster.id].length*shardDelay));
+      if (++s < this.clusters.size && shardDelay > 0) promises.push(Util.delayFor(this.shardclusterlist[cluster.id].length * shardDelay));
       await Promise.all(promises); // eslint-disable-line no-await-in-loop
     }
     this._debug('Respawning all Clusters')
@@ -378,12 +383,12 @@ class ClusterManager extends EventEmitter {
     const _eval = typeof script === 'function' ? `(${script})(this)` : script;
     let result;
     let error;
-    try{
+    try {
       result = await eval(script)
-    }catch(err){
+    } catch (err) {
       error = err;
     }
-    const promise = {_results: result, _error: error}
+    const promise = { _results: result, _error: error }
     return promise;
   }
 
@@ -393,9 +398,9 @@ class ClusterManager extends EventEmitter {
   * @private
   */
   evalOnCluster(script, options) {
-    if(options.hasOwnProperty('shard')){
-        const findcluster = [...this.clusters.values()].find(i => i.shardlist.includes(options.shard));
-        options.cluster = findcluster ? findcluster.id : 0;
+    if (options.hasOwnProperty('shard')) {
+      const findcluster = [...this.clusters.values()].find(i => i.shardlist.includes(options.shard));
+      options.cluster = findcluster ? findcluster.id : 0;
     }
     const cluster = this.clusters.get(options.cluster);
     if (!cluster) return Promise.reject(new Error('CLUSTER_DOES_NOT_EXIST', options.cluster));
@@ -416,7 +421,7 @@ class ClusterManager extends EventEmitter {
     }).catch((e) => (new Error(e.toString())))
   }
 
-  
+
   /**
    * Logsout the Debug Messages
    * <warn>Using this method just emits the Debug Event.</warn>
