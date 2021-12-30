@@ -193,6 +193,12 @@ class ClusterManager extends EventEmitter {
     */
     this._nonce = new Map();
 
+    /**
+    * A Array of IDS[Number], which should be assigned to the spawned Clusters
+    * @type {Array[Number]}
+    */
+    this.clusterList = options.clusterList  || [];
+
     this._debug(`[START] Cluster Manager has been initalized`)
   }
   /**
@@ -254,7 +260,8 @@ class ClusterManager extends EventEmitter {
     ShardList: ${this.shardclusterlist.join(', ')}`)
     for (let i = 0; i < this.totalClusters; i++) {
       const promises = [];
-      const cluster = this.createCluster(i, this.shardclusterlist[i], this.totalShards)
+      const clusterId = this.clusterList[i] || i;
+      const cluster = this.createCluster(clusterId, this.shardclusterlist[i], this.totalShards)
       promises.push(cluster.spawn(spawnTimeout));
       if (delay > 0 && this.clusters.size !== this.totalClusters) promises.push(Util.delayFor(delay * this.shardclusterlist[i].length));
       await Promise.all(promises); // eslint-disable-line no-await-in-loop
@@ -362,10 +369,11 @@ class ClusterManager extends EventEmitter {
   async respawnAll(shardDelay = 5500, respawnDelay = 500, spawnTimeout) {
     this._nonce.clear()
     let s = 0;
-
+    let i = 0;
     for (const cluster of this.clusters.values()) {
       const promises = [cluster.respawn(respawnDelay, spawnTimeout)];
-      if (++s < this.clusters.size && shardDelay > 0) promises.push(Util.delayFor(this.shardclusterlist[cluster.id].length * shardDelay));
+      if (++s < this.clusters.size && shardDelay > 0) promises.push(Util.delayFor(this.shardclusterlist[i].length * shardDelay));
+      i++
       await Promise.all(promises); // eslint-disable-line no-await-in-loop
     }
     this._debug('Respawning all Clusters')
