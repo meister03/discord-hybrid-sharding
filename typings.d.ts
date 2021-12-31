@@ -90,7 +90,7 @@ declare module 'discord-hybrid-sharding' {
       options?: {
         totalShards?: number | 'auto';
         totalClusters?: number | 'auto';
-        shardsPerClusters?: number | 'auto';
+        shardsPerClusters?: number;
         shardList?: number[] | 'auto';
         mode?: ClusterManagerMode;
         respawn?: boolean;
@@ -115,6 +115,7 @@ declare module 'discord-hybrid-sharding' {
     public shardsPerClusters: number | 'auto';
     public totalShards: number | 'auto';
     public shardList: number[] | 'auto';
+    public clusterList: number[]
     public keepAlive: keepAliveOptions;
     public broadcast(message: any): Promise<Cluster[]>;
     public broadcastEval(script: string): Promise<any[]>;
