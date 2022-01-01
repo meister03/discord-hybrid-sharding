@@ -2,6 +2,7 @@ declare module 'discord-hybrid-sharding' {
   import { EventEmitter } from 'events';
   import { ChildProcess } from 'child_process';
   import { Client as DJsClient } from "discord.js";
+
   export class Cluster extends EventEmitter {
     constructor(manager: Manager, id: number);
     private _evals: Map<string, Promise<any>>;
@@ -22,14 +23,15 @@ declare module 'discord-hybrid-sharding' {
 
     private _restarts: object;
 
-    public eval(script: string): Promise<any>;
-    public eval<T>(fn: (client: client) => T): Promise<T[]>;
+    public eval(script: string): Promise<unknown>;
+    public eval<T>(fn: (client: Client) => T): Promise<T>;
+    public eval<T, P>(fn: (client: Client, context: Serialized<P>) => T, context: P): Promise<T>;
     public fetchClientValue(prop: string): Promise<any>;
     public kill(): void;
-    public respawn(delay?: number, spawnTimeout?: number): Promise<ChildProcess>;
+    public respawn(options?: { delay?: number; timeout?: number }): Promise<ChildProcess>;
     public send(message: any): Promise<Cluster>;
     public request(message: BaseMessage): Promise<BaseMessage>;
-    public spawn(spawnTimeout?: number): Promise<ChildProcess>;
+    public spawn(timeout?: number): Promise<ChildProcess>;
 
     private _checkIfClusterAlive(): Promise<any[]>;
     private _cleanupHearbeat(): Promise<any[]>;
@@ -47,8 +49,8 @@ declare module 'discord-hybrid-sharding' {
     public once(event: string, listener: (...args: any[]) => void): this;
   }
 
-  export class Client extends EventEmitter{
-    constructor(client: client, usev13?: boolean);
+  export class Client extends EventEmitter {
+    constructor(client: client);
     private _handleMessage(message: any): void;
     private _respond(type: string, message: any): void;
     private _nonce: Map<string, Promise<any>>;
@@ -67,15 +69,22 @@ declare module 'discord-hybrid-sharding' {
     public evalOnCluster<T>(fn: (client: client) => T, options: { cluster: number; timeout?: number }): Promise<T>;
     public evalOnCluster<T>(fn: (client: client) => T, options: { cluster: number; timeout?: number }): Promise<any[]>;
     public broadcastEval(script: string): Promise<any[]>;
-    public broadcastEval(script: string, cluster: number): Promise<any>;
-    public broadcastEval<T>(fn: (client: client) => T): Promise<T[]>;
-    public broadcastEval<T>(fn: (client: client) => T, options: {cluster: number, context: any}): Promise<T>;
+    public broadcastEval(script: string, options: { cluster: number }): Promise<any>;
+    public broadcastEval<T>(fn: (client: Client) => Awaitable<T>): Promise<Serialized<T>[]>;
+    public broadcastEval<T>(fn: (client: Client) => Awaitable<T>, options: { cluster: number }): Promise<Serialized<T>>;
+    public broadcastEval<T, P>(
+      fn: (client: Client, context: Serialized<P>) => Awaitable<T>,
+      options: { context: P },
+    ): Promise<Serialized<T>[]>;
+    public broadcastEval<T, P>(
+      fn: (client: Client, context: Serialized<P>) => Awaitable<T>,
+      options: { context: P; cluster: number },
+    ): Promise<Serialized<T>>;
     public fetchClientValues(prop: string): Promise<any[]>;
     public fetchClientValues(prop: string, cluster: number): Promise<any>;
-    public respawnAll(clusterDelay?: number, respawnDelay?: number, spawnTimeout?: number): Promise<void>;
     public send(message: any): Promise<void>;
     public request(message: Object): Promise<BaseMessage>;
-
+    public respawnAll(options?: ClusterRespawnOptions): Promise<void>;
     private _heartbeatAckMessage(): Promise<any[]>;
     private _checkIfAckRecieved(): Promise<any[]>;
     private _checkIfClusterAlive(): Promise<any[]>;
@@ -97,7 +106,6 @@ declare module 'discord-hybrid-sharding' {
         shardArgs?: string[];
         token?: string;
         execArgv?: string[];
-        usev13?: boolean;
         keepAlive?: keepAliveOptions;
       },
     );
@@ -119,20 +127,24 @@ declare module 'discord-hybrid-sharding' {
     public keepAlive: keepAliveOptions;
     public broadcast(message: any): Promise<Cluster[]>;
     public broadcastEval(script: string): Promise<any[]>;
-    public broadcastEval(script: string, cluster: number): Promise<any>;
-    public broadcastEval<T>(fn: (client: client) => T): Promise<T[]>;
-    public broadcastEval<T>(fn: (client: client) => T, options: {cluster: number, context: any}): Promise<T>;
+    public broadcastEval(script: string, options: { cluster: number }): Promise<any>;
+    public broadcastEval<T>(fn: (client: Client) => Awaitable<T>): Promise<Serialized<T>[]>;
+    public broadcastEval<T>(fn: (client: Client) => Awaitable<T>, options: { cluster: number }): Promise<Serialized<T>>;
+    public broadcastEval<T, P>(
+      fn: (client: Client, context: Serialized<P>) => Awaitable<T>,
+      options: { context: P },
+    ): Promise<Serialized<T>[]>;
+    public broadcastEval<T, P>(
+      fn: (client: Client, context: Serialized<P>) => Awaitable<T>,
+      options: { context: P; cluster: number },
+    ): Promise<Serialized<T>>;
     public createCluster(id: number, clusterstospawn: number[], totalshards: number): Cluster;
     public fetchClientValues(prop: string): Promise<any[]>;
     public fetchClientValues(prop: string, cluster: number): Promise<any>;
     public evalOnManager(script: string): Promise<any[]>;
     private evalOnCluster(script: string, options: Object): Promise<any[]>;
-    public respawnAll(
-      clusterDelay?: number,
-      respawnDelay?: number,
-      spawnTimeout?: number,
-    ): Promise<Map<number, Cluster>>;
-    public spawn(amount?: number | 'auto', delay?: number, spawnTimeout?: number): Promise<Map<number, Cluster>>;
+    public respawnAll(options?: ClusterRespawnOptions): Promise<Map<number, Cluster>>;
+    public spawn(options?: ClusterSpawnOptions): Promise<Map<number, Cluster>>;
 
     public on(event: 'clusterCreate', listener: (cluster: Cluster) => void): this;
     public on(event: "debug", listener: (message: string) => void): this;
@@ -141,17 +153,17 @@ declare module 'discord-hybrid-sharding' {
     public once(event: "debug", listener: (message: string) => void): this;
   }
 
-  export class BaseMessage{
+  export class BaseMessage {
     public _sCustom: true;
     public nonce: String;
     private destructMessage(message: Object): Promise<Object>;
     public toJSON(): Promise<Object>;
   }
 
-  export class IPCMessage{
+  export class IPCMessage {
     public instance: Cluster | Client;
     public raw: BaseMessage;
-    public send(message: Object): Promise<Cluster|Client>;
+    public send(message: Object): Promise<Cluster | Client>;
     public request(message: Object): Promise<Object>;
     public reply(message: Object): Promise<Object>;
 
@@ -184,4 +196,29 @@ declare module 'discord-hybrid-sharding' {
     maxMissedHeartbeats: number | 5;
   }
 
+  export interface ClusterSpawnOptions {
+    amount?: number | 'auto';
+    delay?: number;
+    timeout?: number;
+  }
+  
+  export interface ClusterRespawnOptions {
+    clusterDelay?: number;
+    respawnDelay?: number;
+    timeout?: number;
+  }
+
+  export type Awaitable<T> = T | PromiseLike<T>;
+  export type Serialized<T> = T extends symbol | bigint | (() => any)
+    ? never
+    : T extends number | string | boolean | undefined
+    ? T
+    : T extends { toJSON(): infer R }
+    ? R
+    : T extends ReadonlyArray<infer V>
+    ? Serialized<V>[]
+    : T extends ReadonlyMap<unknown, unknown> | ReadonlySet<unknown>
+    ? {}
+    : { [K in keyof T]: Serialized<T[K]> };
 }
+
