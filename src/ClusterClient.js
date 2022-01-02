@@ -1,4 +1,4 @@
-const {IPCMessage, BaseMessage} = require('./IPCMessage.js')
+const { IPCMessage, BaseMessage } = require('./IPCMessage.js')
 const Util = require('./Util.js');
 const { Events } = require('./Constants.js');
 const EventEmitter = require('events');
@@ -7,7 +7,7 @@ class ClusterClient extends EventEmitter {
   /**
   * @param {Client} client Client of the current cluster
   */
-  constructor(client, usev13) {
+  constructor(client) {
     super();
     /**
      * Client for the Cluser
@@ -42,7 +42,6 @@ class ClusterClient extends EventEmitter {
     */
     this.heartbeat = {};
 
-    this.usev13 = usev13 || false;
     /**
      * Message port for the master process (only when {@link ClusterClientUtil#mode} is `worker`)
      * @type {?MessagePort}
@@ -53,10 +52,10 @@ class ClusterClient extends EventEmitter {
       process.on('message', this._handleMessage.bind(this));
       client.on('ready', () => {
         process.send({ _ready: true });
-        if (this.keepAliveInterval) this._cleanupHearbeat()
         if (this.keepAliveInterval) {
-          this._checkIfClusterAlive()
-          this._checkIfAckRecieved()
+          this._cleanupHearbeat();
+          this._checkIfClusterAlive();
+          this._checkIfAckRecieved();
         }
       });
       client.on('disconnect', () => {
@@ -70,10 +69,10 @@ class ClusterClient extends EventEmitter {
       this.parentPort.on('message', this._handleMessage.bind(this));
       client.on('ready', () => {
         this.parentPort.postMessage({ _ready: true });
-        if (this.keepAliveInterval) this._cleanupHearbeat()
         if (this.keepAliveInterval) {
-          this._checkIfClusterAlive()
-          this._checkIfAckRecieved()
+          this._cleanupHearbeat();
+          this._checkIfClusterAlive();
+          this._checkIfAckRecieved();
         }
       });
       client.on('disconnect', () => {
@@ -136,7 +135,7 @@ class ClusterClient extends EventEmitter {
   * @emits Cluster#message
   */
   send(message) {
-    if(typeof message === 'object') message = new BaseMessage(message).toJSON();
+    if (typeof message === 'object') message = new BaseMessage(message).toJSON();
     return new Promise((resolve, reject) => {
       if (this.mode === 'process') {
         process.send(message, err => {
@@ -182,7 +181,7 @@ class ClusterClient extends EventEmitter {
   /**
    * Evaluates a script or function on all clusters, or a given cluster, in the context of the {@link Client}s.
    * @param {string|Function} script JavaScript to run on each cluster
-   * @param {number} [cluster] Cluster to run script on, all if undefined
+   * @param {BroadcastEvalOptions} [options={}] The options for the broadcast
    * @returns {Promise<*>|Promise<Array<*>>} Results of the script execution
    * @example
    * client.cluster.broadcastEval('this.guilds.cache.size')
@@ -190,50 +189,25 @@ class ClusterClient extends EventEmitter {
    *   .catch(console.error);
    * @see {@link ClusterManager#broadcastEval}
    */
-  broadcastEval(script, cluster) {
-    if (this.usev13) {
-
-      return new Promise((resolve, reject) => {
-        const options = cluster || {};
-
-        const parent = this.parentPort || process;
-        if (typeof script !== 'function') {
-          reject(new TypeError('CLUSTERING_INVALID_EVAL_BROADCAST'));
-          return;
-        }
-
-        script = `(${script})(this, ${JSON.stringify(options.context)})`;
-        const listener = message => {
-          if (message._sEval !== script || message._sEvalShard !== options.cluster) return;
-          parent.removeListener('message', listener);
-          if (!message._error) resolve(message._result);
-          else reject(Util.makeError(message._error));
-        };
-        parent.on('message', listener);
-        this.send({ _sEval: script, _sEvalShard: options.cluster }).catch(err => {
-          parent.removeListener('message', listener);
-          reject(err);
-        });
-      })
-
-    }
+  broadcastEval(script, options = {}) {
     return new Promise((resolve, reject) => {
+      if (!script || (typeof script !== 'string' && typeof script !== 'function')) reject(new TypeError('Script for BroadcastEvaling has not been provided or must be a valid String!'));
+      script = typeof script === 'function' ? `(${script})(this, ${JSON.stringify(options.context)})` : script;
+
       const parent = this.parentPort || process;
-      script = typeof script === 'function' ? `(${script})(this)` : script;
 
       const listener = message => {
-        if (!message || message._sEval !== script || message._sEvalShard !== cluster) return;
+        if (message._sEval !== script || message._sEvalShard !== options.cluster) return;
         parent.removeListener('message', listener);
         if (!message._error) resolve(message._result);
         else reject(Util.makeError(message._error));
       };
       parent.on('message', listener);
-
-      this.send({ _sEval: script, _sEvalShard: cluster }).catch(err => {
+      this.send({ _sEval: script, _sEvalShard: options.cluster }).catch(err => {
         parent.removeListener('message', listener);
         reject(err);
       });
-    });
+    })
   }
 
   /**
@@ -283,7 +257,8 @@ class ClusterClient extends EventEmitter {
   evalOnCluster(script, options = {}) {
     return new Promise((resolve, reject) => {
       if (!options.hasOwnProperty('cluster') && !options.hasOwnProperty('shard')) reject('TARGET CLUSTER HAS NOT BEEN PROVIDED');
-      script = typeof script === 'function' ? `(${script})(this)` : script;
+      if (!script || (typeof script !== 'string' && typeof script !== 'function')) reject(new TypeError('Script for BroadcastEvaling has not been provided or must be a valid String!'));
+      script = typeof script === 'function' ? `(${script})(this, ${JSON.stringify(options.context)})` : script;
       const nonce = Date.now().toString(36) + Math.random().toString(36);
       this._nonce.set(nonce, { resolve, reject });
       if (!options.timeout) options.timeout = 10000;
@@ -307,10 +282,10 @@ class ClusterClient extends EventEmitter {
   *   .catch(console.error);
   * @see {@link IPCMessage#reply}
   */
-  request(message = {}){
+  request(message = {}) {
     message._sRequest = true;
     message._sReply = false;
-    message  = new BaseMessage(message).toJSON()
+    message = new BaseMessage(message).toJSON()
     return new Promise((resolve, reject) => {
       this._nonce.set(message.nonce, { resolve, reject });
       setTimeout(() => {
@@ -318,23 +293,19 @@ class ClusterClient extends EventEmitter {
           this._nonce.get(message.nonce).reject(new Error("EVAL Request Timed out"));
           this._nonce.delete(message.nonce);
         }
-      }, (message.timeout|| 10000));
+      }, (message.timeout || 10000));
       this.send(message);
-    }).catch(e => ({...message, error: e}))
+    }).catch(e => ({ ...message, error: e }))
   }
 
   /**
   * Requests a respawn of all clusters.
-  * @param {number} [clusterDelay=5000] How long to wait between clusters (in milliseconds)
-  * @param {number} [respawnDelay=500] How long to wait between killing a cluster's process/worker and restarting it
-  * (in milliseconds)
-  * @param {number} [spawnTimeout=30000] The amount in milliseconds to wait for a cluster to become ready before
-  * continuing to another. (-1 or Infinity for no wait)
+  * @param {ClusterRespawnOptions} [options] Options for respawning shards
   * @returns {Promise<void>} Resolves upon the message being sent
   * @see {@link ClusterManager#respawnAll}
   */
-  respawnAll(clusterDelay = 5000, respawnDelay = 500, spawnTimeout = 30000) {
-    return this.send({ _sRespawnAll: { clusterDelay, respawnDelay, spawnTimeout } });
+  respawnAll({ clusterDelay = 5000, respawnDelay = 7000, timeout = 30000 } = {}) {
+    return this.send({ _sRespawnAll: { clusterDelay, respawnDelay, timeout } });
   }
 
   /**
@@ -377,20 +348,20 @@ class ClusterClient extends EventEmitter {
       return;
     } else if (message.ack) {
       return this._heartbeatAckMessage();
-    } else if(message._sCustom){
-      if(message._sReply){
+    } else if (message._sCustom) {
+      if (message._sReply) {
         const promise = this._nonce.get(message.nonce);
-        if(promise){
+        if (promise) {
           promise.resolve(message)
           this._nonce.delete(message.nonce);
         }
         return;
-      }else if(message._sRequest){
+      } else if (message._sRequest) {
         //this.request(message).then(e => this.send(e)).catch(e => this.send({...message, error: e}))
       }
 
       let emitmessage;
-      if(typeof message === 'object') emitmessage = new IPCMessage(this, message)
+      if (typeof message === 'object') emitmessage = new IPCMessage(this, message)
       else emitmessage = message;
       /**
       * Emitted upon receiving a message from the parent process/worker.

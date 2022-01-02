@@ -10,23 +10,23 @@ When you are interested on auto-scaling & cross hosting on Machines. Look on thi
 
 ## Why?
 The Sharding Manager is very heavy and it uses more than 300mb on a light usage for every shard, during internal sharding just uses 20% of it. Internal Sharding reaches their limit on more than 14000 Guilds and it becomes slow when your bot gets bigger.
-Your only solution is to convert to the Sharding Manager. Thatsway this new Package will solve all your problems, because it spawns Shards, which has Internal Shards. **You can save up to 60% on resources**
+Your only solution is to convert to the Sharding Manager. Thatsway this new Package will solve all your problems (tested by many bots upon 20-170k Guilds), because it spawns Shards, which has Internal Shards. **You can save up to 60% on resources**
 
-- **Decentral Eval Function -> Listenerless, Less Memory Leaks & Cluster/Client has not to be ready**
+- **Decentral ClusterEval Function -> Listenerless, Less Memory Leaks & Cluster/Client has not to be ready**
 - **Heartbeat System -> Respawn Unresponsive or Death ClusterClient's**
 - **IPC System -> Client <-> ClusterManager -> `.request()`, `.reply()`, `.send()`**
 - Memory Efficient -> <60% less memory, when clustering
 - Debug Event -> A good overview of Cluster Informations
 - EvalOnManager Function & Other Cool Functions you need...
-
+- Support of `Strings` & `Functions with Context` on `broadcastEval`
 **Scroll down to check our new Functions.**
 
 ## How does it Work?
-There are Clusters/Master Shards, which are like normal shards on the sharding manager and the clusters spawns in addition internal shards. So you do not have to spawn so much normal Shards (master shards ), which you can replace with internal shards.
+There are Clusters/Master Shards, which are like normal Shards on the Sharding-Manager and the clusters spawns in addition internal shards. So you do not have to spawn so many normal Shards (master shards ), which you can replace with internal shards.
 "for process `n` , `n` internal shards"
 
 Example: `A 4k Discord Bot`
-Normaly we would spawn 4 shards with the Sharding Manager, but we start here with 2 Clusters/MasterShards, which spawns 2 internal shards ==> We save 2 shards in comparision to the Sharding Manager.
+Normaly we would spawn 4 shards with the Sharding Manager (`~ 4 x 300mb Ram`), but we start here with 2 Clusters/MasterShards, which spawns 2 internal shards ==> We save 2 shards in comparision to the Sharding Manager (`~ 2 x 300mb Ram`).
 
 ### See below for the Guide
 
@@ -39,13 +39,13 @@ npm i discord-hybrid-sharding
 
 # Discord.js v13
 - We also support the v13 Library Version
-- When your Broadcastevals are currently strings, dont change them since they are supported
-- But when you want to broadcast functions with the contexts. `Easily add the Option usev13, which is shown below.`
-- The methods `Manager#spawn()` accepts just seperate values, not a object like in v13 | e.g `Manager#spawn(undefined, undefined, -1)`
+- `Strings` and `Functions` with `context` are supported on `.broadcastEval`
+- Most public methods accept sole Objects such as `.spawn({amount: 20, timeout: -1})`
+- Very similar functions to the Discord.js ShardingManager and more for a advanced usage
 
 # Setting Up
 
-**[Checkout our Documentation here](https://infinitytmbots.github.io/discord-hybrid-sharding)**
+**[Checkout our Documentation here](https://sharding.js.org)**
 
 First we include the module into the project (into your shard/cluster file).
 Filename: Cluster.js
@@ -53,29 +53,28 @@ Filename: Cluster.js
 const Cluster = require("discord-hybrid-sharding");
 let {token} = require("./config.json");
 const manager = new Cluster.Manager(`${__dirname}/bot.js`,{
-                                       totalShards: 7 ,
-                                      ///See below for more options
-                                       totalClusters: 2, 
+                                       totalShards: 7 , //or 'auto'
+                                       ///See below for more options
+                                       shardsPerClusters: 2, 
+                                       //totalClusters: 7,
                                        mode: "process" ,  //you can also choose worker
                                        token: token,
-                                       usev13: true //When you do not use v13 turn it to false
                                     })
 manager.on('clusterCreate', cluster => console.log(`Launched Cluster ${cluster.id}`));
-manager.spawn(undefined, undefined, -1)
+manager.spawn({timeout: -1});
 ```
-### Sometimes the Cluster.Manager can choose a less amount of total Clusters, when it finds out, that a new cluster is not needed (in very rare cases...)
 
 After that, you have to insert the code below in your bot.js file
-FileName: Bot.js //You can name your file after you wish
+FileName: Bot.js //You can name your file after your wish
 ```js
 const Cluster = require("discord-hybrid-sharding");
 const Discord = require("discord.js");
 const client = new Discord.Client({
+   //@ts-ignore
  	shards: Cluster.data.SHARD_LIST,        //  A Array of Shard list, which will get spawned
 	shardCount: Cluster.data.TOTAL_SHARDS, // The Number of Total Shards
 });
-const usev13 = true; //When you do not use v13, turn this value to false
-client.cluster = new Cluster.Client(client, usev13); //Init the CLient & So we can also access broadcastEval...
+client.cluster = new Cluster.Client(client); //Init the Client & So we can also access broadcastEval...
 client.login("Your_Token");
 ```
 
@@ -84,10 +83,10 @@ client.login("Your_Token");
 *Following examples assume that your `Discord.Client` is called `client`.*
 
 ```js
-let guildcount = (await client.cluster.broadcastEval(`this.guilds.cache.size`)).reduce((acc, guildCount) => Number(acc + guildCount), 0);
-message.channel.send(`I am in ${guildcount} guilds`)
+client.cluster.broadcastEval(`this.guilds.cache.size`)
+      .then(results => console.log(`${results.reduce((prev, val) => prev + val, 0)} total guilds`))
 
-For v13:
+//or with functions:
 client.cluster.broadcastEval(c => c.guilds.cache.size)
 		.then(results => console.log(`${results.reduce((prev, val) => prev + val, 0)} total guilds`))
 .........
@@ -97,17 +96,18 @@ client.cluster.broadcastEval(c => c.guilds.cache.size)
 | ------------- | ------------- | ------------- | ------------- |
 | totalShards | number/string| 'auto'| The Number of Internal Shards, which should be spawned |
 | totalClusters | number/string| 'auto' | The Number of Processes/Clusters which should be spawned |
+| shardsPerClusters | number/string| 'auto' | The Number of Shards, which should be in one Processes/Cluster |
 | shardList | Array[Number] | not-required | On Cross hosting or spawning specific shards you can provided a shardList of internal Shards id, which should get spawned |
 | mode | "worker/process" | worker | The Cluster.Manager Mode for the processes |
 | token | string | not-required | The Bot token is just required, when you set the totalShards on auto |
 
 The Manager.spawn option are the same like Sharding Manager
-**[Checkout our Documentation here](https://infinitytmbots.github.io/discord-hybrid-sharding)**
+**[Checkout our Documentation here](https://sharding.js.org)**
 
 # Cluster Events
 | Event |  Description |
 | ------------- | -------------- |
-|clusterCreate  | When a Cluster is spawned the Event is triggered|
+| clusterCreate | When a Cluster is spawned the Event is triggered|
 
 
 
@@ -123,6 +123,20 @@ Other Properties:
 **Have fun and feel free to contribute/suggest or contact me on my discord server or per dm on Meister#9667**
 
 # Changes | Updating to Discord-Hybrid-Sharding
+
+The options is `cluster` instead of `shard`:
+```diff
+- .broadcastEval((c, context) => c.guilds.cache.get(context.guildId), {context: {guildId: `1234`}, shard: 0})
++ .broadcastEval((c, context) => c.guilds.cache.get(context.guildId), {context: {guildId: `1234`}, cluster: 0})
+```
+Small changing in the naming convention:
+```diff
+- client.shard.respawnAll({shardDelay = 5000, respawnDelay = 500, timeout = 30000})
+- manager.shard.respawnAll({shardDelay = 5000, respawnDelay = 500, timeout = 30000})
++ client.cluster.respawnAll({clusterDelay = 5000, respawnDelay = 5500, timeout = 30000})
++ manager.respawnAll({clusterDelay = 5000, respawnDelay = 5500, timeout = 30000})
+```
+Rename Property:
 ```diff
 - client.shard...
 + client.cluster...
@@ -156,8 +170,8 @@ Get all ShardID's in the current Cluster:
 - The Cluster will be respawned, when the given amount of missed Heartbeats have been reached
 ```js
 const manager = new Cluster.Manager(`${__dirname}/bot.js`,{
-                                       totalShards: 7 ,
-                                       totalClusters: 2, 
+                                       totalShards: 8 ,
+                                       shardsPerClusters: 2, 
                                        keepAlive: {
                                           interval: 2000, ///The Interval to send the Heartbeat
                                           maxMissedHeartbeats: 5, // The maximal Amount of missing Heartbeats until Cluster will be respawned
@@ -200,7 +214,7 @@ manager.on('clusterCreate', cluster => {
       cluster.request({content: 'Are you alive?', alive: true}).then(e => console.log(e)) ///Send a Message to the Client
    }, 5000);
 });
-manager.spawn(undefined, undefined, -1)
+manager.spawn({timeout: -1})
 ```
 
 ClusterClient | client.js

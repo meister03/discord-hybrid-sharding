@@ -1,8 +1,7 @@
 docs
 .github
 node_modules
-test.js
-test.ts
-testbot.js
+test
+.test
 .jsdoc.conf.json
 package-lock.json
