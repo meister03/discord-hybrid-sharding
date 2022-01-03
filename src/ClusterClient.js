@@ -195,15 +195,25 @@ class ClusterClient extends EventEmitter {
       script = typeof script === 'function' ? `(${script})(this, ${JSON.stringify(options.context)})` : script;
 
       const parent = this.parentPort || process;
+      let evaltimeout;
 
       const listener = message => {
         if (message._sEval !== script || message._sEvalShard !== options.cluster) return;
         parent.removeListener('message', listener);
+        if(evaltimeout) clearTimeout(evaltimeout);
         if (!message._error) resolve(message._result);
         else reject(Util.makeError(message._error));
       };
       parent.on('message', listener);
-      this.send({ _sEval: script, _sEvalShard: options.cluster }).catch(err => {
+      this.send({ _sEval: script, _sEvalShard: options.cluster, _sEvalTimeout: options.timeout }).then(m => {
+        if(options.timeout){
+          evaltimeout = setTimeout(()=> {
+            parent.removeListener('message', listener);
+            reject(new Error(`BROADCAST_EVAL_REQUEST_TIMED_OUT`));
+          }, options.timeout + 100); //Add 100 ms more to prevent timeout on client side
+        }
+      }).catch(err => {
+        if(evaltimeout) clearTimeout(evaltimeout);
         parent.removeListener('message', listener);
         reject(err);
       });
@@ -256,7 +266,7 @@ class ClusterClient extends EventEmitter {
   */
   evalOnCluster(script, options = {}) {
     return new Promise((resolve, reject) => {
-      if (!options.hasOwnProperty('cluster') && !options.hasOwnProperty('shard')) reject('TARGET CLUSTER HAS NOT BEEN PROVIDED');
+      if (!options.hasOwnProperty('cluster') && !options.hasOwnProperty('shard') && !options.hasOwnProperty('guildId')) reject('TARGET CLUSTER HAS NOT BEEN PROVIDED');
       if (!script || (typeof script !== 'string' && typeof script !== 'function')) reject(new TypeError('Script for BroadcastEvaling has not been provided or must be a valid String!'));
       script = typeof script === 'function' ? `(${script})(this, ${JSON.stringify(options.context)})` : script;
       const nonce = Date.now().toString(36) + Math.random().toString(36);

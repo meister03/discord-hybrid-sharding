@@ -195,7 +195,7 @@ class ClusterManager extends EventEmitter {
 
     /**
     * A Array of IDS[Number], which should be assigned to the spawned Clusters
-    * @type {Array[Number]}
+    * @type {Number[]}
     */
     this.clusterList = options.clusterList || [];
 
@@ -309,7 +309,7 @@ class ClusterManager extends EventEmitter {
   broadcastEval(script, options = {}) {
     if (!script || (typeof script !== 'string' && typeof script !== 'function')) return Promise.reject(new TypeError('ClUSTERING_INVALID_EVAL_BROADCAST'));
     script = typeof script === 'function' ? `(${script})(this, ${JSON.stringify(options.context)})` : script;
-    return this._performOnShards('eval', [script], options.cluster);
+    return this._performOnShards('eval', [script], options.cluster, options.timeout);
   }
   /**
    * Fetches a client property value of each cluster, or a given cluster.
@@ -330,22 +330,23 @@ class ClusterManager extends EventEmitter {
    * @param {string} method Method name to run on each cluster
    * @param {Array<*>} args Arguments to pass through to the method call
    * @param {number} [cluster] cluser to run on, all if undefined
+   * @param {number} [timeout] the amount of of time to wait until the promise will be rejected
    * @returns {Promise<*>|Promise<Array<*>>} Results of the method execution
    * @private
    */
-  _performOnShards(method, args, cluster) {
+  _performOnShards(method, args, cluster, timeout) {
 
     if (this.clusters.size === 0) return Promise.reject(new Error('CLUSTERING_NO_CLUSTERS'));
 
     if (typeof cluster === 'number') {
-      if (this.clusters.has(cluster)) return this.clusters.get(cluster)[method](...args);
+      if (this.clusters.has(cluster)) return this.clusters.get(cluster)[method](...args, undefined,timeout);
       return Promise.reject(new Error('CLUSTERING_CLUSTER_NOT_FOUND', cluster));
     }
 
     if (this.clusters.size !== this.totalClusters) return Promise.reject(new Error('CLUSTERING_IN_PROCESS'));
 
     const promises = [];
-    for (const cl of this.clusters.values()) promises.push(cl[method](...args));
+    for (const cl of this.clusters.values()) promises.push(cl[method](...args, undefined, timeout));
     return Promise.all(promises);
   }
 
@@ -395,6 +396,9 @@ class ClusterManager extends EventEmitter {
   */
   evalOnCluster(script, options) {
     script = typeof script === 'function' ? `(${script})(this, ${JSON.stringify(options.context)})` : script;
+    if(options.hasOwnProperty('guildId')){
+      options.shard = Util.shardIdForGuildId(options.guildId, this.totalShards)
+    } 
     if (options.hasOwnProperty('shard')) {
       const findcluster = [...this.clusters.values()].find(i => i.shardlist.includes(options.shard));
       options.cluster = findcluster ? findcluster.id : 0;

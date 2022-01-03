@@ -19,6 +19,7 @@ Your only solution is to convert to the Sharding Manager. Thatsway this new Pack
 - Debug Event -> A good overview of Cluster Informations
 - EvalOnManager Function & Other Cool Functions you need...
 - Support of `Strings` & `Functions with Context` on `broadcastEval`
+- Optional Timeout Feature on `.broadcastEval` for preventing memory leaks
 **Scroll down to check our new Functions.**
 
 ## How does it Work?
@@ -96,7 +97,7 @@ client.cluster.broadcastEval(c => c.guilds.cache.size)
 | ------------- | ------------- | ------------- | ------------- |
 | totalShards | number/string| 'auto'| The Number of Internal Shards, which should be spawned |
 | totalClusters | number/string| 'auto' | The Number of Processes/Clusters which should be spawned |
-| shardsPerClusters | number/string| 'auto' | The Number of Shards, which should be in one Processes/Cluster |
+| shardsPerClusters | number/string| --- | The Number of Shards, which should be in one Processes/Cluster |
 | shardList | Array[Number] | not-required | On Cross hosting or spawning specific shards you can provided a shardList of internal Shards id, which should get spawned |
 | mode | "worker/process" | worker | The Cluster.Manager Mode for the processes |
 | token | string | not-required | The Bot token is just required, when you set the totalShards on auto |
@@ -193,7 +194,7 @@ client.cluster.evalOnCluster(`this.cluster.id`, {cluster: 0, timeout: 10000})
 * The IPC System allows you to listen on your messages, which you sent.
 * You can communicate between the Cluster and the Client
 * This allows you to send requests from the Client to the Cluster and reply to them and viceversa
-* You can also send normal messages, which does not need to be replied
+* You can also send normal messages, which do not need to be replied
 
 ClusterManager | cluster.js
 ```js
@@ -236,13 +237,17 @@ setInterval(()=>{
 }, 5000)
 client.login("Your_Token");
 ```
-Evals a Script on the ClusterManager
+Evals a Script on the ClusterManager:
 ```diff
 + client.cluster.evalOnManager(`process.memoryUsage().rss/1024/1024`)
 ```
-Listen to some debug Messages and get informed about internal stuff.
+Listen to some debug Messages and get informed about internal stuff:
 ```diff
 + manager.on('debug', console.log)
+```
+Optional Timeout on broadcastEval (Promise will be rejected after the given Time):
+```diff
++  client.cluster.broadcastEval(`new Promise((resolve, reject) => {})`, {timeout: 10000})
 ```
 
 Open a PR/Issue when you need other Functions :)

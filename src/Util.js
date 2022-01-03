@@ -1,5 +1,5 @@
 const fetch = require('node-fetch');
-const {DefaultOptions, Endpoints} = require('./Constants.js')
+const { DefaultOptions, Endpoints } = require('./Constants.js')
 
 const has = (o, k) => Object.prototype.hasOwnProperty.call(o, k);
 class Util {
@@ -65,6 +65,19 @@ class Util {
     return new Promise(resolve => {
       setTimeout(resolve, ms);
     });
+  }
+
+  //Discord.js v13 Code | Credits: https://github.com/discordjs/discord.js/blob/main/src/sharding/ShardClientUtil.js#L239
+  /**
+  * Gets the Shard Id for the provided guild Id.
+  * @param {string} guildId  Discord Guild Id of the Server
+  * @param {number} totalShards The Amount of totalShards on the current instance
+  * @returns {Promise<string>} The shard Id
+  */
+  static shardIdForGuildId(guildId, totalShards = 1) {
+    const shard = Number(BigInt(guildId) >> 22n) % totalShards;
+    if (shard < 0) throw new Error('SHARD_MISCALCULATION_SHARDID_SMALLER_THAN_0', shard, guildId, totalShards);
+    return shard;
   }
 
   //Discord.js V12 Code | Credits: https://github.com/discordjs/discord.js/blob/v12/src/util/Util.js#L239
