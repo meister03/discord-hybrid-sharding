@@ -191,7 +191,7 @@ class ClusterClient extends EventEmitter {
    */
   broadcastEval(script, options = {}) {
     return new Promise((resolve, reject) => {
-      if (!script || (typeof script !== 'string' && typeof script !== 'function')) reject(new TypeError('Script for BroadcastEvaling has not been provided or must be a valid String!'));
+      if (!script || (typeof script !== 'string' && typeof script !== 'function')) reject(new TypeError('Script for BroadcastEvaling has not been provided or must be a valid String/Function!'));
       script = typeof script === 'function' ? `(${script})(this, ${JSON.stringify(options.context)})` : script;
 
       const parent = this.parentPort || process;
@@ -200,20 +200,20 @@ class ClusterClient extends EventEmitter {
       const listener = message => {
         if (message._sEval !== script || message._sEvalShard !== options.cluster) return;
         parent.removeListener('message', listener);
-        if(evaltimeout) clearTimeout(evaltimeout);
+        if (evaltimeout) clearTimeout(evaltimeout);
         if (!message._error) resolve(message._result);
         else reject(Util.makeError(message._error));
       };
       parent.on('message', listener);
       this.send({ _sEval: script, _sEvalShard: options.cluster, _sEvalTimeout: options.timeout }).then(m => {
-        if(options.timeout){
-          evaltimeout = setTimeout(()=> {
+        if (options.timeout) {
+          evaltimeout = setTimeout(() => {
             parent.removeListener('message', listener);
             reject(new Error(`BROADCAST_EVAL_REQUEST_TIMED_OUT`));
           }, options.timeout + 100); //Add 100 ms more to prevent timeout on client side
         }
       }).catch(err => {
-        if(evaltimeout) clearTimeout(evaltimeout);
+        if (evaltimeout) clearTimeout(evaltimeout);
         parent.removeListener('message', listener);
         reject(err);
       });
@@ -223,6 +223,9 @@ class ClusterClient extends EventEmitter {
   /**
   * Evaluates a script or function on the Cluster Manager
   * @param {string|Function} script JavaScript to run on the Manager
+  * @param {Object} options Some options such as the Evaltimeout or the Context
+  * @param {number} [options.timeout=10000] The time in ms to wait, until the eval will be rejected without any response
+  * @param {any} [options.context] The context to pass to the script, when providing functions
   * @returns {Promise<*>|Promise<Array<*>>} Result of the script execution
   * @example
   * client.cluster.evalOnManager('process.uptime')
@@ -230,23 +233,22 @@ class ClusterClient extends EventEmitter {
   *   .catch(console.error);
   * @see {@link ClusterManager#evalOnManager}
   */
-  evalOnManager(script) {
+  evalOnManager(script, options = {}) {
     return new Promise((resolve, reject) => {
       const parent = this.parentPort || process;
-      script = typeof script === 'function' ? `(${script})(this)` : script;
+      if (!script || (typeof script !== 'string' && typeof script !== 'function')) reject(new TypeError('Script for BroadcastEvaling has not been provided or must be a valid String/Function!'));
+      script = typeof script === 'function' ? `(${script})(this, ${JSON.stringify(options.context)})` : script;
 
-      const listener = message => {
-        if (!message || message._sManagerEval !== script) return;
-        parent.removeListener('message', listener);
-        if (!message._error) resolve(message._results);
-        else reject(Util.makeError(message._error));
-      };
-      parent.on('message', listener);
-
-      this.send({ _sManagerEval: script }).catch(err => {
-        parent.removeListener('message', listener);
-        reject(err);
-      });
+      const nonce = Date.now().toString(36) + Math.random().toString(36);
+      this._nonce.set(nonce, { resolve, reject });
+      if (!options.timeout) options.timeout = 10000;
+      setTimeout(() => {
+        if (this._nonce.has(nonce)) {
+          this._nonce.get(nonce).reject(new Error("EVAL Request Timed out"));
+          this._nonce.delete(nonce);
+        }
+      }, options.timeout);
+      this.send({ _sManagerEval: script, nonce, ...options });
     })
   }
 
@@ -257,6 +259,7 @@ class ClusterClient extends EventEmitter {
   * @param {number} [options.cluster] The Id od the target Cluster
   * @param {number} [options.shard] The Id od the target Shard, when the Cluster has not been provided.
   * @param {number} [options.timeout=10000] The time in ms to wait, until the eval will be rejected without any response
+  * @param {any} [options.context] The context to pass to the script, when providing functions
   * @returns {Promise<*>|Promise<Array<*>>} Result of the script execution
   * @example
   * client.cluster.evalOnCluster('this.cluster.id',  {timeout: 10000, cluster: 0})
@@ -267,7 +270,7 @@ class ClusterClient extends EventEmitter {
   evalOnCluster(script, options = {}) {
     return new Promise((resolve, reject) => {
       if (!options.hasOwnProperty('cluster') && !options.hasOwnProperty('shard') && !options.hasOwnProperty('guildId')) reject('TARGET CLUSTER HAS NOT BEEN PROVIDED');
-      if (!script || (typeof script !== 'string' && typeof script !== 'function')) reject(new TypeError('Script for BroadcastEvaling has not been provided or must be a valid String!'));
+      if (!script || (typeof script !== 'string' && typeof script !== 'function')) reject(new TypeError('Script for BroadcastEvaling has not been provided or must be a valid String/Function!'));
       script = typeof script === 'function' ? `(${script})(this, ${JSON.stringify(options.context)})` : script;
       const nonce = Date.now().toString(36) + Math.random().toString(36);
       this._nonce.set(nonce, { resolve, reject });
@@ -353,6 +356,17 @@ class ClusterClient extends EventEmitter {
         this._nonce.delete(message.nonce);
       } else {
         promise.resolve(message._sClusterEvalResponse)
+        this._nonce.delete(message.nonce);
+      }
+      return;
+    } else if (message.hasOwnProperty('_sManagerEvalResponse')) {
+      const promise = this._nonce.get(message.nonce);
+      if (!promise) return;
+      if (message._error) {
+        promise.reject(message._error)
+        this._nonce.delete(message.nonce);
+      } else {
+        promise.resolve(message._sManagerEvalResponse)
         this._nonce.delete(message.nonce);
       }
       return;

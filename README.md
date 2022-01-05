@@ -20,6 +20,8 @@ Your only solution is to convert to the Sharding Manager. Thatsway this new Pack
 - EvalOnManager Function & Other Cool Functions you need...
 - Support of `Strings` & `Functions with Context` on `broadcastEval`
 - Optional Timeout Feature on `.broadcastEval` for preventing memory leaks
+- **[Support for Cross-Hosting: `Shard/Cluster` managing and crosshost communication (`broadcastEval`, `IPC`)](https://npmjs.com/discord-cross-hosting)**
+- **[Support for syncing Discord Ratelimits globally](https://npmjs.com/discord-cross-ratelimit)**
 **Scroll down to check our new Functions.**
 
 ## How does it Work?

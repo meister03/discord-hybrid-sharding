@@ -377,7 +377,7 @@ class ClusterManager extends EventEmitter {
   * @private
   */
   async evalOnManager(script) {
-    const _eval = typeof script === 'function' ? `(${script})(this)` : script;
+    script = typeof script === 'function' ? `(${script})(this)` : script;
     let result;
     let error;
     try {

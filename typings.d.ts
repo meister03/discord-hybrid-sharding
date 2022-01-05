@@ -65,6 +65,10 @@ declare module 'discord-hybrid-sharding' {
     public getinfo: processData;
     public parentPort: any | null;
     public evalOnManager(script: string): Promise<any[]>;
+    public evalOnManager(script: string, options: { timeout?: number }): Promise<any>;
+    public evalOnManager<T>(fn: (manager: Manager) => T, options: { timeout?: number }): Promise<T>;
+    public evalOnManager<T>(fn: (manager: Manager) => T, options: { timeout?: number }): Promise<any[]>;
+
     public evalOnCluster(script: string, options: { cluster?: number; shard?: number;  guildId?: string;  timeout?: number }): Promise<any[]>;
     public evalOnCluster<T>(fn: (client: client) => T, options: { cluster?: number; shard?: number;  guildId?: string;  timeout?: number }): Promise<T>;
     public evalOnCluster<T>(fn: (client: client) => T, options: { cluster?: number; shard?: number;  guildId?: string;  timeout?: number }): Promise<any[]>;

@@ -213,10 +213,14 @@ class Cluster extends EventEmitter {
   */
   kill(options = {}) {
     if (this.process) {
-      this.process.removeListener('exit', this._exitListener);
+      try{ 
+        this.process.removeListener('exit', this._exitListener);
+      }catch(error){}
       this.process.kill();
     } else {
-      this.worker.removeListener('exit', this._exitListener);
+      try{
+        this.worker.removeListener('exit', this._exitListener);
+      }catch(error){}
       this.worker.terminate();
     }
     if (options.force) this._cleanupHearbeat()
@@ -448,8 +452,8 @@ class Cluster extends EventEmitter {
       //Evals a Request on a Cluster
       if (message.hasOwnProperty('_sManagerEval')) {
         this.manager.evalOnManager(message._sManagerEval).then((result) => {
-          if (result._results) return this.send({ _results: result._results, _sManagerEval: message._sManagerEval });
-          if (result._error) return this.send({ _error: Util.makePlainError(result._error), _sManagerEval: message._sManagerEval })
+          if (result._results) return this.send({ _sManagerEvalResponse: result._results, ...message });
+          if (result._error) return this.send({ _error: Util.makePlainError(result._error), ...message })
         });
         return;
       }
@@ -506,8 +510,10 @@ class Cluster extends EventEmitter {
     }
 
     let emitmessage;
-    if (typeof message === 'object') emitmessage = new IPCMessage(this, message)
-    else emitmessage = message;
+    if (typeof message === 'object'){
+       emitmessage = new IPCMessage(this, message);
+       if(emitmessage._sRequest) this.manager.emit('clientRequest', emitmessage)
+    }else emitmessage = message;
     /**
     * Emitted upon receiving a message from the child process/worker.
     * @event Shard#message
