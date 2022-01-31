@@ -37,11 +37,11 @@ Normaly we would spawn 4 shards with the Sharding Manager (`~4 x 300MB memory`),
 **If you need help, feel free to join our <a href="https://discord.gg/YTdNBHh">Discord server</a>. ☺**
 
 # Download
-You can download it from npm:
+NPM:
 ```cli
 npm i discord-hybrid-sharding
 ```
-Or Yarn:
+Yarn:
 ```cli
 yarn add discord-hybrid-sharding
 ```
@@ -56,7 +56,7 @@ yarn add discord-hybrid-sharding
 
 **[Click to open documentation](https://sharding.js.org)**
 
-First, add the mmodule into your project (into your shard/cluster file).
+First, add the module into your project (into your shard/cluster file).
 Filename: `Cluster.js`
 ```js
 const Cluster = require('discord-hybrid-sharding');
