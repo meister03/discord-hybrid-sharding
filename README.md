@@ -62,12 +62,12 @@ Filename: `Cluster.js`
 const Cluster = require('discord-hybrid-sharding');
 
 const manager = new Cluster.Manager(`${__dirname}/bot.js`, {
-	totalShards: 7 , // or 'auto'
-	/// See below for more options
-	shardsPerClusters: 2, 
-	// totalClusters: 7,
-	mode: 'process' ,  // you can also choose "worker"
-	token: 'YOUR_TOKEN',
+    totalShards: 7 , // or 'auto'
+    /// Check below for more options
+    shardsPerClusters: 2, 
+    // totalClusters: 7,
+    mode: 'process' ,  // you can also choose "worker"
+    token: 'YOUR_TOKEN',
 });
 
 manager.on('clusterCreate', cluster => console.log(`Launched Cluster ${cluster.id}`));
@@ -80,8 +80,8 @@ const Cluster = require('discord-hybrid-sharding');
 const Discord = require('discord.js');
 
 const client = new Discord.Client({
-	shards: Cluster.data.SHARD_LIST, // An array of shards that will get spawned
-	shardCount: Cluster.data.TOTAL_SHARDS, // Total number of shards
+    shards: Cluster.data.SHARD_LIST, // An array of shards that will get spawned
+    shardCount: Cluster.data.TOTAL_SHARDS, // Total number of shards
 });
 
 client.cluster = new Cluster.Client(client); // initialize the Client, so we access the .broadcastEval()
@@ -94,11 +94,11 @@ client.login('YOUR_TOKEN');
 
 ```js
 client.cluster.broadcastEval(`this.guilds.cache.size`)
-	.then(results => console.log(`${results.reduce((prev, val) => prev + val, 0)} total guilds`));
+    .then(results => console.log(`${results.reduce((prev, val) => prev + val, 0)} total guilds`));
 
 // or with a callback function
 client.cluster.broadcastEval(c => c.guilds.cache.size)
-	.then(results => console.log(`${results.reduce((prev, val) => prev + val, 0)} total guilds`));
+    .then(results => console.log(`${results.reduce((prev, val) => prev + val, 0)} total guilds`));
 ```
 
 # Cluster.Manager 
@@ -177,13 +177,13 @@ Get all ShardID's in the current cluster:
 - Cluster will get respawned after the given amount of missed heartbeats has been reached
 ```js
 const manager = new Cluster.Manager(`${__dirname}/bot.js`, {
-	totalShards: 8,
-	shardsPerClusters: 2, 
-	keepAlive: {
-		interval: 2000, // Interval to send a heartbeat
-		maxMissedHeartbeats: 5, // Maximum amount of missed Heartbeats until Cluster will get respawned
-		maxClusterRestarts: 3 // Maximum Amount of restarts that can be performed in 1 hour in the HeartbeatSystem
-	}
+    totalShards: 8,
+    shardsPerClusters: 2, 
+    keepAlive: {
+        interval: 2000, // Interval to send a heartbeat
+        maxMissedHeartbeats: 5, // Maximum amount of missed Heartbeats until Cluster will get respawned
+        maxClusterRestarts: 3 // Maximum Amount of restarts that can be performed in 1 hour in the HeartbeatSystem
+    },
 });
 ```
 
@@ -206,20 +206,20 @@ ClusterManager | `cluster.js`
 ```js
 const Cluster = require('discord-hybrid-sharding');
 const manager = new Cluster.Manager(`${__dirname}/testbot.js`, {
-	totalShards: 1,
-	totalClusters: 1,
+    totalShards: 1,
+    totalClusters: 1,
 });
 
 manager.on('clusterCreate', cluster => {
-	cluster.on('message', message => {
-		console.log(message);
-		if (!message._sRequest) return; // Check if the message needs a reply
-		message.reply({ content: 'hello world' });
-	});
-	setInterval(() => {
-		cluster.send({ content: 'I am alive' }); // Send a message to the client
-		cluster.request({ content: 'Are you alive?', alive: true }).then(e => console.log(e)); // Send a message to the client
-	}, 5000);
+    cluster.on('message', message => {
+    console.log(message);
+        if (!message._sRequest) return; // Check if the message needs a reply
+        message.reply({ content: 'hello world' });
+    });
+    setInterval(() => {
+        cluster.send({ content: 'I am alive' }); // Send a message to the client
+        cluster.request({ content: 'Are you alive?', alive: true }).then(e => console.log(e)); // Send a message to the client
+    }, 5000);
 });
 manager.spawn({timeout: -1})
 ```
@@ -229,18 +229,18 @@ ClusterClient | `client.js`
 const Cluster = require('discord-hybrid-sharding');
 const Discord = require('discord.js');
 const client = new Discord.Client({
-	shards: Cluster.data.SHARD_LIST, // An array of shards that will get spawned
-	shardCount: Cluster.data.TOTAL_SHARDS, // Total number of shards
+    shards: Cluster.data.SHARD_LIST, // An array of shards that will get spawned
+    shardCount: Cluster.data.TOTAL_SHARDS, // Total number of shards
 });
 
 client.cluster = new Cluster.Client(client); 
 client.cluster.on('message', message => {
-	console.log(message);
-	if(!message._sRequest) return; // Check if the message needs a reply
-	if(message.alive) message.reply({ content: 'Yes I am!' }):
-})
+    console.log(message);
+    if(!message._sRequest) return; // Check if the message needs a reply
+    if(message.alive) message.reply({ content: 'Yes I am!' }):
+});
 setInterval(() => {
-	client.cluster.send({ content: 'I am alive as well!' });
+    client.cluster.send({ content: 'I am alive as well!' });
 }, 5000);
 client.login('YOUR_TOKEN');
 ```
