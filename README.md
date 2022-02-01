@@ -37,12 +37,9 @@ Normaly we would spawn 4 shards with the Sharding Manager (`~4 x 300MB memory`),
 **If you need help, feel free to join our <a href="https://discord.gg/YTdNBHh">Discord server</a>. ☺**
 
 # Download
-NPM:
 ```cli
 npm i discord-hybrid-sharding
-```
-Yarn:
-```cli
+------ or ---------------------
 yarn add discord-hybrid-sharding
 ```
 
@@ -263,4 +260,4 @@ Open a PR/Issue when you need other Functions :)
 If you encounter any problems feel free to open an issue in our <a href="https://github.com/meister03/discord-hybrid-sharding/issues">GitHub repository or join the Discord server.</a>
 
 # Credits
-Credits goes to the discord.js libary (see `changes.md`) and to this helpful [server](https://discord.gg/BpeedKh)
+Credits goes to the discord.js libary for the Base Code (See `changes.md`) and to this helpful [server](https://discord.gg/BpeedKh)
