@@ -74,14 +74,14 @@ declare module 'discord-hybrid-sharding' {
     public evalOnCluster<T>(fn: (client: client) => T, options: { cluster?: number; shard?: number;  guildId?: string;  timeout?: number }): Promise<any[]>;
     public broadcastEval(script: string): Promise<any[]>;
     public broadcastEval(script: string, options: { cluster?: number; timeout?: number }): Promise<any>;
-    public broadcastEval<T>(fn: (client: Client) => Awaitable<T>): Promise<Serialized<T>[]>;
-    public broadcastEval<T>(fn: (client: Client) => Awaitable<T>, options: { cluster?: number; timeout?: number }): Promise<Serialized<T>>;
+    public broadcastEval<T>(fn: (client: DJSClient) => Awaitable<T>): Promise<Serialized<T>[]>;
+    public broadcastEval<T>(fn: (client: DJSClient) => Awaitable<T>, options: { cluster?: number; timeout?: number }): Promise<Serialized<T>>;
     public broadcastEval<T, P>(
-      fn: (client: Client, context: Serialized<P>) => Awaitable<T>,
+      fn: (client: DJSClient, context: Serialized<P>) => Awaitable<T>,
       options: { context: P },
     ): Promise<Serialized<T>[]>;
     public broadcastEval<T, P>(
-      fn: (client: Client, context: Serialized<P>) => Awaitable<T>,
+      fn: (client: DJSClient, context: Serialized<P>) => Awaitable<T>,
       options: { context: P; cluster?: number; timeout?: number },
     ): Promise<Serialized<T>>;
     public fetchClientValues(prop: string): Promise<any[]>;
