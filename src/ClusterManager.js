@@ -259,11 +259,13 @@ class ClusterManager extends EventEmitter {
     ClusterCount: ${this.totalClusters}
     ShardCount: ${amount}
     ShardList: ${this.shardClusterList.join(', ')}`)
+    const start = Date.now();
     for (let i = 0; i < this.totalClusters; i++) {
       const promises = [];
       const clusterId = this.clusterList[i] || i;
       const cluster = this.createCluster(clusterId, this.shardClusterList[i], this.totalShards)
-      promises.push(cluster.spawn(timeout));
+      const readyTimeout = timeout !== -1 ? timeout + (delay * this.shardClusterList[i].length) : timeout;
+      promises.push(cluster.spawn(readyTimeout));
       if (delay > 0 && this.clusters.size !== this.totalClusters) promises.push(Util.delayFor(delay * this.shardClusterList[i].length));
       await Promise.all(promises); // eslint-disable-line no-await-in-loop
     }
