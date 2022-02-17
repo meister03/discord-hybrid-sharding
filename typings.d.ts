@@ -1,7 +1,7 @@
 declare module 'discord-hybrid-sharding' {
   import { EventEmitter } from 'events';
   import { ChildProcess } from 'child_process';
-  import { Client as DJsClient } from "discord.js";
+  import { Client as DJSClient } from "discord.js";
 
   export class Cluster extends EventEmitter {
     constructor(manager: Manager, id: number);
