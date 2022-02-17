@@ -184,7 +184,7 @@ declare module 'discord-hybrid-sharding' {
 
 
   type ClusterManagerMode = 'process' | 'worker';
-  type client = DJsClient;
+  type client = DJSClient;
   export type processData = {
     SHARD_LIST: number[];
     TOTAL_SHARDS: number;
