@@ -325,7 +325,7 @@ class ClusterManager extends EventEmitter {
     if (amount === 'auto') {
       amount = await Util.fetchRecommendedShards(this.token, 1000);
       this.totalShards = amount;
-      this._debug(`Discord recommanded Total Shard Count of ${amount}`)
+      this._debug(`Discord recommended a total shard count of ${amount}`)
     } else {
       if (typeof amount !== 'number' || isNaN(amount)) {
         throw new TypeError('CLIENT_INVALID_OPTION', 'Amount of internal shards', 'a number.');
