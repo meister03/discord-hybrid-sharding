@@ -1,7 +1,7 @@
 declare module 'discord-hybrid-sharding' {
   import { EventEmitter } from 'events';
   import { ChildProcess } from 'child_process';
-  import { Client as DJSClient } from "discord.js";
+  import { Client as DJsClient } from "discord.js";
 
   export class Cluster extends EventEmitter {
     constructor(manager: Manager, id: number);
@@ -70,18 +70,18 @@ declare module 'discord-hybrid-sharding' {
     public evalOnManager<T>(fn: (manager: Manager) => T, options: { timeout?: number }): Promise<any[]>;
 
     public evalOnCluster(script: string, options: { cluster?: number; shard?: number;  guildId?: string;  timeout?: number }): Promise<any[]>;
-    public evalOnCluster<T>(fn: (client: DJSClient) => T, options: { cluster?: number; shard?: number;  guildId?: string;  timeout?: number }): Promise<T>;
-    public evalOnCluster<T>(fn: (client: DJSClient) => T, options: { cluster?: number; shard?: number;  guildId?: string;  timeout?: number }): Promise<any[]>;
+    public evalOnCluster<T>(fn: (client: DJsClient) => T, options: { cluster?: number; shard?: number;  guildId?: string;  timeout?: number }): Promise<T>;
+    public evalOnCluster<T>(fn: (client: DJsClient) => T, options: { cluster?: number; shard?: number;  guildId?: string;  timeout?: number }): Promise<any[]>;
     public broadcastEval(script: string): Promise<any[]>;
     public broadcastEval(script: string, options: { cluster?: number; timeout?: number }): Promise<any>;
-    public broadcastEval<T>(fn: (client: DJSClient) => Awaitable<T>): Promise<Serialized<T>[]>;
-    public broadcastEval<T>(fn: (client: DJSClient) => Awaitable<T>, options: { cluster?: number; timeout?: number }): Promise<Serialized<T>>;
+    public broadcastEval<T>(fn: (client: DJsClient) => Awaitable<T>): Promise<Serialized<T>[]>;
+    public broadcastEval<T>(fn: (client: DJsClient) => Awaitable<T>, options: { cluster?: number; timeout?: number }): Promise<Serialized<T>>;
     public broadcastEval<T, P>(
-      fn: (client: DJSClient, context: Serialized<P>) => Awaitable<T>,
+      fn: (client: DJsClient, context: Serialized<P>) => Awaitable<T>,
       options: { context: P },
     ): Promise<Serialized<T>[]>;
     public broadcastEval<T, P>(
-      fn: (client: DJSClient, context: Serialized<P>) => Awaitable<T>,
+      fn: (client: DJsClient, context: Serialized<P>) => Awaitable<T>,
       options: { context: P; cluster?: number; timeout?: number },
     ): Promise<Serialized<T>>;
     public fetchClientValues(prop: string): Promise<any[]>;
