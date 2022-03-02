@@ -126,7 +126,7 @@ declare module 'discord-hybrid-sharding' {
     public totalClusters: number | 'auto';
     public shardsPerClusters: number | 'auto';
     public totalShards: number | 'auto';
-    public shardList: number[] | 'auto';
+    public shardList: number[][] | 'auto';
     public clusterList: number[]
     public keepAlive: keepAliveOptions;
     public broadcast(message: any): Promise<Cluster[]>;
