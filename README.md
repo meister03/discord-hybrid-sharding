@@ -30,7 +30,7 @@ There are clusters/master shards, which behave like regular shards in the shardi
 "for process `n` , `n` internal shards"
 
 Example: `A Discord bot with 4000 guilds`
-Normaly we would spawn 4 shards with the Sharding Manager (`~4 x 300MB memory`), but in this case we start with 2 clusters/master shards, which spawns 2 internal shards ==> We just saved 2 shards in comparison to the regular Sharding Manager (`~2 x 300MB memory`).
+Normally we would spawn 4 shards with the Sharding Manager (`~4 x 300MB memory`), but in this case we start with 2 clusters/master shards, which spawns 2 internal shards ==> We just saved 2 shards in comparison to the regular Sharding Manager (`~2 x 300MB memory`).
 
 ### See below for the Guide
 
@@ -185,7 +185,7 @@ const manager = new Cluster.Manager(`${__dirname}/bot.js`, {
 ```
 
 ## `EvalOnCluster`
-Decentralized ClusterClient eval function taht doesn't open any listeners and minimizes the risk of creating a memory leak during `.broadcastEval()`
+Decentralized ClusterClient eval function that doesn't open any listeners and minimizes the risk of creating a memory leak during `.broadcastEval()`
 - Build-in eval timeout which resolves after a given time
 - No additional listeners - less memory leaks, better than `.broadCastEval()`
 - Client & all clusters don't need to be ready
@@ -256,8 +256,8 @@ client.cluster.broadcastEval('new Promise((resolve, reject) => {})', { timeout: 
 
 Open a PR/Issue when you need other Functions :)
 
-# Bugs, glitches and sssues
+# Bugs, glitches and issues
 If you encounter any problems feel free to open an issue in our <a href="https://github.com/meister03/discord-hybrid-sharding/issues">GitHub repository or join the Discord server.</a>
 
 # Credits
-Credits goes to the discord.js libary for the Base Code (See `changes.md`) and to this helpful [server](https://discord.gg/BpeedKh)
+Credits goes to the discord.js library for the Base Code (See `changes.md`) and to this helpful [server](https://discord.gg/BpeedKh)
