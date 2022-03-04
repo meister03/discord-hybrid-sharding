@@ -160,7 +160,7 @@ class Cluster extends EventEmitter {
         this.emit('spawn', this.thread.process);
 
         if (spawnTimeout === -1 || spawnTimeout === Infinity) return this.thread.process;
-        spawnTimeout = spawnTimeout * this.shardlist.length;
+      
         await new Promise((resolve, reject) => {
             const cleanup = () => {
                 clearTimeout(spawnTimeoutTimer);
@@ -464,6 +464,10 @@ class Cluster extends EventEmitter {
                     // Do nothing
                 });
                 return;
+            }
+
+            if(message._spawnNextCluster){
+                return this.manager.queue.next();
             }
 
             if (message._sCustom) {

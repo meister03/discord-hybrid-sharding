@@ -95,8 +95,7 @@ declare module 'discord-hybrid-sharding' {
     private _cleanupHearbeat(): Promise<any[]>;
 
     public triggerReady(): Promise<void>;
-
-    public static singleton(client: client, mode: ClusterManagerMode): client;
+    public spawnNextCluster(): Promise<void>;
   }
 
   export class Manager extends EventEmitter {
@@ -113,6 +112,9 @@ declare module 'discord-hybrid-sharding' {
         token?: string;
         execArgv?: string[];
         keepAlive?: keepAliveOptions;
+        queue?: {
+          auto?: boolean;
+        }
       },
     );
     private _performOnShards(method: string, args: any[]): Promise<any[]>;
@@ -131,6 +133,7 @@ declare module 'discord-hybrid-sharding' {
     public shardList: number[][] | 'auto';
     public clusterList: number[]
     public keepAlive: keepAliveOptions;
+    public queue: Queue;
     public broadcast(message: any): Promise<Cluster[]>;
     public broadcastEval(script: string): Promise<any[]>;
     public broadcastEval(script: string, options: { cluster?: number; timeout?: number }): Promise<any>;
@@ -190,6 +193,8 @@ declare module 'discord-hybrid-sharding' {
   export type processData = {
     SHARD_LIST: number[];
     TOTAL_SHARDS: number;
+    LAST_SHARD_ID: number;
+    FIRST_SHARD_ID: number;
     CLUSTER_COUNT: number;
     CLUSTER: number;
     CLUSTER_MANAGER_MODE: ClusterManagerMode;
@@ -212,6 +217,19 @@ declare module 'discord-hybrid-sharding' {
     clusterDelay?: number;
     respawnDelay?: number;
     timeout?: number;
+  }
+
+  export interface Queue {
+    options: {
+      auto?: boolean;
+      timeout?: number;
+    }
+    queue: object[];
+    public start(): Promise<void>;
+    public stop():  Queue;
+    public resume():  Queue;
+    public add(item: any):  Queue;
+    public next():  Promise<void>;
   }
 
   export type Awaitable<T> = T | PromiseLike<T>;

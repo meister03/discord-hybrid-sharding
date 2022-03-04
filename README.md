@@ -6,6 +6,8 @@ The first package which combines sharding manager & internal sharding to save a 
 
 In other words: "Mixing both: if you need `x` shards for `n` process!"
 
+**[NEW: Clustering Support for all JS Libraries](#Use-with-other-libraries)**
+
 If you are interested in auto-scaling & cross-hosting on other machines, check out this package `npmjs.com/discord-cross-hosting`
 
 ## Why?
@@ -16,6 +18,7 @@ Your only solution becomes converting to the sharding manager. That's why this n
 - **Decentralized ClusterEval function -> Listenerless, less memory leaks & cluster/client doesn't have to be ready**
 - **Heartbeat System -> Respawn unresponsive or dead `ClusterClient`s**
 - **IPC System -> Client <-> ClusterManager -> `.request()`, `.reply()`, `.send()`**
+- **Fine-grained control over the cluster queue -> `manager.queue.next(), .stop(), .resume()`**
 - Memory efficient -> 60% less memory when clustering
 - Debug event -> A good overview of cluster information
 - EvalOnManager function & other cool functions you need...
@@ -241,6 +244,46 @@ setInterval(() => {
 }, 5000);
 client.login('YOUR_TOKEN');
 ```
+
+## Control Cluster queue:
+With a complex code-base, you probably need a fine-grained control over the cluster spawn queue in order to respect rate limits.
+
+The queue system can be controlled from the cluster manager.
+
+```js
+const manager = new Cluster.Manager(`${__dirname}/bot.js`, {
+    totalShards: 8,
+    shardsPerClusters: 2, 
+    queue: {
+        auto: false,
+    }
+})
+```
+
+The `auto` property is set with `true` by default, which automatically queues the clusters, when running `manager.spawn()`
+
+When the auto mode has been disabled, then you have to manually manage the queue.
+
+Cluster.js
+```js
+manager.spawn();
+manager.queue.next();
+```
+
+The `manager.queue.next()` function will spawn the next cluster in the queue.
+Now you can call the function `client.cluster.spawnNextCluster()` from the client to spawn the next cluster.
+
+| Property |  Description |
+| ------------- | -------------- |
+| manager.queue.start() | Starts the queue and resolves, when the queue is empty |
+| manager.queue.stop() | Stops the queue and blocks all `.next` requests |
+| manager.queue.resume() | Resumes the queue and allows `.next` requests again |
+| manager.queue.next() | Spawns the next cluster in the queue |
+| client.cluster.spawnNextCluster() | Triggers the spawn of the next cluster in the queue |
+
+
+## Other Features:
+
 Evals a Script on the ClusterManager:
 ```
 client.cluster.evalOnManager('process.memoryUsage().rss / 1024 ** 2');
@@ -255,6 +298,31 @@ client.cluster.broadcastEval('new Promise((resolve, reject) => {})', { timeout: 
 ```
 
 Open a PR/Issue when you need other Functions :)
+
+# Use with other libraries:
+Using the package with other libraries requires some minor changes:
+* The Cluster.js will stay the same, scroll up to get the Code
+* Your Bot.js file will have some additional code
+```js
+const Cluster = require('discord-hybrid-sharding');
+
+///Create your Discord Client:
+/* Use the Data below for telling the Client, which shards to spawn */
+const lastShard = Cluster.data.LAST_SHARD_ID;
+const firstShard = Cluster.data.FIRST_SHARD_ID;
+const totalShards = Cluster.data.TOTAL_SHARDS;
+const shardList = Cluster.data.SHARD_LIST;
+
+client.cluster = new Cluster.Client(client);
+
+///When the Client is ready, You can listen to the client's ready event:
+client.cluster.triggerReady()
+```
+
+**The upper code is a pseudo code and shows how you can use this package with other libraries**
+
+With some minor changes, you can even use this Package for clustering normal processes.
+
 
 # Bugs, glitches and issues
 If you encounter any problems feel free to open an issue in our <a href="https://github.com/meister03/discord-hybrid-sharding/issues">GitHub repository or join the Discord server.</a>

@@ -26,6 +26,13 @@ class ClusterClient extends EventEmitter {
         this.mode = this.info.CLUSTER_MANAGER_MODE;
         let mode = this.mode;
 
+        /**
+         * If the Cluster is spawned automatically or with a own controller
+         * @type {ClusterQueueMode}
+         */
+        this.queue = {
+            mode: this.info.CLUSTER_QUEUE_MODE,
+        }
 
         /**
         * Ongoing promises for calls to {@link ClusterManager#evalOnCluster}, mapped by the `script` they were called with
@@ -55,7 +62,7 @@ class ClusterClient extends EventEmitter {
 
         this.process.ipc.on('message', this._handleMessage.bind(this));
         client.on?.('ready', () => {
-           this.triggerReady();
+            this.triggerReady();
         });
         client.on?.('disconnect', () => {
             this.process.send({ _disconnect: true });
@@ -79,7 +86,7 @@ class ClusterClient extends EventEmitter {
     * @readonly
     */
     get ids() {
-        if(!this.client.ws) return this.info.SHARD_LIST;
+        if (!this.client.ws) return this.info.SHARD_LIST;
         return this.client.ws.shards;
     }
     /**
@@ -96,19 +103,7 @@ class ClusterClient extends EventEmitter {
     * @readonly
     */
     get info() {
-        let clustermode = process.env.CLUSTER_MANAGER_MODE;
-        if (!clustermode) return
-        if (clustermode !== "worker" && clustermode !== "process") throw new Error("NO CHILD/MASTER EXISTS OR SUPPLIED CLUSTER_MANAGER_MODE IS INCORRECT");
-        let data;
-        if (clustermode === "process") {
-            const shardlist = [];
-            let parseshardlist = process.env.SHARD_LIST.split(",")
-            parseshardlist.forEach(c => shardlist.push(Number(c)))
-            data = { SHARD_LIST: shardlist, TOTAL_SHARDS: Number(process.env.TOTAL_SHARDS), CLUSTER_COUNT: Number(process.env.CLUSTER_COUNT), CLUSTER: Number(process.env.CLUSTER), CLUSTER_MANAGER_MODE: clustermode, KEEP_ALIVE_INTERVAL: Number(process.env.KEEP_ALIVE_INTERVAL) }
-        } else {
-            data = require("worker_threads").workerData
-        }
-        return data;
+        return ClusterClient.getinfo();
     }
     /**
     * Sends a message to the master process.
@@ -368,9 +363,9 @@ class ClusterClient extends EventEmitter {
         }
     }
 
-    _eval(script){
-        if(this.client._eval) return this.client._eval(script);
-        return eval(script);
+    _eval(script) {
+        if (this.client._eval) return this.client._eval(script);
+        return eval(script).bind(this.client);
     }
 
     /**
@@ -444,26 +439,11 @@ class ClusterClient extends EventEmitter {
         return this.ready;
     }
 
-
-
-
-    /**
-    * Creates/gets the singleton of this class.
-    * @param {Client} client The client to use
-    * @param {ClusterManagerMode} mode Mode the cluster was spawned with
-    * @returns {ShardClientUtil}
-    */
-    static singleton(client, mode) {
-        if (!this._singleton) {
-            this._singleton = new this(client, mode);
-        } else {
-            client.emit(
-                Events.WARN,
-                'Multiple clients created in child process/worker; only the first will handle clustering helpers.',
-            );
-        }
-        return this._singleton;
+    spawnNextCluster() {    
+        if(this.queue.mode === 'auto') throw new Error('Next Cluster can just be spawned when the queue is not on auto mode.');
+        return this.process.send({ _spawnNextCluster: true });
     }
+
     /**
      * gets the total Internalshardcount and shard list.
      * @returns {ClusterClientUtil}
@@ -477,10 +457,14 @@ class ClusterClient extends EventEmitter {
             const shardlist = [];
             let parseshardlist = process.env.SHARD_LIST.split(",")
             parseshardlist.forEach(c => shardlist.push(Number(c)))
-            data = { SHARD_LIST: shardlist, TOTAL_SHARDS: Number(process.env.TOTAL_SHARDS), CLUSTER_COUNT: Number(process.env.CLUSTER_COUNT), CLUSTER: Number(process.env.CLUSTER), CLUSTER_MANAGER_MODE: clustermode, KEEP_ALIVE_INTERVAL: Number(process.env.KEEP_ALIVE_INTERVAL) }
+            data = { SHARD_LIST: shardlist, TOTAL_SHARDS: Number(process.env.TOTAL_SHARDS), CLUSTER_COUNT: Number(process.env.CLUSTER_COUNT), CLUSTER: Number(process.env.CLUSTER), CLUSTER_MANAGER_MODE: clustermode, KEEP_ALIVE_INTERVAL: Number(process.env.KEEP_ALIVE_INTERVAL), CLUSTER_QUEUE_MODE: process.env.CLUSTER_QUEUE_MODE  }
         } else {
             data = require("worker_threads").workerData
         }
+
+        data.FIRST_SHARD_ID = data.SHARD_LIST[0];
+        data.LAST_SHARD_ID = data.SHARD_LIST[data.SHARD_LIST.length - 1]
+
         return data;
     }
 
