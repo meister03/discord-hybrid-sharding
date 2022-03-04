@@ -4,7 +4,7 @@ const fs = require('fs');
 const path = require('path');
 const os = require('os');
 
-const Util = require('./Util.js');
+const Util = require('../Util/Util.js');
 const Cluster = require('./Cluster.js')
 
 class ClusterManager extends EventEmitter {
@@ -407,7 +407,7 @@ class ClusterManager extends EventEmitter {
     }
     const cluster = this.clusters.get(options.cluster);
     if (!cluster) return Promise.reject(new Error('CLUSTER_DOES_NOT_EXIST', options.cluster));
-    if (!cluster.process && !cluster.worker) return Promise.reject(new Error('CLUSTERING_NO_CHILD_EXISTS', cluster.id));
+    if (!cluster.thread) return Promise.reject(new Error('CLUSTERING_NO_CHILD_EXISTS', cluster.id));
     return new Promise((resolve, reject) => {
       const nonce = options.nonce;
       this._nonce.set(nonce, { resolve, reject, requestcluster: options.requestcluster });
