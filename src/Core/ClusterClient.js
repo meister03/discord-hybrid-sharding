@@ -365,7 +365,7 @@ class ClusterClient extends EventEmitter {
 
     _eval(script) {
         if (this.client._eval) return this.client._eval(script);
-        this.client._eval = (function(_){eval(_)}).bind(this.client);
+        this.client._eval = (function(_){return eval(_)}).bind(this.client);
         return this.client._eval(script);
     }
 
