@@ -94,6 +94,8 @@ declare module 'discord-hybrid-sharding' {
     private _checkIfClusterAlive(): Promise<any[]>;
     private _cleanupHearbeat(): Promise<any[]>;
 
+    public triggerReady(): Promise<void>;
+
     public static singleton(client: client, mode: ClusterManagerMode): client;
   }
 
