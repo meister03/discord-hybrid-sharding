@@ -104,7 +104,7 @@ declare module 'discord-hybrid-sharding' {
         totalShards?: number | 'auto';
         totalClusters?: number | 'auto';
         shardsPerClusters?: number;
-        shardList?: number[] | 'auto';
+        shardList?: number[][] | 'auto';
         mode?: ClusterManagerMode;
         respawn?: boolean;
         shardArgs?: string[];
