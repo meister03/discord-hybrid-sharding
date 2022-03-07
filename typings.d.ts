@@ -137,14 +137,14 @@ declare module 'discord-hybrid-sharding' {
     public broadcast(message: any): Promise<Cluster[]>;
     public broadcastEval(script: string): Promise<any[]>;
     public broadcastEval(script: string, options: { cluster?: number; timeout?: number }): Promise<any>;
-    public broadcastEval<T>(fn: (client: DJSClient) => Awaitable<T>): Promise<Serialized<T>[]>;
-    public broadcastEval<T>(fn: (client: DJSClient) => Awaitable<T>, options: { cluster?: number; timeout?: number }): Promise<Serialized<T>>;
+    public broadcastEval<T>(fn: (client: DJsClient) => Awaitable<T>): Promise<Serialized<T>[]>;
+    public broadcastEval<T>(fn: (client: DJsClient) => Awaitable<T>, options: { cluster?: number; timeout?: number }): Promise<Serialized<T>>;
     public broadcastEval<T, P>(
-      fn: (client: DJSClient, context: Serialized<P>) => Awaitable<T>,
+      fn: (client: DJsClient, context: Serialized<P>) => Awaitable<T>,
       options: { context: P },
     ): Promise<Serialized<T>[]>;
     public broadcastEval<T, P>(
-      fn: (client: DJSClient, context: Serialized<P>) => Awaitable<T>,
+      fn: (client: DJsClient, context: Serialized<P>) => Awaitable<T>,
       options: { context: P; cluster?: number; timeout?: number },
     ): Promise<Serialized<T>>;
     public createCluster(id: number, clusterstospawn: number[], totalshards: number): Cluster;
@@ -189,7 +189,7 @@ declare module 'discord-hybrid-sharding' {
 
 
   type ClusterManagerMode = 'process' | 'worker';
-  type client = DJSClient;
+  type client = DJsClient;
   export type processData = {
     SHARD_LIST: number[];
     TOTAL_SHARDS: number;
