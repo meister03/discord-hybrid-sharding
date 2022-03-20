@@ -1,4 +1,5 @@
 # Changes
+
 ```diff
 - ShardClientUtil.js
 + ClusterClient.js:
@@ -29,4 +30,3 @@
 + IPCMessage.js
    --> Add IPC Message System with `.reply`, `.send`, `.request`
 ```
-

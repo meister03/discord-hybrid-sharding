@@ -1,18 +1,18 @@
 name: release
 on:
-  push:
-    branches:
-      - master
+    push:
+        branches:
+            - master
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-      # - name: Install dependencies and build, if needed
-      #   run: npm ci && npm run build
-      - name: Semantic Release
-        uses: cycjimmy/semantic-release-action@v2.5.0
-        env:
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+    build:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v2
+            # - name: Install dependencies and build, if needed
+            #   run: npm ci && npm run build
+            - name: Semantic Release
+              uses: cycjimmy/semantic-release-action@v2.5.0
+              env:
+                  NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+                  GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
