@@ -24,9 +24,9 @@ class ClusterManager extends EventEmitter {
      * @param {ClusterManagerMode} [options.mode='worker'] Which mode to use for clustering
      * @param {number[]} [options.shardList] A Array of Internal Shards Ids, which should get spawned
      * @param {Object} [options.keepAlive] Whether Clusters should be automatically respawned, when Heartbeats have not been recieved for a given period of time
-     * @param {Number} [options.keepAlive.interval=10000] The Interval for the Hearbeat CheckUp
+     * @param {Number} [options.keepAlive.interval=10000] The Interval for the Heartbeat CheckUp
      * @param {Number} [options.keepAlive.maxClusterRestarts=3] The maximal Amount of Cluster Restarts, which can be executed by the keepAlive Function in less than 1 hour.
-     * @param {Number} [options.keepAlive.maxMissedHeartbeats=5] The maximal Amount of missed Hearbeats, upon the Cluster should be respawned.
+     * @param {Number} [options.keepAlive.maxMissedHeartbeats=5] The maximal Amount of missed Heartbeats, upon the Cluster should be respawned.
      * @param {string} [options.token] Token to use for automatic internal shard count and passing to bot file
      */
     constructor(file, options = {}) {

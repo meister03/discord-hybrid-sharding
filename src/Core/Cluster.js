@@ -80,7 +80,7 @@ class Cluster extends EventEmitter {
         this.thread = null;
 
         /**
-         * The Hearbeat Object, which contains the missed Hearbeats, the last Hearbeat and the Hearbeat Interval
+         * The Heartbeat Object, which contains the missed Heartbeats, the last Heartbeat and the Heartbeat Interval
          * @type {Object}
          */
         this.heartbeat = {};
@@ -162,7 +162,7 @@ class Cluster extends EventEmitter {
             };
 
             const onReady = () => {
-                this._cleanupHearbeat();
+                this._cleanupHeartbeat();
                 cleanup();
                 resolve();
             };
@@ -196,7 +196,7 @@ class Cluster extends EventEmitter {
      */
     kill(options = {}) {
         this.thread.kill(options);
-        if (options.force) this._cleanupHearbeat();
+        if (options.force) this._cleanupHeartbeat();
         this._handleExit(false);
     }
     /**
@@ -357,7 +357,7 @@ class Cluster extends EventEmitter {
                  */
                 this.emit('ready');
                 this.manager._debug('Ready', this.id);
-                this._cleanupHearbeat();
+                this._cleanupHeartbeat();
                 this._checkIfClusterAlive();
                 return;
             }
@@ -386,7 +386,7 @@ class Cluster extends EventEmitter {
                 return;
             }
 
-            //The Hearbeat, which has been sent by Client
+            //The Heartbeat, which has been sent by Client
             if (message._keepAlive) {
                 if (this.manager.keepAlive) this._heartbeatMessage(message);
                 return;
@@ -549,7 +549,7 @@ class Cluster extends EventEmitter {
     _checkIfClusterAlive() {
         if (!this.manager.keepAlive) return;
         if (Object.keys(this.manager.keepAlive).length === 0) return;
-        this.manager._debug('Hearbeat Interval CheckUp has started', this.id);
+        this.manager._debug('Heartbeat Interval CheckUp has started', this.id);
         this.heartbeat.interval = setInterval(() => {
             if (!this.heartbeat) return;
             const diff = Date.now() - Number(this.heartbeat.last);
@@ -575,10 +575,10 @@ class Cluster extends EventEmitter {
                         }
                     }
                     this.manager._debug(
-                        `[Heartbeat_MISSING] Attempting respawn | To much hearbeats were missing.`,
+                        `[Heartbeat_MISSING] Attempting respawn | To much heartbeats were missing.`,
                         this.id,
                     );
-                    this._cleanupHearbeat();
+                    this._cleanupHeartbeat();
                     this.respawn();
                 }
             } else return;
@@ -586,7 +586,7 @@ class Cluster extends EventEmitter {
         return this.heartbeat;
     }
 
-    _cleanupHearbeat() {
+    _cleanupHeartbeat() {
         clearInterval(this.heartbeat.interval);
         if (Object.keys(this.manager.keepAlive).length === 0) return;
         this.heartbeat = {};

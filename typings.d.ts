@@ -34,7 +34,7 @@ declare module 'discord-hybrid-sharding' {
         public spawn(timeout?: number): Promise<ChildProcess>;
 
         private _checkIfClusterAlive(): Promise<any[]>;
-        private _cleanupHearbeat(): Promise<any[]>;
+        private _cleanupHeartbeat(): Promise<any[]>;
 
         public on(event: 'spawn' | 'death', listener: (child: ChildProcess) => void): this;
         public on(event: 'disconnect' | 'ready' | 'reconnecting', listener: () => void): this;
@@ -104,7 +104,7 @@ declare module 'discord-hybrid-sharding' {
         private _heartbeatAckMessage(): Promise<any[]>;
         private _checkIfAckRecieved(): Promise<any[]>;
         private _checkIfClusterAlive(): Promise<any[]>;
-        private _cleanupHearbeat(): Promise<any[]>;
+        private _cleanupHeartbeat(): Promise<any[]>;
 
         public triggerReady(): Promise<void>;
         public spawnNextCluster(): Promise<void>;

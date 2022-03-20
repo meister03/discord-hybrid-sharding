@@ -50,7 +50,7 @@ class ClusterClient extends EventEmitter {
         this.ready = false;
 
         /**
-         * The Hearbeat Object, which contains the missed Hearbeats, the last Hearbeat and the Hearbeat Interval
+         * The Heartbeat Object, which contains the missed Heartbeats, the last Heartbeat and the Heartbeat Interval
          * @type {Object}
          */
         this.heartbeat = {};
@@ -420,7 +420,7 @@ class ClusterClient extends EventEmitter {
         });
     }
 
-    /*Hearbeat System*/
+    /*Heartbeat System*/
     _heartbeatAckMessage() {
         this.heartbeat.last = Date.now();
         this.heartbeat.missed = 0;
@@ -441,7 +441,7 @@ class ClusterClient extends EventEmitter {
                         this.id,
                     );
                     return;
-                } else this._cleanupHearbeat();
+                } else this._cleanupHeartbeat();
             }
         }, this.keepAliveInterval);
         return this.heartbeat;
@@ -454,7 +454,7 @@ class ClusterClient extends EventEmitter {
         return this.heartbeat.interval;
     }
 
-    _cleanupHearbeat() {
+    _cleanupHeartbeat() {
         clearInterval(this.heartbeat.interval);
         clearInterval(this.heartbeat.ack);
         this.heartbeat = {};
@@ -465,7 +465,7 @@ class ClusterClient extends EventEmitter {
     triggerReady() {
         this.process.send({ _ready: true });
         if (this.keepAliveInterval) {
-            this._cleanupHearbeat();
+            this._cleanupHeartbeat();
             this._checkIfClusterAlive();
             this._checkIfAckRecieved();
         }
