@@ -460,7 +460,7 @@ class ClusterManager extends EventEmitter {
      * <info>This is usually not necessary to manually specify.</info>
      * @param message
      * @param cluster
-     * @returns {log} returns the log message
+     * @returns {string} returns the log message
      */
     _debug(message, cluster) {
         let log;
@@ -472,7 +472,7 @@ class ClusterManager extends EventEmitter {
         /**
          * Emitted upon receiving a message
          * @event ClusterManager#debug
-         * @param {log} Message, which was received
+         * @param {string} Message, which was received
          */
         this.emit('debug', log);
         return log;
