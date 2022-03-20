@@ -575,7 +575,7 @@ class Cluster extends EventEmitter {
                         }
                     }
                     this.manager._debug(
-                        `[Heartbeat_MISSING] Attempting respawn | To much heartbeats were missing.`,
+                        `[Heartbeat_MISSING] Attempting respawn | Too many heartbeats were missing.`,
                         this.id,
                     );
                     this._cleanupHeartbeat();
