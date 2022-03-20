@@ -14,14 +14,14 @@ class BaseMessage {
         message.nonce = this.nonce;
 
         /**
-         * Destructs the Message Object and initalizes it on the Constructor
+         * Destructs the Message Object and initializes it on the Constructor
          * @type {String}
          */
         this.destructMessage(message);
     }
 
     /**
-     * Destructs the Message Object and initalizes it on the Constructor
+     * Destructs the Message Object and initializes it on the Constructor
      * @param {Object} message The Message, which was passed in the Constructor
      */
     destructMessage(message) {
