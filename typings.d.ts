@@ -61,8 +61,8 @@ declare module 'discord-hybrid-sharding' {
         public readonly ids: number[];
         public readonly keepAliveInterval: number;
         public mode: ClusterManagerMode;
-        public static getinfo: processData;
-        public getinfo: processData;
+        public static getInfo: processData;
+        public getInfo: processData;
         public parentPort: any | null;
         public evalOnManager(script: string): Promise<any[]>;
         public evalOnManager(script: string, options: { timeout?: number }): Promise<any>;
@@ -161,7 +161,7 @@ declare module 'discord-hybrid-sharding' {
             fn: (client: DJsClient, context: Serialized<P>) => Awaitable<T>,
             options: { context: P; cluster?: number; timeout?: number },
         ): Promise<Serialized<T>>;
-        public createCluster(id: number, clusterstospawn: number[], totalshards: number): Cluster;
+        public createCluster(id: number, clustersToSpawn: number[], totalShards: number): Cluster;
         public fetchClientValues(prop: string): Promise<any[]>;
         public fetchClientValues(prop: string, cluster: number): Promise<any>;
         public evalOnManager(script: string): Promise<any[]>;

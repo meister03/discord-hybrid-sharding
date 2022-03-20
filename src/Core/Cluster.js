@@ -19,7 +19,7 @@ class Cluster extends EventEmitter {
      * @param {ClusterManager} manager Manager that is creating this cluster
      * @param {number} id ID of this cluster
      */
-    constructor(manager, id, shardlist, totalshards) {
+    constructor(manager, id, shardList, totalShards) {
         super();
         if (manager.mode === 'process') Thread = Child;
         else if (manager.mode === 'worker') Thread = Worker;
@@ -49,19 +49,19 @@ class Cluster extends EventEmitter {
          * Internal Shards which will get spawned in the cluster
          * @type {number}
          */
-        this.shardlist = shardlist;
+        this.shardList = shardList;
         /**
          * the amount of real shards
          * @type {number}
          */
-        this.totalshards = totalshards;
+        this.totalShards = totalShards;
         /**
          * Environment variables for the cluster's process, or workerData for the cluster's worker
          * @type {Object}
          */
         this.env = Object.assign({}, process.env, {
-            SHARD_LIST: this.shardlist,
-            TOTAL_SHARDS: this.totalshards,
+            SHARD_LIST: this.shardList,
+            TOTAL_SHARDS: this.totalShards,
             CLUSTER_MANAGER: true,
             CLUSTER: this.id,
             CLUSTER_COUNT: this.manager.totalClusters,
@@ -240,7 +240,7 @@ class Cluster extends EventEmitter {
                 if (e) reject(new Error(`Failed to deliver Message to cluster: ${e}`));
                 setTimeout(() => {
                     if (this.manager._nonce.has(nonce)) {
-                        this.manager._nonce.get(nonce).reject(new Error('Eval Request Timedout'));
+                        this.manager._nonce.get(nonce).reject(new Error('Eval Request Timed out'));
                         this.manager._nonce.delete(nonce);
                     }
                 }, message.timeout || 10000);
@@ -306,11 +306,11 @@ class Cluster extends EventEmitter {
             const child = this.thread.process;
 
             //Set A timeout for the eval
-            let temptimeout;
+            let tempTimeout;
 
             const listener = message => {
                 if (!message || message._eval !== _eval) return;
-                if (temptimeout) clearTimeout(temptimeout);
+                if (tempTimeout) clearTimeout(tempTimeout);
                 child.removeListener('message', listener);
                 this._evals.delete(_eval);
                 if (!message._error) resolve(message._result);
@@ -321,7 +321,7 @@ class Cluster extends EventEmitter {
             this.send({ _eval })
                 .then(m => {
                     if (timeout) {
-                        temptimeout = setTimeout(() => {
+                        tempTimeout = setTimeout(() => {
                             if (!this._evals.has(_eval)) return;
                             child.removeListener('message', listener);
                             this._evals.delete(_eval);
@@ -330,7 +330,7 @@ class Cluster extends EventEmitter {
                     }
                 })
                 .catch(err => {
-                    if (temptimeout) clearTimeout(temptimeout);
+                    if (tempTimeout) clearTimeout(tempTimeout);
                     child.removeListener('message', listener);
                     this._evals.delete(_eval);
                     reject(err);
@@ -426,7 +426,7 @@ class Cluster extends EventEmitter {
             //Evals a Request on a Cluster
             if (message.hasOwnProperty('_sClusterEval')) {
                 this.manager
-                    .evalOnCluster(message._sClusterEval, { ...message, requestcluster: this.id })
+                    .evalOnCluster(message._sClusterEval, { ...message, requestCluster: this.id })
                     .catch(e => new Error(e));
                 return;
             }
@@ -439,14 +439,14 @@ class Cluster extends EventEmitter {
                     if (message._error) {
                         promise.reject(message._error);
                         this.manager._nonce.delete(message.nonce);
-                        if (this.manager.clusters.has(promise.requestcluster)) {
-                            this.manager.clusters.get(promise.requestcluster).send(message);
+                        if (this.manager.clusters.has(promise.requestCluster)) {
+                            this.manager.clusters.get(promise.requestCluster).send(message);
                         }
                     } else {
                         promise.resolve(message._sClusterEvalResponse);
                         this.manager._nonce.delete(message.nonce);
-                        if (this.manager.clusters.has(promise.requestcluster)) {
-                            this.manager.clusters.get(promise.requestcluster).send(message);
+                        if (this.manager.clusters.has(promise.requestCluster)) {
+                            this.manager.clusters.get(promise.requestCluster).send(message);
                         }
                     }
                 }
@@ -480,17 +480,17 @@ class Cluster extends EventEmitter {
             }
         }
 
-        let emitmessage;
+        let emitMessage;
         if (typeof message === 'object') {
-            emitmessage = new IPCMessage(this, message);
-            if (emitmessage._sRequest) this.manager.emit('clientRequest', emitmessage);
-        } else emitmessage = message;
+            emitMessage = new IPCMessage(this, message);
+            if (emitMessage._sRequest) this.manager.emit('clientRequest', emitMessage);
+        } else emitMessage = message;
         /**
          * Emitted upon receiving a message from the child process/worker.
          * @event Shard#message
          * @param {*|IPCMessage} message Message that was received
          */
-        this.emit('message', emitmessage);
+        this.emit('message', emitMessage);
     }
 
     /**

@@ -14,7 +14,7 @@ class ClusterClient extends EventEmitter {
     constructor(client) {
         super();
         /**
-         * Client for the Cluser
+         * Client for the Cluster
          * @type {Client}
          */
         this.client = client;
@@ -97,12 +97,12 @@ class ClusterClient extends EventEmitter {
         return this.info.CLUSTER_COUNT;
     }
     /**
-     * Gets several Info like Cluster_Count, Number, Totalshards...
+     * Gets several Info like Cluster_Count, Number, Total shards...
      * @type {Object}
      * @readonly
      */
     get info() {
-        return ClusterClient.getinfo();
+        return ClusterClient.getInfo();
     }
     /**
      * Sends a message to the master process.
@@ -166,12 +166,12 @@ class ClusterClient extends EventEmitter {
             script = typeof script === 'function' ? `(${script})(this, ${JSON.stringify(options.context)})` : script;
 
             const parent = this.process.ipc;
-            let evaltimeout;
+            let evalTimeout;
 
             const listener = message => {
                 if (message._sEval !== script || message._sEvalShard !== options.cluster) return;
                 parent.removeListener('message', listener);
-                if (evaltimeout) clearTimeout(evaltimeout);
+                if (evalTimeout) clearTimeout(evalTimeout);
                 if (!message._error) resolve(message._result);
                 else reject(Util.makeError(message._error));
             };
@@ -179,14 +179,14 @@ class ClusterClient extends EventEmitter {
             this.send({ _sEval: script, _sEvalShard: options.cluster, _sEvalTimeout: options.timeout })
                 .then(m => {
                     if (options.timeout) {
-                        evaltimeout = setTimeout(() => {
+                        evalTimeout = setTimeout(() => {
                             parent.removeListener('message', listener);
                             reject(new Error(`BROADCAST_EVAL_REQUEST_TIMED_OUT`));
                         }, options.timeout + 100); //Add 100 ms more to prevent timeout on client side
                     }
                 })
                 .catch(err => {
-                    if (evaltimeout) clearTimeout(evaltimeout);
+                    if (evalTimeout) clearTimeout(evalTimeout);
                     parent.removeListener('message', listener);
                     reject(err);
                 });
@@ -196,7 +196,7 @@ class ClusterClient extends EventEmitter {
     /**
      * Evaluates a script or function on the Cluster Manager
      * @param {string|Function} script JavaScript to run on the Manager
-     * @param {Object} options Some options such as the Evaltimeout or the Context
+     * @param {Object} options Some options such as the Eval timeout or the Context
      * @param {number} [options.timeout=10000] The time in ms to wait, until the eval will be rejected without any response
      * @param {any} [options.context] The context to pass to the script, when providing functions
      * @returns {Promise<*>|Promise<Array<*>>} Result of the script execution
@@ -233,7 +233,7 @@ class ClusterClient extends EventEmitter {
     /**
      * Evaluates a script or function on the ClusterClient
      * @param {string|Function} script JavaScript to run on the ClusterClient
-     * @param {Object} options Some options such as the TargetCluster or the Evaltimeout
+     * @param {Object} options Some options such as the TargetCluster or the Eval timeout
      * @param {number} [options.cluster] The Id od the target Cluster
      * @param {number} [options.shard] The Id od the target Shard, when the Cluster has not been provided.
      * @param {number} [options.timeout=10000] The time in ms to wait, until the eval will be rejected without any response
@@ -380,15 +380,15 @@ class ClusterClient extends EventEmitter {
                 //this.request(message).then(e => this.send(e)).catch(e => this.send({...message, error: e}))
             }
 
-            let emitmessage;
-            if (typeof message === 'object') emitmessage = new IPCMessage(this, message);
-            else emitmessage = message;
+            let emitMessage;
+            if (typeof message === 'object') emitMessage = new IPCMessage(this, message);
+            else emitMessage = message;
             /**
              * Emitted upon receiving a message from the parent process/worker.
              * @event ClusterClient#message
              * @param {*} message Message that was received
              */
-            this.emit('message', emitmessage);
+            this.emit('message', emitMessage);
         }
     }
 
@@ -480,25 +480,25 @@ class ClusterClient extends EventEmitter {
     }
 
     /**
-     * gets the total Internalshardcount and shard list.
+     * gets the total Internal shard count and shard list.
      * @returns {ClusterClientUtil}
      */
-    static getinfo() {
-        let clustermode = process.env.CLUSTER_MANAGER_MODE;
-        if (!clustermode) return;
-        if (clustermode !== 'worker' && clustermode !== 'process')
+    static getInfo() {
+        let clusterMode = process.env.CLUSTER_MANAGER_MODE;
+        if (!clusterMode) return;
+        if (clusterMode !== 'worker' && clusterMode !== 'process')
             throw new Error('NO CHILD/MASTER EXISTS OR SUPPLIED CLUSTER_MANAGER_MODE IS INCORRECT');
         let data;
-        if (clustermode === 'process') {
-            const shardlist = [];
-            let parseshardlist = process.env.SHARD_LIST.split(',');
-            parseshardlist.forEach(c => shardlist.push(Number(c)));
+        if (clusterMode === 'process') {
+            const shardList = [];
+            let parseShardList = process.env.SHARD_LIST.split(',');
+            parseShardList.forEach(c => shardList.push(Number(c)));
             data = {
-                SHARD_LIST: shardlist,
+                SHARD_LIST: shardList,
                 TOTAL_SHARDS: Number(process.env.TOTAL_SHARDS),
                 CLUSTER_COUNT: Number(process.env.CLUSTER_COUNT),
                 CLUSTER: Number(process.env.CLUSTER),
-                CLUSTER_MANAGER_MODE: clustermode,
+                CLUSTER_MANAGER_MODE: clusterMode,
                 KEEP_ALIVE_INTERVAL: Number(process.env.KEEP_ALIVE_INTERVAL),
                 CLUSTER_QUEUE_MODE: process.env.CLUSTER_QUEUE_MODE,
             };

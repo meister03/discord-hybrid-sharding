@@ -18,7 +18,7 @@ class Child {
         if (options.execPath) this.processOptions.execPath = options.execPath;
         if (options.gid) this.processOptions.gid = options.gid;
 
-        if (options.serilization) this.processOptions.serilization = options.serilization;
+        if (options.serialization) this.processOptions.serialization = options.serialization;
         if (options.signal) this.processOptions.signal = options.signal;
         if (options.killSignal) this.processOptions.killSignal = options.killSignal;
         if (options.silent) this.processOptions.silent = options.silent;

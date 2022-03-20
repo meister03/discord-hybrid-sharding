@@ -207,7 +207,7 @@ class ClusterManager extends EventEmitter {
 
         this.queue = new Queue(options.queue);
 
-        this._debug(`[START] Cluster Manager has been initalized`);
+        this._debug(`[START] Cluster Manager has been initialized`);
     }
     /**
      * Spawns multiple internal shards.
@@ -221,7 +221,7 @@ class ClusterManager extends EventEmitter {
     async spawn({ amount = this.totalShards, delay = 7000, timeout = -1 } = {}) {
         if (delay < 7000) {
             process.emitWarning(
-                `Spawn Delay (delay: ${delay}) is smaller than 7s, this can cause global ratelimits on /gateway/bot`,
+                `Spawn Delay (delay: ${delay}) is smaller than 7s, this can cause global rate limits on /gateway/bot`,
                 {
                     code: 'CLUSTER_MANAGER',
                 },
@@ -241,16 +241,16 @@ class ClusterManager extends EventEmitter {
                 throw new TypeError('CLIENT_INVALID_OPTION', 'Amount of internal shards', 'an integer.');
             }
         }
-        let clusteramount = this.totalClusters;
-        if (clusteramount === 'auto') {
-            clusteramount = os.cpus().length;
-            this.totalClusters = clusteramount;
+        let clusterAmount = this.totalClusters;
+        if (clusterAmount === 'auto') {
+            clusterAmount = os.cpus().length;
+            this.totalClusters = clusterAmount;
         } else {
-            if (typeof clusteramount !== 'number' || isNaN(clusteramount)) {
+            if (typeof clusterAmount !== 'number' || isNaN(clusterAmount)) {
                 throw new TypeError('CLIENT_INVALID_OPTION', 'Amount of Clusters', 'a number.');
             }
-            if (clusteramount < 1) throw new RangeError('CLIENT_INVALID_OPTION', 'Amount of Clusters', 'at least 1.');
-            if (!Number.isInteger(clusteramount)) {
+            if (clusterAmount < 1) throw new RangeError('CLIENT_INVALID_OPTION', 'Amount of Clusters', 'at least 1.');
+            if (!Number.isInteger(clusterAmount)) {
                 throw new TypeError('CLIENT_INVALID_OPTION', 'Amount of Clusters', 'an integer.');
             }
         }
@@ -350,7 +350,7 @@ class ClusterManager extends EventEmitter {
      * Runs a method with given arguments on all clusters, or a given cluster.
      * @param {string} method Method name to run on each cluster
      * @param {Array<*>} args Arguments to pass through to the method call
-     * @param {number} [cluster] cluser to run on, all if undefined
+     * @param {number} [cluster] cluster to run on, all if undefined
      * @param {number} [timeout] the amount of of time to wait until the promise will be rejected
      * @returns {Promise<*>|Promise<Array<*>>} Results of the method execution
      * @private
@@ -421,15 +421,15 @@ class ClusterManager extends EventEmitter {
             options.shard = Util.shardIdForGuildId(options.guildId, this.totalShards);
         }
         if (options.hasOwnProperty('shard')) {
-            const findcluster = [...this.clusters.values()].find(i => i.shardlist.includes(options.shard));
-            options.cluster = findcluster ? findcluster.id : 0;
+            const findCluster = [...this.clusters.values()].find(i => i.shardList.includes(options.shard));
+            options.cluster = findCluster ? findCluster.id : 0;
         }
         const cluster = this.clusters.get(options.cluster);
         if (!cluster) return Promise.reject(new Error('CLUSTER_DOES_NOT_EXIST', options.cluster));
         if (!cluster.thread) return Promise.reject(new Error('CLUSTERING_NO_CHILD_EXISTS', cluster.id));
         return new Promise((resolve, reject) => {
             const nonce = options.nonce;
-            this._nonce.set(nonce, { resolve, reject, requestcluster: options.requestcluster });
+            this._nonce.set(nonce, { resolve, reject, requestCluster: options.requestCluster });
             const sent = cluster.send(
                 { _sClusterEvalRequest: script, nonce, cluster: options.cluster },
                 void 0,
@@ -438,7 +438,7 @@ class ClusterManager extends EventEmitter {
                     if (e) reject(new Error(`Failed to deliver Message to cluster: ${e}`));
                     setTimeout(() => {
                         if (this._nonce.has(nonce)) {
-                            this._nonce.get(nonce).reject(new Error('Eval Request Timedout'));
+                            this._nonce.get(nonce).reject(new Error('Eval Request Timed out'));
                             this._nonce.delete(nonce);
                         }
                     }, options.timeout || 10000);
@@ -449,7 +449,7 @@ class ClusterManager extends EventEmitter {
     }
 
     /**
-     * Logsout the Debug Messages
+     * Logs out the Debug Messages
      * <warn>Using this method just emits the Debug Event.</warn>
      * <info>This is usually not necessary to manually specify.</info>
      * @returns {log} returns the log message
@@ -462,7 +462,7 @@ class ClusterManager extends EventEmitter {
             log = `[CM => Cluster ${cluster}] ` + message;
         }
         /**
-         * Emitted upon recieving a message
+         * Emitted upon receiving a message
          * @event ClusterManager#debug
          * @param {log} Message, which was received
          */
