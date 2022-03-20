@@ -102,7 +102,7 @@ declare module 'discord-hybrid-sharding' {
         public request(message: Object): Promise<BaseMessage>;
         public respawnAll(options?: ClusterRespawnOptions): Promise<void>;
         private _heartbeatAckMessage(): Promise<any[]>;
-        private _checkIfAckRecieved(): Promise<any[]>;
+        private _checkIfAckReceived(): Promise<any[]>;
         private _checkIfClusterAlive(): Promise<any[]>;
         private _cleanupHeartbeat(): Promise<any[]>;
 

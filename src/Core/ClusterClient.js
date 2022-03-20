@@ -426,7 +426,7 @@ class ClusterClient extends EventEmitter {
         this.heartbeat.missed = 0;
     }
 
-    _checkIfAckRecieved() {
+    _checkIfAckReceived() {
         this.client.emit('clusterDebug', `[ClusterClient ${this.id}] Heartbeat Ack Interval CheckUp Started`, this.id);
         this.heartbeat.ack = setInterval(() => {
             if (!this.heartbeat) return;
@@ -467,7 +467,7 @@ class ClusterClient extends EventEmitter {
         if (this.keepAliveInterval) {
             this._cleanupHeartbeat();
             this._checkIfClusterAlive();
-            this._checkIfAckRecieved();
+            this._checkIfAckReceived();
         }
         this.ready = true;
         return this.ready;
