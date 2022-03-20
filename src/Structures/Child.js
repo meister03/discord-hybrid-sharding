@@ -26,12 +26,13 @@ class Child {
         if (options.stdio) this.processOptions.stdio = options.stdio;
         if (options.uid) this.processOptions.uid = options.uid;
 
-        if (options.windowsVerbatimArguments) this.processOptions.windowsVerbatimArguments = options.windowsVerbatimArguments;
+        if (options.windowsVerbatimArguments)
+            this.processOptions.windowsVerbatimArguments = options.windowsVerbatimArguments;
         if (options.timeout) this.processOptions.timeout = options.timeout;
     }
 
     spawn() {
-        return this.process = childProcess.fork(this.file, this.processOptions.args, this.processOptions);
+        return (this.process = childProcess.fork(this.file, this.processOptions.args, this.processOptions));
     }
 
     respawn() {
@@ -50,28 +51,26 @@ class Child {
                 if (err) reject(err);
                 else resolve(this);
             });
-        })
+        });
     }
 }
 
-class ChildClient{
-    constructor(){
+class ChildClient {
+    constructor() {
         this.ipc = process;
     }
-    send(message){
+    send(message) {
         return new Promise((resolve, reject) => {
-              process.send(message, err => {
+            process.send(message, err => {
                 if (err) reject(err);
                 else resolve();
-              });
-          
-          });
+            });
+        });
     }
 
-    getData(){
+    getData() {
         return process.env;
     }
 }
 
-
-module.exports = {Child, ChildClient};
+module.exports = { Child, ChildClient };

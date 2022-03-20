@@ -1,4 +1,4 @@
-const { IPCMessage, BaseMessage } = require('../Structures/IPCMessage.js')
+const { IPCMessage, BaseMessage } = require('../Structures/IPCMessage.js');
 const Util = require('../Util/Util.js');
 const { Events } = require('../Util/Constants.js');
 
@@ -9,8 +9,8 @@ const EventEmitter = require('events');
 ///communicates between the master workers and the process
 class ClusterClient extends EventEmitter {
     /**
-    * @param {Client} client Client of the current cluster
-    */
+     * @param {Client} client Client of the current cluster
+     */
     constructor(client) {
         super();
         /**
@@ -32,27 +32,27 @@ class ClusterClient extends EventEmitter {
          */
         this.queue = {
             mode: this.info.CLUSTER_QUEUE_MODE,
-        }
+        };
 
         /**
-        * Ongoing promises for calls to {@link ClusterManager#evalOnCluster}, mapped by the `script` they were called with
-        * @type {Map<string, Promise>}
-        * @private
-        */
+         * Ongoing promises for calls to {@link ClusterManager#evalOnCluster}, mapped by the `script` they were called with
+         * @type {Map<string, Promise>}
+         * @private
+         */
         this._nonce = new Map();
 
         /**
-        * The Interval of the Heartbeat Messages and the Heartbeat CheckUp to respawn unresponsive Clusters.
-        * @type {Number}
-        */
+         * The Interval of the Heartbeat Messages and the Heartbeat CheckUp to respawn unresponsive Clusters.
+         * @type {Number}
+         */
         this.keepAliveInterval = isNaN(Number(this.info.KEEP_ALIVE_INTERVAL)) ? 0 : this.info.KEEP_ALIVE_INTERVAL;
 
         this.ready = false;
 
         /**
-        * The Hearbeat Object, which contains the missed Hearbeats, the last Hearbeat and the Hearbeat Interval
-        * @type {Object}
-        */
+         * The Heartbeat Object, which contains the missed Heartbeats, the last Heartbeat and the Heartbeat Interval
+         * @type {Object}
+         */
         this.heartbeat = {};
 
         this.process = null;
@@ -70,62 +70,61 @@ class ClusterClient extends EventEmitter {
         client.on?.('reconnecting', () => {
             this.process.send({ _reconnecting: true });
         });
-
     }
     /**
-   * cluster's id
-   * @type {number}
-   * @readonly
-   */
+     * cluster's id
+     * @type {number}
+     * @readonly
+     */
     get id() {
         return this.info.CLUSTER;
     }
     /**
-    * Array of shard IDs of this client
-    * @type {number[]}
-    * @readonly
-    */
+     * Array of shard IDs of this client
+     * @type {number[]}
+     * @readonly
+     */
     get ids() {
         if (!this.client.ws) return this.info.SHARD_LIST;
         return this.client.ws.shards;
     }
     /**
-    * Total number of clusters
-    * @type {number}
-    * @readonly
-    */
+     * Total number of clusters
+     * @type {number}
+     * @readonly
+     */
     get count() {
         return this.info.CLUSTER_COUNT;
     }
     /**
-    * Gets several Info like Cluster_Count, Number, Totalshards...
-    * @type {Object}
-    * @readonly
-    */
+     * Gets several Info like Cluster_Count, Number, Totalshards...
+     * @type {Object}
+     * @readonly
+     */
     get info() {
         return ClusterClient.getinfo();
     }
     /**
-    * Sends a message to the master process.
-    * @param {*} message Message to send
-    * @returns {Promise<void>}
-    * @emits Cluster#message
-    */
+     * Sends a message to the master process.
+     * @param {*} message Message to send
+     * @returns {Promise<void>}
+     * @emits Cluster#message
+     */
     send(message) {
         if (typeof message === 'object') message = new BaseMessage(message).toJSON();
         return this.process.send(message);
     }
     /**
-    * Fetches a client property value of each shard, or a given shard.
-    * @param {string} prop Name of the client property to get, using periods for nesting
-    * @param {number} [shard] Shard to fetch property from, all if undefined
-    * @returns {Promise<*>|Promise<Array<*>>}
-    * @example
-    * client.shard.fetchClientValues('guilds.cache.size')
-    *   .then(results => console.log(`${results.reduce((prev, val) => prev + val, 0)} total guilds`))
-    *   .catch(console.error);
-    * @see {@link ClusterManager#fetchClientValues}
-    */
+     * Fetches a client property value of each shard, or a given shard.
+     * @param {string} prop Name of the client property to get, using periods for nesting
+     * @param {number} [shard] Shard to fetch property from, all if undefined
+     * @returns {Promise<*>|Promise<Array<*>>}
+     * @example
+     * client.shard.fetchClientValues('guilds.cache.size')
+     *   .then(results => console.log(`${results.reduce((prev, val) => prev + val, 0)} total guilds`))
+     *   .catch(console.error);
+     * @see {@link ClusterManager#fetchClientValues}
+     */
     fetchClientValues(prop, shard) {
         return new Promise((resolve, reject) => {
             const parent = this.process.ipc;
@@ -158,7 +157,12 @@ class ClusterClient extends EventEmitter {
      */
     broadcastEval(script, options = {}) {
         return new Promise((resolve, reject) => {
-            if (!script || (typeof script !== 'string' && typeof script !== 'function')) reject(new TypeError('Script for BroadcastEvaling has not been provided or must be a valid String/Function!'));
+            if (!script || (typeof script !== 'string' && typeof script !== 'function'))
+                reject(
+                    new TypeError(
+                        'Script for BroadcastEvaling has not been provided or must be a valid String/Function!',
+                    ),
+                );
             script = typeof script === 'function' ? `(${script})(this, ${JSON.stringify(options.context)})` : script;
 
             const parent = this.process.ipc;
@@ -172,38 +176,45 @@ class ClusterClient extends EventEmitter {
                 else reject(Util.makeError(message._error));
             };
             parent.on('message', listener);
-            this.send({ _sEval: script, _sEvalShard: options.cluster, _sEvalTimeout: options.timeout }).then(m => {
-                if (options.timeout) {
-                    evaltimeout = setTimeout(() => {
-                        parent.removeListener('message', listener);
-                        reject(new Error(`BROADCAST_EVAL_REQUEST_TIMED_OUT`));
-                    }, options.timeout + 100); //Add 100 ms more to prevent timeout on client side
-                }
-            }).catch(err => {
-                if (evaltimeout) clearTimeout(evaltimeout);
-                parent.removeListener('message', listener);
-                reject(err);
-            });
-        })
+            this.send({ _sEval: script, _sEvalShard: options.cluster, _sEvalTimeout: options.timeout })
+                .then(m => {
+                    if (options.timeout) {
+                        evaltimeout = setTimeout(() => {
+                            parent.removeListener('message', listener);
+                            reject(new Error(`BROADCAST_EVAL_REQUEST_TIMED_OUT`));
+                        }, options.timeout + 100); //Add 100 ms more to prevent timeout on client side
+                    }
+                })
+                .catch(err => {
+                    if (evaltimeout) clearTimeout(evaltimeout);
+                    parent.removeListener('message', listener);
+                    reject(err);
+                });
+        });
     }
 
     /**
-    * Evaluates a script or function on the Cluster Manager
-    * @param {string|Function} script JavaScript to run on the Manager
-    * @param {Object} options Some options such as the Evaltimeout or the Context
-    * @param {number} [options.timeout=10000] The time in ms to wait, until the eval will be rejected without any response
-    * @param {any} [options.context] The context to pass to the script, when providing functions
-    * @returns {Promise<*>|Promise<Array<*>>} Result of the script execution
-    * @example
-    * client.cluster.evalOnManager('process.uptime')
-    *   .then(result => console.log(result))
-    *   .catch(console.error);
-    * @see {@link ClusterManager#evalOnManager}
-    */
+     * Evaluates a script or function on the Cluster Manager
+     * @param {string|Function} script JavaScript to run on the Manager
+     * @param {Object} options Some options such as the Evaltimeout or the Context
+     * @param {number} [options.timeout=10000] The time in ms to wait, until the eval will be rejected without any response
+     * @param {any} [options.context] The context to pass to the script, when providing functions
+     * @returns {Promise<*>|Promise<Array<*>>} Result of the script execution
+     * @example
+     * client.cluster.evalOnManager('process.uptime')
+     *   .then(result => console.log(result))
+     *   .catch(console.error);
+     * @see {@link ClusterManager#evalOnManager}
+     */
     evalOnManager(script, options = {}) {
         return new Promise((resolve, reject) => {
             const parent = this.process.ipc;
-            if (!script || (typeof script !== 'string' && typeof script !== 'function')) reject(new TypeError('Script for BroadcastEvaling has not been provided or must be a valid String/Function!'));
+            if (!script || (typeof script !== 'string' && typeof script !== 'function'))
+                reject(
+                    new TypeError(
+                        'Script for BroadcastEvaling has not been provided or must be a valid String/Function!',
+                    ),
+                );
             script = typeof script === 'function' ? `(${script})(this, ${JSON.stringify(options.context)})` : script;
 
             const nonce = Date.now().toString(36) + Math.random().toString(36);
@@ -211,79 +222,89 @@ class ClusterClient extends EventEmitter {
             if (!options.timeout) options.timeout = 10000;
             setTimeout(() => {
                 if (this._nonce.has(nonce)) {
-                    this._nonce.get(nonce).reject(new Error("EVAL Request Timed out"));
+                    this._nonce.get(nonce).reject(new Error('EVAL Request Timed out'));
                     this._nonce.delete(nonce);
                 }
             }, options.timeout);
             this.send({ _sManagerEval: script, nonce, ...options });
-        })
+        });
     }
 
     /**
-    * Evaluates a script or function on the ClusterClient
-    * @param {string|Function} script JavaScript to run on the ClusterClient
-    * @param {Object} options Some options such as the TargetCluster or the Evaltimeout
-    * @param {number} [options.cluster] The Id od the target Cluster
-    * @param {number} [options.shard] The Id od the target Shard, when the Cluster has not been provided.
-    * @param {number} [options.timeout=10000] The time in ms to wait, until the eval will be rejected without any response
-    * @param {any} [options.context] The context to pass to the script, when providing functions
-    * @returns {Promise<*>|Promise<Array<*>>} Result of the script execution
-    * @example
-    * client.cluster.evalOnCluster('this.cluster.id',  {timeout: 10000, cluster: 0})
-    *   .then(result => console.log(result))
-    *   .catch(console.error);
-    * @see {@link ClusterManager#evalOnCluster}
-    */
+     * Evaluates a script or function on the ClusterClient
+     * @param {string|Function} script JavaScript to run on the ClusterClient
+     * @param {Object} options Some options such as the TargetCluster or the Evaltimeout
+     * @param {number} [options.cluster] The Id od the target Cluster
+     * @param {number} [options.shard] The Id od the target Shard, when the Cluster has not been provided.
+     * @param {number} [options.timeout=10000] The time in ms to wait, until the eval will be rejected without any response
+     * @param {any} [options.context] The context to pass to the script, when providing functions
+     * @returns {Promise<*>|Promise<Array<*>>} Result of the script execution
+     * @example
+     * client.cluster.evalOnCluster('this.cluster.id',  {timeout: 10000, cluster: 0})
+     *   .then(result => console.log(result))
+     *   .catch(console.error);
+     * @see {@link ClusterManager#evalOnCluster}
+     */
     evalOnCluster(script, options = {}) {
         return new Promise((resolve, reject) => {
-            if (!options.hasOwnProperty('cluster') && !options.hasOwnProperty('shard') && !options.hasOwnProperty('guildId')) reject('TARGET CLUSTER HAS NOT BEEN PROVIDED');
-            if (!script || (typeof script !== 'string' && typeof script !== 'function')) reject(new TypeError('Script for BroadcastEvaling has not been provided or must be a valid String/Function!'));
+            if (
+                !options.hasOwnProperty('cluster') &&
+                !options.hasOwnProperty('shard') &&
+                !options.hasOwnProperty('guildId')
+            )
+                reject('TARGET CLUSTER HAS NOT BEEN PROVIDED');
+            if (!script || (typeof script !== 'string' && typeof script !== 'function'))
+                reject(
+                    new TypeError(
+                        'Script for BroadcastEvaling has not been provided or must be a valid String/Function!',
+                    ),
+                );
             script = typeof script === 'function' ? `(${script})(this, ${JSON.stringify(options.context)})` : script;
             const nonce = Date.now().toString(36) + Math.random().toString(36);
             this._nonce.set(nonce, { resolve, reject });
             if (!options.timeout) options.timeout = 10000;
             setTimeout(() => {
                 if (this._nonce.has(nonce)) {
-                    this._nonce.get(nonce).reject(new Error("EVAL Request Timed out"));
+                    this._nonce.get(nonce).reject(new Error('EVAL Request Timed out'));
                     this._nonce.delete(nonce);
                 }
             }, options.timeout);
             this.send({ _sClusterEval: script, nonce, ...options });
-        })
+        });
     }
 
     /**
-    * Sends a Request to the ParentCluster and returns the reply
-    * @param {BaseMessage} message Message, which should be sent as request
-    * @returns {Promise<*>} Reply of the Message
-    * @example
-    * client.cluster.request({content: 'hello'})
-    *   .then(result => console.log(result)) //hi
-    *   .catch(console.error);
-    * @see {@link IPCMessage#reply}
-    */
+     * Sends a Request to the ParentCluster and returns the reply
+     * @param {BaseMessage} message Message, which should be sent as request
+     * @returns {Promise<*>} Reply of the Message
+     * @example
+     * client.cluster.request({content: 'hello'})
+     *   .then(result => console.log(result)) //hi
+     *   .catch(console.error);
+     * @see {@link IPCMessage#reply}
+     */
     request(message = {}) {
         message._sRequest = true;
         message._sReply = false;
-        message = new BaseMessage(message).toJSON()
+        message = new BaseMessage(message).toJSON();
         return new Promise((resolve, reject) => {
             this._nonce.set(message.nonce, { resolve, reject });
             setTimeout(() => {
                 if (this._nonce.has(message.nonce)) {
-                    this._nonce.get(message.nonce).reject(new Error("EVAL Request Timed out"));
+                    this._nonce.get(message.nonce).reject(new Error('EVAL Request Timed out'));
                     this._nonce.delete(message.nonce);
                 }
-            }, (message.timeout || 10000));
+            }, message.timeout || 10000);
             this.send(message);
-        }).catch(e => ({ ...message, error: e }))
+        }).catch(e => ({ ...message, error: e }));
     }
 
     /**
-    * Requests a respawn of all clusters.
-    * @param {ClusterRespawnOptions} [options] Options for respawning shards
-    * @returns {Promise<void>} Resolves upon the message being sent
-    * @see {@link ClusterManager#respawnAll}
-    */
+     * Requests a respawn of all clusters.
+     * @param {ClusterRespawnOptions} [options] Options for respawning shards
+     * @returns {Promise<void>} Resolves upon the message being sent
+     * @see {@link ClusterManager#respawnAll}
+     */
     respawnAll({ clusterDelay = 5000, respawnDelay = 7000, timeout = 30000 } = {}) {
         return this.send({ _sRespawnAll: { clusterDelay, respawnDelay, timeout } });
     }
@@ -310,19 +331,27 @@ class ClusterClient extends EventEmitter {
             return;
         } else if (message.hasOwnProperty('_sClusterEvalRequest')) {
             try {
-                this._respond('evalOnCluster', { _sClusterEvalResponse: await this._eval(message._sClusterEvalRequest), nonce: message.nonce, cluster: message.cluster });
+                this._respond('evalOnCluster', {
+                    _sClusterEvalResponse: await this._eval(message._sClusterEvalRequest),
+                    nonce: message.nonce,
+                    cluster: message.cluster,
+                });
             } catch (err) {
-                this._respond('evalOnCluster', { _sClusterEvalResponse: {}, _error: Util.makePlainError(err), nonce: message.nonce });
+                this._respond('evalOnCluster', {
+                    _sClusterEvalResponse: {},
+                    _error: Util.makePlainError(err),
+                    nonce: message.nonce,
+                });
             }
             return;
         } else if (message.hasOwnProperty('_sClusterEvalResponse')) {
             const promise = this._nonce.get(message.nonce);
             if (!promise) return;
             if (message._error) {
-                promise.reject(message._error)
+                promise.reject(message._error);
                 this._nonce.delete(message.nonce);
             } else {
-                promise.resolve(message._sClusterEvalResponse)
+                promise.resolve(message._sClusterEvalResponse);
                 this._nonce.delete(message.nonce);
             }
             return;
@@ -330,10 +359,10 @@ class ClusterClient extends EventEmitter {
             const promise = this._nonce.get(message.nonce);
             if (!promise) return;
             if (message._error) {
-                promise.reject(message._error)
+                promise.reject(message._error);
                 this._nonce.delete(message.nonce);
             } else {
-                promise.resolve(message._sManagerEvalResponse)
+                promise.resolve(message._sManagerEvalResponse);
                 this._nonce.delete(message.nonce);
             }
             return;
@@ -343,7 +372,7 @@ class ClusterClient extends EventEmitter {
             if (message._sReply) {
                 const promise = this._nonce.get(message.nonce);
                 if (promise) {
-                    promise.resolve(message)
+                    promise.resolve(message);
                     this._nonce.delete(message.nonce);
                 }
                 return;
@@ -352,29 +381,31 @@ class ClusterClient extends EventEmitter {
             }
 
             let emitmessage;
-            if (typeof message === 'object') emitmessage = new IPCMessage(this, message)
+            if (typeof message === 'object') emitmessage = new IPCMessage(this, message);
             else emitmessage = message;
             /**
-            * Emitted upon receiving a message from the parent process/worker.
-            * @event ClusterClient#message
-            * @param {*} message Message that was received
-            */
-            this.emit('message', emitmessage)
+             * Emitted upon receiving a message from the parent process/worker.
+             * @event ClusterClient#message
+             * @param {*} message Message that was received
+             */
+            this.emit('message', emitmessage);
         }
     }
 
     _eval(script) {
         if (this.client._eval) return this.client._eval(script);
-        this.client._eval = (function(_){return eval(_)}).bind(this.client);
+        this.client._eval = function (_) {
+            return eval(_);
+        }.bind(this.client);
         return this.client._eval(script);
     }
 
     /**
-    * Sends a message to the master process, emitting an error from the client upon failure.
-    * @param {string} type Type of response to send
-    * @param {*} message Message to send, which can be a Object or a String
-    * @private
-    */
+     * Sends a message to the master process, emitting an error from the client upon failure.
+     * @param {string} type Type of response to send
+     * @param {*} message Message to send, which can be a Object or a String
+     * @private
+     */
     _respond(type, message) {
         this.send(message).catch(err => {
             let error = { err };
@@ -389,25 +420,28 @@ class ClusterClient extends EventEmitter {
         });
     }
 
-    /*Hearbeat System*/
+    /*Heartbeat System*/
     _heartbeatAckMessage() {
         this.heartbeat.last = Date.now();
         this.heartbeat.missed = 0;
     }
 
-    _checkIfAckRecieved() {
+    _checkIfAckReceived() {
         this.client.emit('clusterDebug', `[ClusterClient ${this.id}] Heartbeat Ack Interval CheckUp Started`, this.id);
         this.heartbeat.ack = setInterval(() => {
             if (!this.heartbeat) return;
             const diff = Date.now() - Number(this.heartbeat.last);
             if (isNaN(diff)) return;
-            if (diff > (this.keepAliveInterval + 2000)) {
+            if (diff > this.keepAliveInterval + 2000) {
                 this.heartbeat.missed = (this.heartbeat.missed || 0) + 1;
                 if (this.heartbeat.missed < 5) {
-                    this.client.emit('clusterDebug', `[ClusterClient ${this.id}][Heartbeat_ACK_MISSING] ${this.heartbeat.missed} Heartbeat(s) Ack have been missed.`, this.id);
+                    this.client.emit(
+                        'clusterDebug',
+                        `[ClusterClient ${this.id}][Heartbeat_ACK_MISSING] ${this.heartbeat.missed} Heartbeat(s) Ack have been missed.`,
+                        this.id,
+                    );
                     return;
-                }
-                else this._cleanupHearbeat();
+                } else this._cleanupHeartbeat();
             }
         }, this.keepAliveInterval);
         return this.heartbeat;
@@ -415,33 +449,33 @@ class ClusterClient extends EventEmitter {
 
     _checkIfClusterAlive() {
         this.heartbeat.interval = setInterval(() => {
-            this.send({ _keepAlive: true, heartbeat: { last: Date.now() } })
+            this.send({ _keepAlive: true, heartbeat: { last: Date.now() } });
         }, this.keepAliveInterval);
         return this.heartbeat.interval;
     }
 
-    _cleanupHearbeat() {
+    _cleanupHeartbeat() {
         clearInterval(this.heartbeat.interval);
         clearInterval(this.heartbeat.ack);
         this.heartbeat = {};
         return this.heartbeat;
     }
 
-
     //Hooks
     triggerReady() {
         this.process.send({ _ready: true });
         if (this.keepAliveInterval) {
-            this._cleanupHearbeat();
+            this._cleanupHeartbeat();
             this._checkIfClusterAlive();
-            this._checkIfAckRecieved();
+            this._checkIfAckReceived();
         }
         this.ready = true;
         return this.ready;
     }
 
-    spawnNextCluster() {    
-        if(this.queue.mode === 'auto') throw new Error('Next Cluster can just be spawned when the queue is not on auto mode.');
+    spawnNextCluster() {
+        if (this.queue.mode === 'auto')
+            throw new Error('Next Cluster can just be spawned when the queue is not on auto mode.');
         return this.process.send({ _spawnNextCluster: true });
     }
 
@@ -451,24 +485,31 @@ class ClusterClient extends EventEmitter {
      */
     static getinfo() {
         let clustermode = process.env.CLUSTER_MANAGER_MODE;
-        if (!clustermode) return
-        if (clustermode !== "worker" && clustermode !== "process") throw new Error("NO CHILD/MASTER EXISTS OR SUPPLIED CLUSTER_MANAGER_MODE IS INCORRECT");
+        if (!clustermode) return;
+        if (clustermode !== 'worker' && clustermode !== 'process')
+            throw new Error('NO CHILD/MASTER EXISTS OR SUPPLIED CLUSTER_MANAGER_MODE IS INCORRECT');
         let data;
-        if (clustermode === "process") {
+        if (clustermode === 'process') {
             const shardlist = [];
-            let parseshardlist = process.env.SHARD_LIST.split(",")
-            parseshardlist.forEach(c => shardlist.push(Number(c)))
-            data = { SHARD_LIST: shardlist, TOTAL_SHARDS: Number(process.env.TOTAL_SHARDS), CLUSTER_COUNT: Number(process.env.CLUSTER_COUNT), CLUSTER: Number(process.env.CLUSTER), CLUSTER_MANAGER_MODE: clustermode, KEEP_ALIVE_INTERVAL: Number(process.env.KEEP_ALIVE_INTERVAL), CLUSTER_QUEUE_MODE: process.env.CLUSTER_QUEUE_MODE  }
+            let parseshardlist = process.env.SHARD_LIST.split(',');
+            parseshardlist.forEach(c => shardlist.push(Number(c)));
+            data = {
+                SHARD_LIST: shardlist,
+                TOTAL_SHARDS: Number(process.env.TOTAL_SHARDS),
+                CLUSTER_COUNT: Number(process.env.CLUSTER_COUNT),
+                CLUSTER: Number(process.env.CLUSTER),
+                CLUSTER_MANAGER_MODE: clustermode,
+                KEEP_ALIVE_INTERVAL: Number(process.env.KEEP_ALIVE_INTERVAL),
+                CLUSTER_QUEUE_MODE: process.env.CLUSTER_QUEUE_MODE,
+            };
         } else {
-            data = require("worker_threads").workerData
+            data = require('worker_threads').workerData;
         }
 
         data.FIRST_SHARD_ID = data.SHARD_LIST[0];
-        data.LAST_SHARD_ID = data.SHARD_LIST[data.SHARD_LIST.length - 1]
+        data.LAST_SHARD_ID = data.SHARD_LIST[data.SHARD_LIST.length - 1];
 
         return data;
     }
-
-
 }
 module.exports = ClusterClient;

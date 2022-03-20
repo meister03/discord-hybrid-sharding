@@ -1,0 +1,20 @@
+{
+    "[javascript]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "editor.formatOnSave": true
+    },
+    "[json]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "editor.formatOnSave": true
+    },
+    "cSpell.words": [
+        "cooldown",
+        "evaling",
+        "evals",
+        "Meister",
+        "respawn",
+        "respawned",
+        "respawning",
+        "respawns"
+    ]
+}
