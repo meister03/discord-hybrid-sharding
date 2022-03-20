@@ -62,6 +62,7 @@ class Queue {
 
     /**
      * Adds an item to the queue
+     * @param item
      * @returns {Promise<Queue>}
      */
     add(item) {

@@ -43,7 +43,7 @@ class ClusterClient extends EventEmitter {
 
         /**
          * The Interval of the Heartbeat Messages and the Heartbeat CheckUp to respawn unresponsive Clusters.
-         * @type {Number}
+         * @type {number}
          */
         this.keepAliveInterval = isNaN(Number(this.info.KEEP_ALIVE_INTERVAL)) ? 0 : this.info.KEEP_ALIVE_INTERVAL;
 
@@ -51,7 +51,7 @@ class ClusterClient extends EventEmitter {
 
         /**
          * The Heartbeat Object, which contains the missed Heartbeats, the last Heartbeat and the Heartbeat Interval
-         * @type {Object}
+         * @type {object}
          */
         this.heartbeat = {};
 
@@ -98,7 +98,7 @@ class ClusterClient extends EventEmitter {
     }
     /**
      * Gets several Info like Cluster_Count, Number, Total shards...
-     * @type {Object}
+     * @type {object}
      * @readonly
      */
     get info() {
@@ -108,7 +108,7 @@ class ClusterClient extends EventEmitter {
      * Sends a message to the master process.
      * @param {*} message Message to send
      * @returns {Promise<void>}
-     * @emits Cluster#message
+     * @fires Cluster#message
      */
     send(message) {
         if (typeof message === 'object') message = new BaseMessage(message).toJSON();
@@ -196,7 +196,7 @@ class ClusterClient extends EventEmitter {
     /**
      * Evaluates a script or function on the Cluster Manager
      * @param {string|Function} script JavaScript to run on the Manager
-     * @param {Object} options Some options such as the Eval timeout or the Context
+     * @param {object} options Some options such as the Eval timeout or the Context
      * @param {number} [options.timeout=10000] The time in ms to wait, until the eval will be rejected without any response
      * @param {any} [options.context] The context to pass to the script, when providing functions
      * @returns {Promise<*>|Promise<Array<*>>} Result of the script execution
@@ -233,7 +233,7 @@ class ClusterClient extends EventEmitter {
     /**
      * Evaluates a script or function on the ClusterClient
      * @param {string|Function} script JavaScript to run on the ClusterClient
-     * @param {Object} options Some options such as the TargetCluster or the Eval timeout
+     * @param {object} options Some options such as the TargetCluster or the Eval timeout
      * @param {number} [options.cluster] The Id od the target Cluster
      * @param {number} [options.shard] The Id od the target Shard, when the Cluster has not been provided.
      * @param {number} [options.timeout=10000] The time in ms to wait, until the eval will be rejected without any response

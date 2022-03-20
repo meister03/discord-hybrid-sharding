@@ -13,7 +13,7 @@ const Cluster = require('./Cluster.js');
 class ClusterManager extends EventEmitter {
     /**
      * @param {string} file Path to your bot file
-     * @param {Object} [options] Options for the cluster manager
+     * @param {object} [options] Options for the cluster manager
      * @param {string|number} [options.totalShards='auto'] Number of total internal shards or "auto"
      * @param {string|number} [options.totalClusters='auto'] Number of total Clusters\Process to spawn
      * @param {string[]} [options.shardArgs=[]] Arguments to pass to the clustered script when spawning
@@ -23,10 +23,10 @@ class ClusterManager extends EventEmitter {
      * (only available when using the `process` mode)
      * @param {ClusterManagerMode} [options.mode='worker'] Which mode to use for clustering
      * @param {number[]} [options.shardList] A Array of Internal Shards Ids, which should get spawned
-     * @param {Object} [options.keepAlive] Whether Clusters should be automatically respawned, when Heartbeats have not been received for a given period of time
-     * @param {Number} [options.keepAlive.interval=10000] The Interval for the Heartbeat CheckUp
-     * @param {Number} [options.keepAlive.maxClusterRestarts=3] The maximal Amount of Cluster Restarts, which can be executed by the keepAlive Function in less than 1 hour.
-     * @param {Number} [options.keepAlive.maxMissedHeartbeats=5] The maximal Amount of missed Heartbeats, upon the Cluster should be respawned.
+     * @param {object} [options.keepAlive] Whether Clusters should be automatically respawned, when Heartbeats have not been received for a given period of time
+     * @param {number} [options.keepAlive.interval=10000] The Interval for the Heartbeat CheckUp
+     * @param {number} [options.keepAlive.maxClusterRestarts=3] The maximal Amount of Cluster Restarts, which can be executed by the keepAlive Function in less than 1 hour.
+     * @param {number} [options.keepAlive.maxMissedHeartbeats=5] The maximal Amount of missed Heartbeats, upon the Cluster should be respawned.
      * @param {string} [options.token] Token to use for automatic internal shard count and passing to bot file
      */
     constructor(file, options = {}) {
@@ -156,7 +156,7 @@ class ClusterManager extends EventEmitter {
 
         /**
          * Whether Clusters should be respawned, when the ClusterClient did not sent any Heartbeats.
-         * @type {Object}
+         * @type {object}
          */
         this.keepAlive = options.keepAlive;
         if (typeof this.keepAlive !== 'object') {
@@ -201,7 +201,7 @@ class ClusterManager extends EventEmitter {
 
         /**
          * A Array of IDS[Number], which should be assigned to the spawned Clusters
-         * @type {Number[]}
+         * @type {number[]}
          */
         this.clusterList = options.clusterList || [];
 
@@ -305,6 +305,9 @@ class ClusterManager extends EventEmitter {
      * Creates a single cluster.
      * <warn>Using this method is usually not necessary if you use the spawn method.</warn>
      * <info>This is usually not necessary to manually specify.</info>
+     * @param id
+     * @param shardsToSpawn
+     * @param totalShards
      * @returns {CLUSTER} Note that the created cluster needs to be explicitly spawned using its spawn method.
      */
     createCluster(id, shardsToSpawn, totalShards) {
@@ -394,6 +397,7 @@ class ClusterManager extends EventEmitter {
 
     /**
      * Runs a method with given arguments on the Manager itself
+     * @param script
      * @returns {Promise<*>|Promise<Array<*>>} Results of the script execution
      * @private
      */
@@ -412,6 +416,8 @@ class ClusterManager extends EventEmitter {
 
     /**
      * Runs a method with given arguments on the provided Cluster Client
+     * @param script
+     * @param options
      * @returns {Promise<*>|Promise<Array<*>>} Results of the script execution
      * @private
      */
@@ -452,6 +458,8 @@ class ClusterManager extends EventEmitter {
      * Logs out the Debug Messages
      * <warn>Using this method just emits the Debug Event.</warn>
      * <info>This is usually not necessary to manually specify.</info>
+     * @param message
+     * @param cluster
      * @returns {log} returns the log message
      */
     _debug(message, cluster) {

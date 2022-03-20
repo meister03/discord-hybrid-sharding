@@ -6,9 +6,9 @@ class Util {
     //Discord.js v12 Code | Credits: https://github.com/discordjs/discord.js/blob/v12/src/util/Util.js#L287
     /**
      * Sets default properties on an object that aren't already specified.
-     * @param {Object} def Default properties
-     * @param {Object} given Object to assign defaults to
-     * @returns {Object}
+     * @param {object} def Default properties
+     * @param {object} given Object to assign defaults to
+     * @returns {object}
      * @private
      */
     static mergeDefault(def, given) {
@@ -27,7 +27,7 @@ class Util {
     /**
      * Makes a plain error info object from an Error.
      * @param {Error} err Error to get info from
-     * @returns {Object}
+     * @returns {object}
      * @private
      */
     static makePlainError(err) {
@@ -41,7 +41,7 @@ class Util {
     //Discord.js v12 Code | Credits: https://github.com/discordjs/discord.js/blob/v12/src/util/Util.js#L333
     /**
      * Makes an Error from a plain info object.
-     * @param {Object} obj Error info
+     * @param {object} obj Error info
      * @param {string} obj.name Error type
      * @param {string} obj.message Message for the error
      * @param {string} obj.stack Stack for the error

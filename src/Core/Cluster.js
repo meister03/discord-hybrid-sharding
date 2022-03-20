@@ -12,12 +12,14 @@ let Thread = null;
  * A self-contained cluster created by the {@link ClusterManager}. Each one has a {@link ChildProcess} that contains
  * an instance of the bot and its {@link Client}. When its child process/worker exits for any reason, the cluster will
  * spawn a new one to replace it as necessary.
- * @extends EventEmitter
+ * @augments EventEmitter
  */
 class Cluster extends EventEmitter {
     /**
      * @param {ClusterManager} manager Manager that is creating this cluster
      * @param {number} id ID of this cluster
+     * @param shardList
+     * @param totalShards
      */
     constructor(manager, id, shardList, totalShards) {
         super();
@@ -57,7 +59,7 @@ class Cluster extends EventEmitter {
         this.totalShards = totalShards;
         /**
          * Environment variables for the cluster's process, or workerData for the cluster's worker
-         * @type {Object}
+         * @type {object}
          */
         this.env = Object.assign({}, process.env, {
             SHARD_LIST: this.shardList,
@@ -81,13 +83,13 @@ class Cluster extends EventEmitter {
 
         /**
          * The Heartbeat Object, which contains the missed Heartbeats, the last Heartbeat and the Heartbeat Interval
-         * @type {Object}
+         * @type {object}
          */
         this.heartbeat = {};
 
         /**
          * The Amount of maximal Restarts, which can be executed by the HeartBeat Checkup
-         * @type {Object}
+         * @type {object}
          */
         this._restarts = {};
         if (this.manager.keepAlive) {
@@ -191,8 +193,8 @@ class Cluster extends EventEmitter {
     }
     /**
      * Immediately kills the clusters's process/worker and does not restart it.
-     * @param {Object} options Some Options for managing the Kill
-     * @param {Object} options.force Whether the Cluster should be force kill and be ever respawned...
+     * @param {object} options Some Options for managing the Kill
+     * @param {object} options.force Whether the Cluster should be force kill and be ever respawned...
      */
     kill(options = {}) {
         this.thread.kill(options);
@@ -290,6 +292,8 @@ class Cluster extends EventEmitter {
     /**
      * Evaluates a script or function on the cluster, in the context of the {@link Client}.
      * @param {string|Function} script JavaScript to run on the cluster
+     * @param context
+     * @param timeout
      * @returns {Promise<*>} Result of the script execution
      */
     eval(script, context, timeout) {
@@ -519,7 +523,7 @@ class Cluster extends EventEmitter {
 
     /**
      * Handles the cluster's process/worker error.
-     * @param {Object} [error] the error, which occurred on the worker/child process
+     * @param {object} [error] the error, which occurred on the worker/child process
      * @private
      */
     _handleError(error) {
@@ -533,7 +537,7 @@ class Cluster extends EventEmitter {
 
     /**
      * Handles the keepAlive Heartbeat and validates it.
-     * @param {Object} [message] the heartbeat message, which has been received
+     * @param {object} [message] the heartbeat message, which has been received
      * @private
      */
     _heartbeatMessage(message) {
