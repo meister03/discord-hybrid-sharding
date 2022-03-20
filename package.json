@@ -12,7 +12,7 @@
         "lint:fix": "eslint . --fix --ext .js",
         "format": "prettier --check .",
         "format:fix": "prettier --write .",
-        "generate-docs": "node_modules/.bin/jsdoc -c ./.jsdoc.conf.json"
+        "generate-docs": "jsdoc -c ./.jsdoc.conf.json"
     },
     "repository": {
         "type": "git",
@@ -42,10 +42,12 @@
     },
     "homepage": "https://github.com/meister03/discord-hybrid-sharding#readme",
     "devDependencies": {
+        "clean-jsdoc-theme": "^3.3.4",
         "eslint": "^8.11.0",
         "eslint-config-prettier": "^8.5.0",
         "eslint-plugin-jsdoc": "^38.0.6",
         "eslint-plugin-prettier": "^4.0.0",
+        "jsdoc": "^3.6.10",
         "prettier": "^2.6.0"
     }
 }

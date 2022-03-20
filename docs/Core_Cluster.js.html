@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Adding favicon -->
+    
+
+    <!-- Adding meta -->
+    
+
+    <!-- Adding external script-->
+    
+
+    <!-- Adding external style-->
+    
+
+    <!-- Adding scripts-->
+    
+
+    <!-- Adding style-->
+    
+
+    <!-- Adding overlay script-->
+    
+
+    <!-- Adding overlay style-->
+    
+
+
+    <title>
+      Core/Cluster.js
+    </title>
+
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/third-party/ionicons.min.css">
+    <link type="text/css" rel="stylesheet" href="styles/third-party/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/reset.css">
+    <link type="text/css" rel="stylesheet" href="styles/clean-jsdoc-theme-base.css">
+    <link type="text/css" rel="stylesheet" href="styles/clean-jsdoc-theme-dark.css">
+    
+    <svg aria-hidden="true" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+    style="display:none">
+    <defs>
+        <symbol id="copy-icon" viewbox="0 0 488.3 488.3">
+            <g>
+                <path
+                    d="M314.25,85.4h-227c-21.3,0-38.6,17.3-38.6,38.6v325.7c0,21.3,17.3,38.6,38.6,38.6h227c21.3,0,38.6-17.3,38.6-38.6V124    C352.75,102.7,335.45,85.4,314.25,85.4z M325.75,449.6c0,6.4-5.2,11.6-11.6,11.6h-227c-6.4,0-11.6-5.2-11.6-11.6V124    c0-6.4,5.2-11.6,11.6-11.6h227c6.4,0,11.6,5.2,11.6,11.6V449.6z" />
+                <path
+                    d="M401.05,0h-227c-21.3,0-38.6,17.3-38.6,38.6c0,7.5,6,13.5,13.5,13.5s13.5-6,13.5-13.5c0-6.4,5.2-11.6,11.6-11.6h227    c6.4,0,11.6,5.2,11.6,11.6v325.7c0,6.4-5.2,11.6-11.6,11.6c-7.5,0-13.5,6-13.5,13.5s6,13.5,13.5,13.5c21.3,0,38.6-17.3,38.6-38.6    V38.6C439.65,17.3,422.35,0,401.05,0z" />
+            </g>
+        </symbol>
+        <symbol id='search-icon' viewBox="0 0 512 512">
+            <g>
+                <g>
+                    <path
+                        d="M225.474,0C101.151,0,0,101.151,0,225.474c0,124.33,101.151,225.474,225.474,225.474    c124.33,0,225.474-101.144,225.474-225.474C450.948,101.151,349.804,0,225.474,0z M225.474,409.323    c-101.373,0-183.848-82.475-183.848-183.848S124.101,41.626,225.474,41.626s183.848,82.475,183.848,183.848    S326.847,409.323,225.474,409.323z" />
+                </g>
+            </g>
+            <g>
+                <g>
+                    <path
+                        d="M505.902,476.472L386.574,357.144c-8.131-8.131-21.299-8.131-29.43,0c-8.131,8.124-8.131,21.306,0,29.43l119.328,119.328    c4.065,4.065,9.387,6.098,14.715,6.098c5.321,0,10.649-2.033,14.715-6.098C514.033,497.778,514.033,484.596,505.902,476.472z" />
+                </g>
+            </g>
+        </symbol>
+        <symbol id="down-icon" viewBox="0 0 16 16">
+            <path 
+                fill-rule="evenodd" 
+                clip-rule="evenodd" 
+                d="M12.7803 6.21967C13.0732 6.51256 13.0732 6.98744 12.7803 7.28033L8.53033 11.5303C8.23744 11.8232 7.76256 11.8232 7.46967 11.5303L3.21967 7.28033C2.92678 6.98744 2.92678 6.51256 3.21967 6.21967C3.51256 5.92678 3.98744 5.92678 4.28033 6.21967L8 9.93934L11.7197 6.21967C12.0126 5.92678 12.4874 5.92678 12.7803 6.21967Z"
+            >
+            </path>
+        </symbol>
+    </defs>
+</svg>
+  </head>
+
+  <body>
+
+    <nav class="navbar" id="navbar">
+      <div class="navbar-heading" id="navbar-heading"><a href="index.html"><h2 class="navbar-heading-text">Home</h2></a></div><div class="search-box" id="search-box"><div class="search-box-input-container"><input class="search-box-input" type="text" placeholder="Search..." id="search-box-input" /><svg class="search-icon" alt="search-icon"><use xlink:href="#search-icon"></use></svg></div><div class="search-item-container" id="search-item-container"><ul class="search-item-ul" id="search-item-ul"></ul></div></div><div class="sidebar-main-content" id="sidebar-main-content"><div class="accordion collapsed" id="4941571" > <h3 class="accordion-heading">Classes<svg><use xlink:href="#down-icon"></use></svg></h3><ul class="accordion-content"><li class="accordion collapsed child" id=8960009><div class="accordion-heading child"><a href="Cluster.html">Cluster</a><svg><use xlink:href="#down-icon"></use></svg></div><ul class='methods accordion-content'><li data-type='method'><a href="Cluster.html#eval">eval</a></li><li data-type='method'><a href="Cluster.html#fetchClientValue">fetchClientValue</a></li><li data-type='method'><a href="Cluster.html#kill">kill</a></li><li data-type='method'><a href="Cluster.html#request">request</a></li><li data-type='method'><a href="Cluster.html#respawn">respawn</a></li><li data-type='method'><a href="Cluster.html#send">send</a></li><li data-type='method'><a href="Cluster.html#spawn">spawn</a></li></ul></li><li class="accordion collapsed child" id=3493978><div class="accordion-heading child"><a href="ClusterClient.html">ClusterClient</a><svg><use xlink:href="#down-icon"></use></svg></div><ul class='methods accordion-content'><li data-type='method'><a href="ClusterClient.html#.getinfo">getinfo</a></li><li data-type='method'><a href="ClusterClient.html#broadcastEval">broadcastEval</a></li><li data-type='method'><a href="ClusterClient.html#evalOnCluster">evalOnCluster</a></li><li data-type='method'><a href="ClusterClient.html#evalOnManager">evalOnManager</a></li><li data-type='method'><a href="ClusterClient.html#fetchClientValues">fetchClientValues</a></li><li data-type='method'><a href="ClusterClient.html#request">request</a></li><li data-type='method'><a href="ClusterClient.html#respawnAll">respawnAll</a></li><li data-type='method'><a href="ClusterClient.html#send">send</a></li></ul></li><li class="accordion collapsed child" id=3020995><div class="accordion-heading child"><a href="ClusterManager.html">ClusterManager</a><svg><use xlink:href="#down-icon"></use></svg></div><ul class='methods accordion-content'><li data-type='method'><a href="ClusterManager.html#_debug">_debug</a></li><li data-type='method'><a href="ClusterManager.html#broadcast">broadcast</a></li><li data-type='method'><a href="ClusterManager.html#broadcastEval">broadcastEval</a></li><li data-type='method'><a href="ClusterManager.html#createCluster">createCluster</a></li><li data-type='method'><a href="ClusterManager.html#fetchClientValues">fetchClientValues</a></li><li data-type='method'><a href="ClusterManager.html#respawnAll">respawnAll</a></li></ul></li></ul> </div><div class="accordion collapsed" id="9871661" > <h3 class="accordion-heading">Events<svg><use xlink:href="#down-icon"></use></svg></h3><ul class="accordion-content"><li class="accordion-list" id=""><a href="Client.html#event:error">error</a></li><li class="accordion-list" id=""><a href="Cluster.html#event:death">death</a></li><li class="accordion-list" id=""><a href="Cluster.html#event:disconnect">disconnect</a></li><li class="accordion-list" id=""><a href="Cluster.html#event:error">error</a></li><li class="accordion-list" id=""><a href="Cluster.html#event:ready">ready</a></li><li class="accordion-list" id=""><a href="Cluster.html#event:reconnecting">reconnecting</a></li><li class="accordion-list" id=""><a href="Cluster.html#event:spawn">spawn</a></li><li class="accordion-list" id=""><a href="ClusterClient.html#event:message">message</a></li><li class="accordion-list" id=""><a href="ClusterManager.html#event:clusterCreate">clusterCreate</a></li><li class="accordion-list" id=""><a href="ClusterManager.html#event:debug">debug</a></li><li class="accordion-list" id=""><a href="Shard.html#event:message">message</a></li></ul> </div><div class="accordion collapsed" id="7322789" > <h3 class="accordion-heading">Global<svg><use xlink:href="#down-icon"></use></svg></h3><ul class="accordion-content"><li class="accordion-list" id=""><a href="global.html#ClusterSpawnOptions">ClusterSpawnOptions</a></li></ul> </div>
+      
+
+    </nav>
+    <div class="navbar-ham" id="navbar-ham">
+      <div>
+        <div class="first"></div>
+        <div class="second"></div>
+        <div class="third"></div>
+      </div>
+    </div>
+
+    <div id="main" class="main-content">
+      
+      <h1 id='page-title' class="page-title">
+        Core/Cluster.js
+      </h1>
+      
+
+      
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>const EventEmitter = require('events');
+const path = require('path');
+const Util = require('../Util/Util.js');
+const { IPCMessage, BaseMessage } = require('../Structures/IPCMessage.js');
+
+const { Worker } = require('../Structures/Worker.js');
+const { Child } = require('../Structures/Child.js');
+
+let Thread = null;
+
+/**
+ * A self-contained cluster created by the {@link ClusterManager}. Each one has a {@link ChildProcess} that contains
+ * an instance of the bot and its {@link Client}. When its child process/worker exits for any reason, the cluster will
+ * spawn a new one to replace it as necessary.
+ * @extends EventEmitter
+ */
+class Cluster extends EventEmitter {
+    /**
+     * @param {ClusterManager} manager Manager that is creating this cluster
+     * @param {number} id ID of this cluster
+     */
+    constructor(manager, id, shardlist, totalshards) {
+        super();
+        if (manager.mode === 'process') Thread = Child;
+        else if (manager.mode === 'worker') Thread = Worker;
+        /**
+         * Manager that created the cluster
+         * @type {ClusterManager}
+         */
+        this.manager = manager;
+        /**
+         * ID of the cluster in the manager
+         * @type {number}
+         */
+        this.id = id;
+
+        /**
+         * Arguments for the shard's process (only when {@link ShardingManager#mode} is `process`)
+         * @type {string[]}
+         */
+        this.args = manager.shardArgs || [];
+
+        /**
+         * Arguments for the shard's process executable (only when {@link ShardingManager#mode} is `process`)
+         * @type {string[]}
+         */
+        this.execArgv = manager.execArgv;
+        /**
+         * Internal Shards which will get spawned in the cluster
+         * @type {number}
+         */
+        this.shardlist = shardlist;
+        /**
+         * the amount of real shards
+         * @type {number}
+         */
+        this.totalshards = totalshards;
+        /**
+         * Environment variables for the cluster's process, or workerData for the cluster's worker
+         * @type {Object}
+         */
+        this.env = Object.assign({}, process.env, {
+            SHARD_LIST: this.shardlist,
+            TOTAL_SHARDS: this.totalshards,
+            CLUSTER_MANAGER: true,
+            CLUSTER: this.id,
+            CLUSTER_COUNT: this.manager.totalClusters,
+            KEEP_ALIVE_INTERVAL: this.manager.keepAlive.interval,
+            DISCORD_TOKEN: this.manager.token,
+        });
+        /**
+         * Whether the cluster's {@link Client} is ready
+         * @type {boolean}
+         */
+
+        /**
+         * Process of the cluster (if {@link ClusterManager#mode} is `process`)
+         * @type {?ChildProcess|?Worker}
+         */
+        this.thread = null;
+
+        /**
+         * The Heartbeat Object, which contains the missed Heartbeats, the last Heartbeat and the Heartbeat Interval
+         * @type {Object}
+         */
+        this.heartbeat = {};
+
+        /**
+         * The Amount of maximal Restarts, which can be executed by the HeartBeat Checkup
+         * @type {Object}
+         */
+        this._restarts = {};
+        if (this.manager.keepAlive) {
+            if (Object.keys(this.manager.keepAlive)) {
+                this._restarts.current = 0;
+                this._restarts.interval = setInterval(() => {
+                    this._restarts.current = 0;
+                }, 60000 * 60);
+            }
+        }
+
+        /**
+         * Ongoing promises for calls to {@link Cluster#eval}, mapped by the `script` they were called with
+         * @type {Map&lt;string, Promise>}
+         * @private
+         */
+        this._evals = new Map();
+
+        /**
+         * Ongoing promises for calls to {@link Cluster#fetchClientValue}, mapped by the `prop` they were called with
+         * @type {Map&lt;string, Promise>}
+         * @private
+         */
+        this._fetches = new Map();
+
+        /**
+         * Listener function for the {@link ChildProcess}' `exit` event
+         * @type {Function}
+         * @private
+         */
+        this._exitListener = this._handleExit.bind(this, undefined);
+    }
+    /**
+     * Forks a child process or creates a worker thread for the cluster.
+     * &lt;warn>You should not need to call this manually.&lt;/warn>
+     * @param {number} [spawnTimeout=30000] The amount in milliseconds to wait until the {@link Client} has become ready
+     * before resolving. (-1 or Infinity for no wait)
+     * @returns {Promise&lt;ChildProcess>}
+     */
+    async spawn(spawnTimeout = 30000) {
+        if (this.thread) throw new Error('CLUSTERING_PROCESS_EXISTS', this.id);
+        this.thread = new Thread(path.resolve(this.manager.file), {
+            execArgv: this.execArgv,
+            env: this.env,
+            args: this.args,
+            clusterData: this.env,
+        });
+        this.thread
+            .spawn()
+            .on('message', this._handleMessage.bind(this))
+            .on('exit', this._exitListener)
+            .on('error', this._handleError.bind(this));
+
+        this._evals.clear();
+        this._fetches.clear();
+
+        /**
+         * Emitted upon the creation of the cluster's child process/worker.
+         * @event Cluster#spawn
+         * @param {ChildProcess|Worker} process Child process/worker that was created
+         */
+        this.emit('spawn', this.thread.process);
+
+        if (spawnTimeout === -1 || spawnTimeout === Infinity) return this.thread.process;
+
+        await new Promise((resolve, reject) => {
+            const cleanup = () => {
+                clearTimeout(spawnTimeoutTimer);
+                this.off('ready', onReady);
+                this.off('disconnect', onDisconnect);
+                this.off('death', onDeath);
+            };
+
+            const onReady = () => {
+                this._cleanupHeartbeat();
+                cleanup();
+                resolve();
+            };
+
+            const onDisconnect = () => {
+                cleanup();
+                reject(new Error('CLUSTERING_READY_DISCONNECTED', this.id));
+            };
+
+            const onDeath = () => {
+                cleanup();
+                reject(new Error('CLUSTERING_READY_DIED', this.id));
+            };
+
+            const onTimeout = () => {
+                cleanup();
+                reject(new Error('CLUSTERING_READY_TIMEOUT', this.id));
+            };
+
+            const spawnTimeoutTimer = setTimeout(onTimeout, spawnTimeout);
+            this.once('ready', onReady);
+            this.once('disconnect', onDisconnect);
+            this.once('death', onDeath);
+        });
+        return this.thread.process;
+    }
+    /**
+     * Immediately kills the clusters's process/worker and does not restart it.
+     * @param {Object} options Some Options for managing the Kill
+     * @param {Object} options.force Whether the Cluster should be force kill and be ever respawned...
+     */
+    kill(options = {}) {
+        this.thread.kill(options);
+        if (options.force) this._cleanupHeartbeat();
+        this._handleExit(false);
+    }
+    /**
+     * Kills and restarts the cluster's process/worker.
+     * @param {ClusterRespawnOptions} [options] Options for respawning the cluster
+     * @returns {Promise&lt;ChildProcess>}
+     */
+    async respawn({ delay = 500, timeout = 30000 } = {}) {
+        if (this.thread) this.kill({ force: true });
+        if (delay > 0) await Util.delayFor(delay);
+        return this.spawn(timeout);
+    }
+    /**
+     * Sends a message to the cluster's process/worker.
+     * @param {*|BaseMessage} message Message to send to the cluster
+     * @returns {Promise&lt;Shard>}
+     */
+    send(message) {
+        if (typeof message === 'object') message = new BaseMessage(message).toJSON();
+        return this.thread.send(message);
+    }
+
+    /**
+     * Sends a Request to the ClusterClient and returns the reply
+     * @param {BaseMessage} message Message, which should be sent as request
+     * @returns {Promise&lt;*>} Reply of the Message
+     * @example
+     * client.cluster.request({content: 'hello'})
+     *   .then(result => console.log(result)) //hi
+     *   .catch(console.error);
+     * @see {@link IPCMessage#reply}
+     */
+    request(message = {}) {
+        message._sRequest = true;
+        message._sReply = false;
+        message = new BaseMessage(message).toJSON();
+        return new Promise((resolve, reject) => {
+            const nonce = message.nonce;
+            this.manager._nonce.set(nonce, { resolve, reject });
+            const sent = this.send(message, void 0, void 0, e => {
+                if (e) reject(new Error(`Failed to deliver Message to cluster: ${e}`));
+                setTimeout(() => {
+                    if (this.manager._nonce.has(nonce)) {
+                        this.manager._nonce.get(nonce).reject(new Error('Eval Request Timedout'));
+                        this.manager._nonce.delete(nonce);
+                    }
+                }, message.timeout || 10000);
+            });
+            if (!sent) reject(new Error('CLUSTERING_IN_PROCESS or CLUSTERING_DIED'));
+        }).catch(e => ({ ...message, error: new Error(e.toString()) }));
+    }
+
+    /**
+     * Fetches a client property value of the cluster.
+     * @param {string} prop Name of the client property to get, using periods for nesting
+     * @returns {Promise&lt;*>}
+     * @example
+     * cluster.fetchClientValue('guilds.cache.size')
+     *   .then(count => console.log(`${count} guilds in cluster ${cluster.id}`))
+     *   .catch(console.error);
+     */
+    fetchClientValue(prop) {
+        // Shard is dead (maybe respawning), don't cache anything and error immediately
+        if (!this.thread) return Promise.reject(new Error('CLUSTERING_NO_CHILD_EXISTS', this.id));
+
+        // Cached promise from previous call
+        if (this._fetches.has(prop)) return this._fetches.get(prop);
+
+        const promise = new Promise((resolve, reject) => {
+            const child = this.thread.process;
+
+            const listener = message => {
+                if (!message || message._fetchProp !== prop) return;
+                child.removeListener('message', listener);
+                this._fetches.delete(prop);
+                resolve(message._result);
+            };
+            child.on('message', listener);
+
+            this.send({ _fetchProp: prop }).catch(err => {
+                child.removeListener('message', listener);
+                this._fetches.delete(prop);
+                reject(err);
+            });
+        });
+
+        this._fetches.set(prop, promise);
+        return promise;
+    }
+
+    /**
+     * Evaluates a script or function on the cluster, in the context of the {@link Client}.
+     * @param {string|Function} script JavaScript to run on the cluster
+     * @returns {Promise&lt;*>} Result of the script execution
+     */
+    eval(script, context, timeout) {
+        // Stringify the script if it's a Function
+        const _eval = typeof script === 'function' ? `(${script})(this, ${JSON.stringify(context)})` : script;
+
+        // cluster is dead (maybe respawning), don't cache anything and error immediately
+        if (!this.thread) return Promise.reject(new Error('CLUSTERING_NO_CHILD_EXISTS', this.id));
+
+        // Cached promise from previous call
+        if (this._evals.has(_eval)) return this._evals.get(_eval);
+
+        const promise = new Promise((resolve, reject) => {
+            const child = this.thread.process;
+
+            //Set A timeout for the eval
+            let temptimeout;
+
+            const listener = message => {
+                if (!message || message._eval !== _eval) return;
+                if (temptimeout) clearTimeout(temptimeout);
+                child.removeListener('message', listener);
+                this._evals.delete(_eval);
+                if (!message._error) resolve(message._result);
+                else reject(Util.makeError(message._error));
+            };
+            child.on('message', listener);
+
+            this.send({ _eval })
+                .then(m => {
+                    if (timeout) {
+                        temptimeout = setTimeout(() => {
+                            if (!this._evals.has(_eval)) return;
+                            child.removeListener('message', listener);
+                            this._evals.delete(_eval);
+                            reject(new Error(`BROADCAST_EVAL_REQUEST_TIMED_OUT`));
+                        }, timeout);
+                    }
+                })
+                .catch(err => {
+                    if (temptimeout) clearTimeout(temptimeout);
+                    child.removeListener('message', listener);
+                    this._evals.delete(_eval);
+                    reject(err);
+                });
+        });
+
+        this._evals.set(_eval, promise);
+        return promise;
+    }
+
+    /**
+     * Handles a message received from the child process/worker.
+     * @param {*} message Message received
+     * @private
+     */
+    _handleMessage(message) {
+        if (message) {
+            // Cluster is ready
+            if (message._ready) {
+                this.ready = true;
+                /**
+                 * Emitted upon the cluster's {@link Client#ready} event.
+                 * @event Cluster#ready
+                 */
+                this.emit('ready');
+                this.manager._debug('Ready', this.id);
+                this._cleanupHeartbeat();
+                this._checkIfClusterAlive();
+                return;
+            }
+
+            // Cluster has disconnected
+            if (message._disconnect) {
+                this.ready = false;
+                /**
+                 * Emitted upon the cluster's {@link Client#disconnect} event.
+                 * @event Cluster#disconnect
+                 */
+                this.emit('disconnect');
+                this.manager._debug('[DISCONNECT] Some Shards disconnected', this.id);
+                return;
+            }
+
+            // Cluster is attempting to reconnect
+            if (message._reconnecting) {
+                this.ready = false;
+                /**
+                 * Emitted upon the cluster's {@link Client#reconnecting} event.
+                 * @event Cluster#reconnecting
+                 */
+                this.emit('reconnecting');
+                this.manager._debug('[RECONNECTING] Some Shards are attempting reconnect', this.id);
+                return;
+            }
+
+            //The Heartbeat, which has been sent by Client
+            if (message._keepAlive) {
+                if (this.manager.keepAlive) this._heartbeatMessage(message);
+                return;
+            }
+
+            // Cluster is requesting a property fetch
+            if (message._sFetchProp) {
+                const resp = { _sFetchProp: message._sFetchProp, _sFetchPropShard: message._sFetchPropShard };
+                this.manager.fetchClientValues(message._sFetchProp, message._sFetchPropShard).then(
+                    results => this.send({ ...resp, _result: results }),
+                    err => this.send({ ...resp, _error: Util.makePlainError(err) }),
+                );
+                return;
+            }
+
+            // Cluster is requesting an eval broadcast
+            if (message._sEval) {
+                const resp = { _sEval: message._sEval, _sEvalShard: message._sEvalShard };
+                this.manager
+                    ._performOnShards('eval', [message._sEval], message._sEvalShard, message._sEvalTimeout)
+                    .then(
+                        results => this.send({ ...resp, _result: results }),
+                        err => this.send({ ...resp, _error: Util.makePlainError(err) }),
+                    );
+                return;
+            }
+
+            //Evals a Request on a Cluster
+            if (message.hasOwnProperty('_sManagerEval')) {
+                this.manager.evalOnManager(message._sManagerEval).then(result => {
+                    if (result._results) return this.send({ _sManagerEvalResponse: result._results, ...message });
+                    if (result._error) return this.send({ _error: Util.makePlainError(result._error), ...message });
+                });
+                return;
+            }
+
+            //Evals a Request on a Cluster
+            if (message.hasOwnProperty('_sClusterEval')) {
+                this.manager
+                    .evalOnCluster(message._sClusterEval, { ...message, requestcluster: this.id })
+                    .catch(e => new Error(e));
+                return;
+            }
+
+            //If Message is a Eval Response
+            if (message.hasOwnProperty('_sClusterEvalResponse')) {
+                const promise = this.manager._nonce.get(message.nonce);
+                if (!promise) return;
+                if (promise) {
+                    if (message._error) {
+                        promise.reject(message._error);
+                        this.manager._nonce.delete(message.nonce);
+                        if (this.manager.clusters.has(promise.requestcluster)) {
+                            this.manager.clusters.get(promise.requestcluster).send(message);
+                        }
+                    } else {
+                        promise.resolve(message._sClusterEvalResponse);
+                        this.manager._nonce.delete(message.nonce);
+                        if (this.manager.clusters.has(promise.requestcluster)) {
+                            this.manager.clusters.get(promise.requestcluster).send(message);
+                        }
+                    }
+                }
+                return;
+            }
+
+            // Cluster is requesting a respawn of all shards
+            if (message._sRespawnAll) {
+                const { clusterDelay, respawnDelay, timeout } = message._sRespawnAll;
+                this.manager._debug('Cluster requested respawn of all Clusters', this.id);
+                this.manager.respawnAll({ clusterDelay, respawnDelay, timeout }).catch(() => {
+                    // Do nothing
+                });
+                return;
+            }
+
+            if (message._spawnNextCluster) {
+                return this.manager.queue.next();
+            }
+
+            if (message._sCustom) {
+                if (message._sReply) {
+                    const promise = this.manager._nonce.get(message.nonce);
+                    if (promise) {
+                        promise.resolve(message);
+                        this.manager._nonce.delete(message.nonce);
+                    }
+                } else if (message._sRequest) {
+                    // this.manager.request(message).then(e => this.send(e)).catch(e => this.send({...message, error: e}))
+                }
+            }
+        }
+
+        let emitmessage;
+        if (typeof message === 'object') {
+            emitmessage = new IPCMessage(this, message);
+            if (emitmessage._sRequest) this.manager.emit('clientRequest', emitmessage);
+        } else emitmessage = message;
+        /**
+         * Emitted upon receiving a message from the child process/worker.
+         * @event Shard#message
+         * @param {*|IPCMessage} message Message that was received
+         */
+        this.emit('message', emitmessage);
+    }
+
+    /**
+     * Handles the cluster's process/worker exiting.
+     * @param {boolean} [respawn=this.manager.respawn] Whether to spawn the cluster again
+     * @private
+     */
+    _handleExit(respawn = this.manager.respawn) {
+        /**
+         * Emitted upon the cluster's child process/worker exiting.
+         * @event Cluster#death
+         * @param {ChildProcess|Worker} process Child process/worker that exited
+         */
+        this.emit('death', this.thread.process);
+        this.manager._debug('[DEATH] Cluster died, attempting respawn', this.id);
+
+        this.ready = false;
+        this.thread = null;
+        this._evals.clear();
+        this._fetches.clear();
+
+        if (respawn) this.spawn().catch(err => this.emit('error', err));
+    }
+
+    ///Custom Functions
+
+    /**
+     * Handles the cluster's process/worker error.
+     * @param {Object} [error] the error, which occurred on the worker/child process
+     * @private
+     */
+    _handleError(error) {
+        /**
+         * Emitted upon the cluster's child process/worker error.
+         * @event Cluster#error
+         * @param {ChildProcess|Worker} process Child process/worker, where error occurred
+         */
+        this.manager.emit('error', error);
+    }
+
+    /**
+     * Handles the keepAlive Heartbeat and validates it.
+     * @param {Object} [message] the heartbeat message, which has been received
+     * @private
+     */
+    _heartbeatMessage(message) {
+        if (!this.manager.keepAlive) return;
+        if (Object.keys(this.manager.keepAlive).length === 0) return;
+        this.heartbeat.last = Date.now();
+        this.heartbeat.missed = 0;
+        this.send({ ack: true, last: Date.now() }).catch(e =>
+            this.manager._debug('[ACK_FAILED] ACK could not be sent. IPC Channel is dead or busy', this.id),
+        );
+    }
+
+    _checkIfClusterAlive() {
+        if (!this.manager.keepAlive) return;
+        if (Object.keys(this.manager.keepAlive).length === 0) return;
+        this.manager._debug('Heartbeat Interval CheckUp has started', this.id);
+        this.heartbeat.interval = setInterval(() => {
+            if (!this.heartbeat) return;
+            const diff = Date.now() - Number(this.heartbeat.last);
+            if (isNaN(diff)) return;
+            if (diff > this.manager.keepAlive.interval + 2000) {
+                this.heartbeat.missed++;
+                if (this.heartbeat.missed &lt; this.manager.keepAlive.maxMissedHeartbeats)
+                    this.manager._debug(
+                        `[Heartbeat_MISSING] ${this.heartbeat.missed} Heartbeat(s) have been missed.`,
+                        this.id,
+                    );
+                if (this.heartbeat.missed > this.manager.keepAlive.maxMissedHeartbeats) {
+                    if (this._restarts) {
+                        if (this._restarts.current !== undefined) {
+                            this._restarts.current++;
+                            if (this._restarts.current === this.manager.keepAlive.maxClusterRestarts) {
+                                return this.manager._debug(
+                                    `[Heartbeat_MISSING] Already attempted maximal Amount of Respawns in less then 1 hour | Cluster will be respawned, when the cooldown ends.`,
+                                    this.id,
+                                );
+                            }
+                            if (this._restarts.current > this.manager.keepAlive.maxClusterRestarts) return;
+                        }
+                    }
+                    this.manager._debug(
+                        `[Heartbeat_MISSING] Attempting respawn | Too many heartbeats were missing.`,
+                        this.id,
+                    );
+                    this._cleanupHeartbeat();
+                    this.respawn();
+                }
+            } else return;
+        }, this.manager.keepAlive.interval);
+        return this.heartbeat;
+    }
+
+    _cleanupHeartbeat() {
+        clearInterval(this.heartbeat.interval);
+        if (Object.keys(this.manager.keepAlive).length === 0) return;
+        this.heartbeat = {};
+        this.manager._debug('[Heartbeat] Heartbeat has been cleared', this.id);
+        return this.heartbeat;
+    }
+}
+
+module.exports = Cluster;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+    </div>
+
+    <footer class="footer" id="footer">
+      
+    </footer>
+
+    <script src="scripts/third-party/prettify.js"></script>
+    <script src="scripts/third-party/lang-css.js"></script>
+    <script type="text/javascript" src="scripts/misc.js"></script>
+
+    <script>prettyPrint();</script>
+    <script src="scripts/linenumber.js"></script>
+    <script src="scripts/fix-code-block.js"></script>
+    <script src="scripts/fix-navbar.js"></script>
+    
+      <script src="scripts/search.js"></script>
+      <script src="scripts/third-party/fuse.js"></script>
+      <script>
+        var list = [{"title":"Cluster","link":"<a href=\"Cluster.html\">Cluster</a>"},{"title":"Cluster#eval","link":"<a href=\"Cluster.html#eval\">Cluster &rtrif; eval</a>"},{"title":"Cluster#fetchClientValue","link":"<a href=\"Cluster.html#fetchClientValue\">Cluster &rtrif; fetchClientValue</a>"},{"title":"Cluster#kill","link":"<a href=\"Cluster.html#kill\">Cluster &rtrif; kill</a>"},{"title":"Cluster#request","link":"<a href=\"Cluster.html#request\">Cluster &rtrif; request</a>"},{"title":"Cluster#respawn","link":"<a href=\"Cluster.html#respawn\">Cluster &rtrif; respawn</a>"},{"title":"Cluster#send","link":"<a href=\"Cluster.html#send\">Cluster &rtrif; send</a>"},{"title":"Cluster#spawn","link":"<a href=\"Cluster.html#spawn\">Cluster &rtrif; spawn</a>"},{"title":"ClusterClient","link":"<a href=\"ClusterClient.html\">ClusterClient</a>"},{"title":"ClusterClient.getinfo","link":"<a href=\"ClusterClient.html#.getinfo\">ClusterClient &rtrif; getinfo</a>"},{"title":"ClusterClient#broadcastEval","link":"<a href=\"ClusterClient.html#broadcastEval\">ClusterClient &rtrif; broadcastEval</a>"},{"title":"ClusterClient#evalOnCluster","link":"<a href=\"ClusterClient.html#evalOnCluster\">ClusterClient &rtrif; evalOnCluster</a>"},{"title":"ClusterClient#evalOnManager","link":"<a href=\"ClusterClient.html#evalOnManager\">ClusterClient &rtrif; evalOnManager</a>"},{"title":"ClusterClient#fetchClientValues","link":"<a href=\"ClusterClient.html#fetchClientValues\">ClusterClient &rtrif; fetchClientValues</a>"},{"title":"ClusterClient#request","link":"<a href=\"ClusterClient.html#request\">ClusterClient &rtrif; request</a>"},{"title":"ClusterClient#respawnAll","link":"<a href=\"ClusterClient.html#respawnAll\">ClusterClient &rtrif; respawnAll</a>"},{"title":"ClusterClient#send","link":"<a href=\"ClusterClient.html#send\">ClusterClient &rtrif; send</a>"},{"title":"ClusterManager","link":"<a href=\"ClusterManager.html\">ClusterManager</a>"},{"title":"ClusterManager#_debug","link":"<a href=\"ClusterManager.html#_debug\">ClusterManager &rtrif; _debug</a>"},{"title":"ClusterManager#broadcast","link":"<a href=\"ClusterManager.html#broadcast\">ClusterManager &rtrif; broadcast</a>"},{"title":"ClusterManager#broadcastEval","link":"<a href=\"ClusterManager.html#broadcastEval\">ClusterManager &rtrif; broadcastEval</a>"},{"title":"ClusterManager#createCluster","link":"<a href=\"ClusterManager.html#createCluster\">ClusterManager &rtrif; createCluster</a>"},{"title":"ClusterManager#fetchClientValues","link":"<a href=\"ClusterManager.html#fetchClientValues\">ClusterManager &rtrif; fetchClientValues</a>"},{"title":"ClusterManager#respawnAll","link":"<a href=\"ClusterManager.html#respawnAll\">ClusterManager &rtrif; respawnAll</a>"},{"title":"error","link":"<a href=\"Client.html#event:error\">error</a>"},{"title":"death","link":"<a href=\"Cluster.html#event:death\">death</a>"},{"title":"disconnect","link":"<a href=\"Cluster.html#event:disconnect\">disconnect</a>"},{"title":"error","link":"<a href=\"Cluster.html#event:error\">error</a>"},{"title":"ready","link":"<a href=\"Cluster.html#event:ready\">ready</a>"},{"title":"reconnecting","link":"<a href=\"Cluster.html#event:reconnecting\">reconnecting</a>"},{"title":"spawn","link":"<a href=\"Cluster.html#event:spawn\">spawn</a>"},{"title":"message","link":"<a href=\"ClusterClient.html#event:message\">message</a>"},{"title":"clusterCreate","link":"<a href=\"ClusterManager.html#event:clusterCreate\">clusterCreate</a>"},{"title":"debug","link":"<a href=\"ClusterManager.html#event:debug\">debug</a>"},{"title":"message","link":"<a href=\"Shard.html#event:message\">message</a>"},{"title":"ClusterSpawnOptions","link":"<a href=\"global.html#ClusterSpawnOptions\">ClusterSpawnOptions</a>"}];
+        var options = 
+          setupSearch(list, options)
+      </script>
+    
+
+    
+
+    
+
+    
+
+
+  </body>
+
+</html>

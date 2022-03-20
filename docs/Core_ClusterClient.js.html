@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Adding favicon -->
+    
+
+    <!-- Adding meta -->
+    
+
+    <!-- Adding external script-->
+    
+
+    <!-- Adding external style-->
+    
+
+    <!-- Adding scripts-->
+    
+
+    <!-- Adding style-->
+    
+
+    <!-- Adding overlay script-->
+    
+
+    <!-- Adding overlay style-->
+    
+
+
+    <title>
+      Core/ClusterClient.js
+    </title>
+
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/third-party/ionicons.min.css">
+    <link type="text/css" rel="stylesheet" href="styles/third-party/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/reset.css">
+    <link type="text/css" rel="stylesheet" href="styles/clean-jsdoc-theme-base.css">
+    <link type="text/css" rel="stylesheet" href="styles/clean-jsdoc-theme-dark.css">
+    
+    <svg aria-hidden="true" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+    style="display:none">
+    <defs>
+        <symbol id="copy-icon" viewbox="0 0 488.3 488.3">
+            <g>
+                <path
+                    d="M314.25,85.4h-227c-21.3,0-38.6,17.3-38.6,38.6v325.7c0,21.3,17.3,38.6,38.6,38.6h227c21.3,0,38.6-17.3,38.6-38.6V124    C352.75,102.7,335.45,85.4,314.25,85.4z M325.75,449.6c0,6.4-5.2,11.6-11.6,11.6h-227c-6.4,0-11.6-5.2-11.6-11.6V124    c0-6.4,5.2-11.6,11.6-11.6h227c6.4,0,11.6,5.2,11.6,11.6V449.6z" />
+                <path
+                    d="M401.05,0h-227c-21.3,0-38.6,17.3-38.6,38.6c0,7.5,6,13.5,13.5,13.5s13.5-6,13.5-13.5c0-6.4,5.2-11.6,11.6-11.6h227    c6.4,0,11.6,5.2,11.6,11.6v325.7c0,6.4-5.2,11.6-11.6,11.6c-7.5,0-13.5,6-13.5,13.5s6,13.5,13.5,13.5c21.3,0,38.6-17.3,38.6-38.6    V38.6C439.65,17.3,422.35,0,401.05,0z" />
+            </g>
+        </symbol>
+        <symbol id='search-icon' viewBox="0 0 512 512">
+            <g>
+                <g>
+                    <path
+                        d="M225.474,0C101.151,0,0,101.151,0,225.474c0,124.33,101.151,225.474,225.474,225.474    c124.33,0,225.474-101.144,225.474-225.474C450.948,101.151,349.804,0,225.474,0z M225.474,409.323    c-101.373,0-183.848-82.475-183.848-183.848S124.101,41.626,225.474,41.626s183.848,82.475,183.848,183.848    S326.847,409.323,225.474,409.323z" />
+                </g>
+            </g>
+            <g>
+                <g>
+                    <path
+                        d="M505.902,476.472L386.574,357.144c-8.131-8.131-21.299-8.131-29.43,0c-8.131,8.124-8.131,21.306,0,29.43l119.328,119.328    c4.065,4.065,9.387,6.098,14.715,6.098c5.321,0,10.649-2.033,14.715-6.098C514.033,497.778,514.033,484.596,505.902,476.472z" />
+                </g>
+            </g>
+        </symbol>
+        <symbol id="down-icon" viewBox="0 0 16 16">
+            <path 
+                fill-rule="evenodd" 
+                clip-rule="evenodd" 
+                d="M12.7803 6.21967C13.0732 6.51256 13.0732 6.98744 12.7803 7.28033L8.53033 11.5303C8.23744 11.8232 7.76256 11.8232 7.46967 11.5303L3.21967 7.28033C2.92678 6.98744 2.92678 6.51256 3.21967 6.21967C3.51256 5.92678 3.98744 5.92678 4.28033 6.21967L8 9.93934L11.7197 6.21967C12.0126 5.92678 12.4874 5.92678 12.7803 6.21967Z"
+            >
+            </path>
+        </symbol>
+    </defs>
+</svg>
+  </head>
+
+  <body>
+
+    <nav class="navbar" id="navbar">
+      <div class="navbar-heading" id="navbar-heading"><a href="index.html"><h2 class="navbar-heading-text">Home</h2></a></div><div class="search-box" id="search-box"><div class="search-box-input-container"><input class="search-box-input" type="text" placeholder="Search..." id="search-box-input" /><svg class="search-icon" alt="search-icon"><use xlink:href="#search-icon"></use></svg></div><div class="search-item-container" id="search-item-container"><ul class="search-item-ul" id="search-item-ul"></ul></div></div><div class="sidebar-main-content" id="sidebar-main-content"><div class="accordion collapsed" id="4941571" > <h3 class="accordion-heading">Classes<svg><use xlink:href="#down-icon"></use></svg></h3><ul class="accordion-content"><li class="accordion collapsed child" id=8960009><div class="accordion-heading child"><a href="Cluster.html">Cluster</a><svg><use xlink:href="#down-icon"></use></svg></div><ul class='methods accordion-content'><li data-type='method'><a href="Cluster.html#eval">eval</a></li><li data-type='method'><a href="Cluster.html#fetchClientValue">fetchClientValue</a></li><li data-type='method'><a href="Cluster.html#kill">kill</a></li><li data-type='method'><a href="Cluster.html#request">request</a></li><li data-type='method'><a href="Cluster.html#respawn">respawn</a></li><li data-type='method'><a href="Cluster.html#send">send</a></li><li data-type='method'><a href="Cluster.html#spawn">spawn</a></li></ul></li><li class="accordion collapsed child" id=3493978><div class="accordion-heading child"><a href="ClusterClient.html">ClusterClient</a><svg><use xlink:href="#down-icon"></use></svg></div><ul class='methods accordion-content'><li data-type='method'><a href="ClusterClient.html#.getinfo">getinfo</a></li><li data-type='method'><a href="ClusterClient.html#broadcastEval">broadcastEval</a></li><li data-type='method'><a href="ClusterClient.html#evalOnCluster">evalOnCluster</a></li><li data-type='method'><a href="ClusterClient.html#evalOnManager">evalOnManager</a></li><li data-type='method'><a href="ClusterClient.html#fetchClientValues">fetchClientValues</a></li><li data-type='method'><a href="ClusterClient.html#request">request</a></li><li data-type='method'><a href="ClusterClient.html#respawnAll">respawnAll</a></li><li data-type='method'><a href="ClusterClient.html#send">send</a></li></ul></li><li class="accordion collapsed child" id=3020995><div class="accordion-heading child"><a href="ClusterManager.html">ClusterManager</a><svg><use xlink:href="#down-icon"></use></svg></div><ul class='methods accordion-content'><li data-type='method'><a href="ClusterManager.html#_debug">_debug</a></li><li data-type='method'><a href="ClusterManager.html#broadcast">broadcast</a></li><li data-type='method'><a href="ClusterManager.html#broadcastEval">broadcastEval</a></li><li data-type='method'><a href="ClusterManager.html#createCluster">createCluster</a></li><li data-type='method'><a href="ClusterManager.html#fetchClientValues">fetchClientValues</a></li><li data-type='method'><a href="ClusterManager.html#respawnAll">respawnAll</a></li></ul></li></ul> </div><div class="accordion collapsed" id="9871661" > <h3 class="accordion-heading">Events<svg><use xlink:href="#down-icon"></use></svg></h3><ul class="accordion-content"><li class="accordion-list" id=""><a href="Client.html#event:error">error</a></li><li class="accordion-list" id=""><a href="Cluster.html#event:death">death</a></li><li class="accordion-list" id=""><a href="Cluster.html#event:disconnect">disconnect</a></li><li class="accordion-list" id=""><a href="Cluster.html#event:error">error</a></li><li class="accordion-list" id=""><a href="Cluster.html#event:ready">ready</a></li><li class="accordion-list" id=""><a href="Cluster.html#event:reconnecting">reconnecting</a></li><li class="accordion-list" id=""><a href="Cluster.html#event:spawn">spawn</a></li><li class="accordion-list" id=""><a href="ClusterClient.html#event:message">message</a></li><li class="accordion-list" id=""><a href="ClusterManager.html#event:clusterCreate">clusterCreate</a></li><li class="accordion-list" id=""><a href="ClusterManager.html#event:debug">debug</a></li><li class="accordion-list" id=""><a href="Shard.html#event:message">message</a></li></ul> </div><div class="accordion collapsed" id="7322789" > <h3 class="accordion-heading">Global<svg><use xlink:href="#down-icon"></use></svg></h3><ul class="accordion-content"><li class="accordion-list" id=""><a href="global.html#ClusterSpawnOptions">ClusterSpawnOptions</a></li></ul> </div>
+      
+
+    </nav>
+    <div class="navbar-ham" id="navbar-ham">
+      <div>
+        <div class="first"></div>
+        <div class="second"></div>
+        <div class="third"></div>
+      </div>
+    </div>
+
+    <div id="main" class="main-content">
+      
+      <h1 id='page-title' class="page-title">
+        Core/ClusterClient.js
+      </h1>
+      
+
+      
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>const { IPCMessage, BaseMessage } = require('../Structures/IPCMessage.js');
+const Util = require('../Util/Util.js');
+const { Events } = require('../Util/Constants.js');
+
+const { WorkerClient } = require('../Structures/Worker.js');
+const { ChildClient } = require('../Structures/Child.js');
+
+const EventEmitter = require('events');
+///communicates between the master workers and the process
+class ClusterClient extends EventEmitter {
+    /**
+     * @param {Client} client Client of the current cluster
+     */
+    constructor(client) {
+        super();
+        /**
+         * Client for the Cluser
+         * @type {Client}
+         */
+        this.client = client;
+
+        /**
+         * Mode the Cluster was spawned with
+         * @type {ClusterManagerMode}
+         */
+        this.mode = this.info.CLUSTER_MANAGER_MODE;
+        let mode = this.mode;
+
+        /**
+         * If the Cluster is spawned automatically or with a own controller
+         * @type {ClusterQueueMode}
+         */
+        this.queue = {
+            mode: this.info.CLUSTER_QUEUE_MODE,
+        };
+
+        /**
+         * Ongoing promises for calls to {@link ClusterManager#evalOnCluster}, mapped by the `script` they were called with
+         * @type {Map&lt;string, Promise>}
+         * @private
+         */
+        this._nonce = new Map();
+
+        /**
+         * The Interval of the Heartbeat Messages and the Heartbeat CheckUp to respawn unresponsive Clusters.
+         * @type {Number}
+         */
+        this.keepAliveInterval = isNaN(Number(this.info.KEEP_ALIVE_INTERVAL)) ? 0 : this.info.KEEP_ALIVE_INTERVAL;
+
+        this.ready = false;
+
+        /**
+         * The Heartbeat Object, which contains the missed Heartbeats, the last Heartbeat and the Heartbeat Interval
+         * @type {Object}
+         */
+        this.heartbeat = {};
+
+        this.process = null;
+
+        if (mode === 'process') this.process = new ChildClient(this);
+        else if (mode === 'worker') this.process = new WorkerClient(this);
+
+        this.process.ipc.on('message', this._handleMessage.bind(this));
+        client.on?.('ready', () => {
+            this.triggerReady();
+        });
+        client.on?.('disconnect', () => {
+            this.process.send({ _disconnect: true });
+        });
+        client.on?.('reconnecting', () => {
+            this.process.send({ _reconnecting: true });
+        });
+    }
+    /**
+     * cluster's id
+     * @type {number}
+     * @readonly
+     */
+    get id() {
+        return this.info.CLUSTER;
+    }
+    /**
+     * Array of shard IDs of this client
+     * @type {number[]}
+     * @readonly
+     */
+    get ids() {
+        if (!this.client.ws) return this.info.SHARD_LIST;
+        return this.client.ws.shards;
+    }
+    /**
+     * Total number of clusters
+     * @type {number}
+     * @readonly
+     */
+    get count() {
+        return this.info.CLUSTER_COUNT;
+    }
+    /**
+     * Gets several Info like Cluster_Count, Number, Totalshards...
+     * @type {Object}
+     * @readonly
+     */
+    get info() {
+        return ClusterClient.getinfo();
+    }
+    /**
+     * Sends a message to the master process.
+     * @param {*} message Message to send
+     * @returns {Promise&lt;void>}
+     * @emits Cluster#message
+     */
+    send(message) {
+        if (typeof message === 'object') message = new BaseMessage(message).toJSON();
+        return this.process.send(message);
+    }
+    /**
+     * Fetches a client property value of each shard, or a given shard.
+     * @param {string} prop Name of the client property to get, using periods for nesting
+     * @param {number} [shard] Shard to fetch property from, all if undefined
+     * @returns {Promise&lt;*>|Promise&lt;Array&lt;*>>}
+     * @example
+     * client.shard.fetchClientValues('guilds.cache.size')
+     *   .then(results => console.log(`${results.reduce((prev, val) => prev + val, 0)} total guilds`))
+     *   .catch(console.error);
+     * @see {@link ClusterManager#fetchClientValues}
+     */
+    fetchClientValues(prop, shard) {
+        return new Promise((resolve, reject) => {
+            const parent = this.process.ipc;
+
+            const listener = message => {
+                if (!message || message._sFetchProp !== prop || message._sFetchPropShard !== shard) return;
+                parent.removeListener('message', listener);
+                if (!message._error) resolve(message._result);
+                else reject(Util.makeError(message._error));
+            };
+            parent.on('message', listener);
+
+            this.send({ _sFetchProp: prop, _sFetchPropShard: shard }).catch(err => {
+                parent.removeListener('message', listener);
+                reject(err);
+            });
+        });
+    }
+
+    /**
+     * Evaluates a script or function on all clusters, or a given cluster, in the context of the {@link Client}s.
+     * @param {string|Function} script JavaScript to run on each cluster
+     * @param {BroadcastEvalOptions} [options={}] The options for the broadcast
+     * @returns {Promise&lt;*>|Promise&lt;Array&lt;*>>} Results of the script execution
+     * @example
+     * client.cluster.broadcastEval('this.guilds.cache.size')
+     *   .then(results => console.log(`${results.reduce((prev, val) => prev + val, 0)} total guilds`))
+     *   .catch(console.error);
+     * @see {@link ClusterManager#broadcastEval}
+     */
+    broadcastEval(script, options = {}) {
+        return new Promise((resolve, reject) => {
+            if (!script || (typeof script !== 'string' &amp;&amp; typeof script !== 'function'))
+                reject(
+                    new TypeError(
+                        'Script for BroadcastEvaling has not been provided or must be a valid String/Function!',
+                    ),
+                );
+            script = typeof script === 'function' ? `(${script})(this, ${JSON.stringify(options.context)})` : script;
+
+            const parent = this.process.ipc;
+            let evaltimeout;
+
+            const listener = message => {
+                if (message._sEval !== script || message._sEvalShard !== options.cluster) return;
+                parent.removeListener('message', listener);
+                if (evaltimeout) clearTimeout(evaltimeout);
+                if (!message._error) resolve(message._result);
+                else reject(Util.makeError(message._error));
+            };
+            parent.on('message', listener);
+            this.send({ _sEval: script, _sEvalShard: options.cluster, _sEvalTimeout: options.timeout })
+                .then(m => {
+                    if (options.timeout) {
+                        evaltimeout = setTimeout(() => {
+                            parent.removeListener('message', listener);
+                            reject(new Error(`BROADCAST_EVAL_REQUEST_TIMED_OUT`));
+                        }, options.timeout + 100); //Add 100 ms more to prevent timeout on client side
+                    }
+                })
+                .catch(err => {
+                    if (evaltimeout) clearTimeout(evaltimeout);
+                    parent.removeListener('message', listener);
+                    reject(err);
+                });
+        });
+    }
+
+    /**
+     * Evaluates a script or function on the Cluster Manager
+     * @param {string|Function} script JavaScript to run on the Manager
+     * @param {Object} options Some options such as the Evaltimeout or the Context
+     * @param {number} [options.timeout=10000] The time in ms to wait, until the eval will be rejected without any response
+     * @param {any} [options.context] The context to pass to the script, when providing functions
+     * @returns {Promise&lt;*>|Promise&lt;Array&lt;*>>} Result of the script execution
+     * @example
+     * client.cluster.evalOnManager('process.uptime')
+     *   .then(result => console.log(result))
+     *   .catch(console.error);
+     * @see {@link ClusterManager#evalOnManager}
+     */
+    evalOnManager(script, options = {}) {
+        return new Promise((resolve, reject) => {
+            const parent = this.process.ipc;
+            if (!script || (typeof script !== 'string' &amp;&amp; typeof script !== 'function'))
+                reject(
+                    new TypeError(
+                        'Script for BroadcastEvaling has not been provided or must be a valid String/Function!',
+                    ),
+                );
+            script = typeof script === 'function' ? `(${script})(this, ${JSON.stringify(options.context)})` : script;
+
+            const nonce = Date.now().toString(36) + Math.random().toString(36);
+            this._nonce.set(nonce, { resolve, reject });
+            if (!options.timeout) options.timeout = 10000;
+            setTimeout(() => {
+                if (this._nonce.has(nonce)) {
+                    this._nonce.get(nonce).reject(new Error('EVAL Request Timed out'));
+                    this._nonce.delete(nonce);
+                }
+            }, options.timeout);
+            this.send({ _sManagerEval: script, nonce, ...options });
+        });
+    }
+
+    /**
+     * Evaluates a script or function on the ClusterClient
+     * @param {string|Function} script JavaScript to run on the ClusterClient
+     * @param {Object} options Some options such as the TargetCluster or the Evaltimeout
+     * @param {number} [options.cluster] The Id od the target Cluster
+     * @param {number} [options.shard] The Id od the target Shard, when the Cluster has not been provided.
+     * @param {number} [options.timeout=10000] The time in ms to wait, until the eval will be rejected without any response
+     * @param {any} [options.context] The context to pass to the script, when providing functions
+     * @returns {Promise&lt;*>|Promise&lt;Array&lt;*>>} Result of the script execution
+     * @example
+     * client.cluster.evalOnCluster('this.cluster.id',  {timeout: 10000, cluster: 0})
+     *   .then(result => console.log(result))
+     *   .catch(console.error);
+     * @see {@link ClusterManager#evalOnCluster}
+     */
+    evalOnCluster(script, options = {}) {
+        return new Promise((resolve, reject) => {
+            if (
+                !options.hasOwnProperty('cluster') &amp;&amp;
+                !options.hasOwnProperty('shard') &amp;&amp;
+                !options.hasOwnProperty('guildId')
+            )
+                reject('TARGET CLUSTER HAS NOT BEEN PROVIDED');
+            if (!script || (typeof script !== 'string' &amp;&amp; typeof script !== 'function'))
+                reject(
+                    new TypeError(
+                        'Script for BroadcastEvaling has not been provided or must be a valid String/Function!',
+                    ),
+                );
+            script = typeof script === 'function' ? `(${script})(this, ${JSON.stringify(options.context)})` : script;
+            const nonce = Date.now().toString(36) + Math.random().toString(36);
+            this._nonce.set(nonce, { resolve, reject });
+            if (!options.timeout) options.timeout = 10000;
+            setTimeout(() => {
+                if (this._nonce.has(nonce)) {
+                    this._nonce.get(nonce).reject(new Error('EVAL Request Timed out'));
+                    this._nonce.delete(nonce);
+                }
+            }, options.timeout);
+            this.send({ _sClusterEval: script, nonce, ...options });
+        });
+    }
+
+    /**
+     * Sends a Request to the ParentCluster and returns the reply
+     * @param {BaseMessage} message Message, which should be sent as request
+     * @returns {Promise&lt;*>} Reply of the Message
+     * @example
+     * client.cluster.request({content: 'hello'})
+     *   .then(result => console.log(result)) //hi
+     *   .catch(console.error);
+     * @see {@link IPCMessage#reply}
+     */
+    request(message = {}) {
+        message._sRequest = true;
+        message._sReply = false;
+        message = new BaseMessage(message).toJSON();
+        return new Promise((resolve, reject) => {
+            this._nonce.set(message.nonce, { resolve, reject });
+            setTimeout(() => {
+                if (this._nonce.has(message.nonce)) {
+                    this._nonce.get(message.nonce).reject(new Error('EVAL Request Timed out'));
+                    this._nonce.delete(message.nonce);
+                }
+            }, message.timeout || 10000);
+            this.send(message);
+        }).catch(e => ({ ...message, error: e }));
+    }
+
+    /**
+     * Requests a respawn of all clusters.
+     * @param {ClusterRespawnOptions} [options] Options for respawning shards
+     * @returns {Promise&lt;void>} Resolves upon the message being sent
+     * @see {@link ClusterManager#respawnAll}
+     */
+    respawnAll({ clusterDelay = 5000, respawnDelay = 7000, timeout = 30000 } = {}) {
+        return this.send({ _sRespawnAll: { clusterDelay, respawnDelay, timeout } });
+    }
+
+    /**
+     * Handles an IPC message.
+     * @param {*} message Message received
+     * @private
+     */
+    async _handleMessage(message) {
+        if (!message) return;
+        if (message._fetchProp) {
+            const props = message._fetchProp.split('.');
+            let value = this.client;
+            for (const prop of props) value = value[prop];
+            this._respond('fetchProp', { _fetchProp: message._fetchProp, _result: value });
+            return;
+        } else if (message._eval) {
+            try {
+                this._respond('eval', { _eval: message._eval, _result: await this._eval(message._eval) });
+            } catch (err) {
+                this._respond('eval', { _eval: message._eval, _error: Util.makePlainError(err) });
+            }
+            return;
+        } else if (message.hasOwnProperty('_sClusterEvalRequest')) {
+            try {
+                this._respond('evalOnCluster', {
+                    _sClusterEvalResponse: await this._eval(message._sClusterEvalRequest),
+                    nonce: message.nonce,
+                    cluster: message.cluster,
+                });
+            } catch (err) {
+                this._respond('evalOnCluster', {
+                    _sClusterEvalResponse: {},
+                    _error: Util.makePlainError(err),
+                    nonce: message.nonce,
+                });
+            }
+            return;
+        } else if (message.hasOwnProperty('_sClusterEvalResponse')) {
+            const promise = this._nonce.get(message.nonce);
+            if (!promise) return;
+            if (message._error) {
+                promise.reject(message._error);
+                this._nonce.delete(message.nonce);
+            } else {
+                promise.resolve(message._sClusterEvalResponse);
+                this._nonce.delete(message.nonce);
+            }
+            return;
+        } else if (message.hasOwnProperty('_sManagerEvalResponse')) {
+            const promise = this._nonce.get(message.nonce);
+            if (!promise) return;
+            if (message._error) {
+                promise.reject(message._error);
+                this._nonce.delete(message.nonce);
+            } else {
+                promise.resolve(message._sManagerEvalResponse);
+                this._nonce.delete(message.nonce);
+            }
+            return;
+        } else if (message.ack) {
+            return this._heartbeatAckMessage();
+        } else if (message._sCustom) {
+            if (message._sReply) {
+                const promise = this._nonce.get(message.nonce);
+                if (promise) {
+                    promise.resolve(message);
+                    this._nonce.delete(message.nonce);
+                }
+                return;
+            } else if (message._sRequest) {
+                //this.request(message).then(e => this.send(e)).catch(e => this.send({...message, error: e}))
+            }
+
+            let emitmessage;
+            if (typeof message === 'object') emitmessage = new IPCMessage(this, message);
+            else emitmessage = message;
+            /**
+             * Emitted upon receiving a message from the parent process/worker.
+             * @event ClusterClient#message
+             * @param {*} message Message that was received
+             */
+            this.emit('message', emitmessage);
+        }
+    }
+
+    _eval(script) {
+        if (this.client._eval) return this.client._eval(script);
+        this.client._eval = function (_) {
+            return eval(_);
+        }.bind(this.client);
+        return this.client._eval(script);
+    }
+
+    /**
+     * Sends a message to the master process, emitting an error from the client upon failure.
+     * @param {string} type Type of response to send
+     * @param {*} message Message to send, which can be a Object or a String
+     * @private
+     */
+    _respond(type, message) {
+        this.send(message).catch(err => {
+            let error = { err };
+
+            error.message = `Error when sending ${type} response to master process: ${err.message}`;
+            /**
+             * Emitted when the client encounters an error.
+             * @event Client#error
+             * @param {Error} error The error encountered
+             */
+            this.client.emit?.(Events.ERROR, error);
+        });
+    }
+
+    /*Heartbeat System*/
+    _heartbeatAckMessage() {
+        this.heartbeat.last = Date.now();
+        this.heartbeat.missed = 0;
+    }
+
+    _checkIfAckReceived() {
+        this.client.emit('clusterDebug', `[ClusterClient ${this.id}] Heartbeat Ack Interval CheckUp Started`, this.id);
+        this.heartbeat.ack = setInterval(() => {
+            if (!this.heartbeat) return;
+            const diff = Date.now() - Number(this.heartbeat.last);
+            if (isNaN(diff)) return;
+            if (diff > this.keepAliveInterval + 2000) {
+                this.heartbeat.missed = (this.heartbeat.missed || 0) + 1;
+                if (this.heartbeat.missed &lt; 5) {
+                    this.client.emit(
+                        'clusterDebug',
+                        `[ClusterClient ${this.id}][Heartbeat_ACK_MISSING] ${this.heartbeat.missed} Heartbeat(s) Ack have been missed.`,
+                        this.id,
+                    );
+                    return;
+                } else this._cleanupHeartbeat();
+            }
+        }, this.keepAliveInterval);
+        return this.heartbeat;
+    }
+
+    _checkIfClusterAlive() {
+        this.heartbeat.interval = setInterval(() => {
+            this.send({ _keepAlive: true, heartbeat: { last: Date.now() } });
+        }, this.keepAliveInterval);
+        return this.heartbeat.interval;
+    }
+
+    _cleanupHeartbeat() {
+        clearInterval(this.heartbeat.interval);
+        clearInterval(this.heartbeat.ack);
+        this.heartbeat = {};
+        return this.heartbeat;
+    }
+
+    //Hooks
+    triggerReady() {
+        this.process.send({ _ready: true });
+        if (this.keepAliveInterval) {
+            this._cleanupHeartbeat();
+            this._checkIfClusterAlive();
+            this._checkIfAckReceived();
+        }
+        this.ready = true;
+        return this.ready;
+    }
+
+    spawnNextCluster() {
+        if (this.queue.mode === 'auto')
+            throw new Error('Next Cluster can just be spawned when the queue is not on auto mode.');
+        return this.process.send({ _spawnNextCluster: true });
+    }
+
+    /**
+     * gets the total Internalshardcount and shard list.
+     * @returns {ClusterClientUtil}
+     */
+    static getinfo() {
+        let clustermode = process.env.CLUSTER_MANAGER_MODE;
+        if (!clustermode) return;
+        if (clustermode !== 'worker' &amp;&amp; clustermode !== 'process')
+            throw new Error('NO CHILD/MASTER EXISTS OR SUPPLIED CLUSTER_MANAGER_MODE IS INCORRECT');
+        let data;
+        if (clustermode === 'process') {
+            const shardlist = [];
+            let parseshardlist = process.env.SHARD_LIST.split(',');
+            parseshardlist.forEach(c => shardlist.push(Number(c)));
+            data = {
+                SHARD_LIST: shardlist,
+                TOTAL_SHARDS: Number(process.env.TOTAL_SHARDS),
+                CLUSTER_COUNT: Number(process.env.CLUSTER_COUNT),
+                CLUSTER: Number(process.env.CLUSTER),
+                CLUSTER_MANAGER_MODE: clustermode,
+                KEEP_ALIVE_INTERVAL: Number(process.env.KEEP_ALIVE_INTERVAL),
+                CLUSTER_QUEUE_MODE: process.env.CLUSTER_QUEUE_MODE,
+            };
+        } else {
+            data = require('worker_threads').workerData;
+        }
+
+        data.FIRST_SHARD_ID = data.SHARD_LIST[0];
+        data.LAST_SHARD_ID = data.SHARD_LIST[data.SHARD_LIST.length - 1];
+
+        return data;
+    }
+}
+module.exports = ClusterClient;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+    </div>
+
+    <footer class="footer" id="footer">
+      
+    </footer>
+
+    <script src="scripts/third-party/prettify.js"></script>
+    <script src="scripts/third-party/lang-css.js"></script>
+    <script type="text/javascript" src="scripts/misc.js"></script>
+
+    <script>prettyPrint();</script>
+    <script src="scripts/linenumber.js"></script>
+    <script src="scripts/fix-code-block.js"></script>
+    <script src="scripts/fix-navbar.js"></script>
+    
+      <script src="scripts/search.js"></script>
+      <script src="scripts/third-party/fuse.js"></script>
+      <script>
+        var list = [{"title":"Cluster","link":"<a href=\"Cluster.html\">Cluster</a>"},{"title":"Cluster#eval","link":"<a href=\"Cluster.html#eval\">Cluster &rtrif; eval</a>"},{"title":"Cluster#fetchClientValue","link":"<a href=\"Cluster.html#fetchClientValue\">Cluster &rtrif; fetchClientValue</a>"},{"title":"Cluster#kill","link":"<a href=\"Cluster.html#kill\">Cluster &rtrif; kill</a>"},{"title":"Cluster#request","link":"<a href=\"Cluster.html#request\">Cluster &rtrif; request</a>"},{"title":"Cluster#respawn","link":"<a href=\"Cluster.html#respawn\">Cluster &rtrif; respawn</a>"},{"title":"Cluster#send","link":"<a href=\"Cluster.html#send\">Cluster &rtrif; send</a>"},{"title":"Cluster#spawn","link":"<a href=\"Cluster.html#spawn\">Cluster &rtrif; spawn</a>"},{"title":"ClusterClient","link":"<a href=\"ClusterClient.html\">ClusterClient</a>"},{"title":"ClusterClient.getinfo","link":"<a href=\"ClusterClient.html#.getinfo\">ClusterClient &rtrif; getinfo</a>"},{"title":"ClusterClient#broadcastEval","link":"<a href=\"ClusterClient.html#broadcastEval\">ClusterClient &rtrif; broadcastEval</a>"},{"title":"ClusterClient#evalOnCluster","link":"<a href=\"ClusterClient.html#evalOnCluster\">ClusterClient &rtrif; evalOnCluster</a>"},{"title":"ClusterClient#evalOnManager","link":"<a href=\"ClusterClient.html#evalOnManager\">ClusterClient &rtrif; evalOnManager</a>"},{"title":"ClusterClient#fetchClientValues","link":"<a href=\"ClusterClient.html#fetchClientValues\">ClusterClient &rtrif; fetchClientValues</a>"},{"title":"ClusterClient#request","link":"<a href=\"ClusterClient.html#request\">ClusterClient &rtrif; request</a>"},{"title":"ClusterClient#respawnAll","link":"<a href=\"ClusterClient.html#respawnAll\">ClusterClient &rtrif; respawnAll</a>"},{"title":"ClusterClient#send","link":"<a href=\"ClusterClient.html#send\">ClusterClient &rtrif; send</a>"},{"title":"ClusterManager","link":"<a href=\"ClusterManager.html\">ClusterManager</a>"},{"title":"ClusterManager#_debug","link":"<a href=\"ClusterManager.html#_debug\">ClusterManager &rtrif; _debug</a>"},{"title":"ClusterManager#broadcast","link":"<a href=\"ClusterManager.html#broadcast\">ClusterManager &rtrif; broadcast</a>"},{"title":"ClusterManager#broadcastEval","link":"<a href=\"ClusterManager.html#broadcastEval\">ClusterManager &rtrif; broadcastEval</a>"},{"title":"ClusterManager#createCluster","link":"<a href=\"ClusterManager.html#createCluster\">ClusterManager &rtrif; createCluster</a>"},{"title":"ClusterManager#fetchClientValues","link":"<a href=\"ClusterManager.html#fetchClientValues\">ClusterManager &rtrif; fetchClientValues</a>"},{"title":"ClusterManager#respawnAll","link":"<a href=\"ClusterManager.html#respawnAll\">ClusterManager &rtrif; respawnAll</a>"},{"title":"error","link":"<a href=\"Client.html#event:error\">error</a>"},{"title":"death","link":"<a href=\"Cluster.html#event:death\">death</a>"},{"title":"disconnect","link":"<a href=\"Cluster.html#event:disconnect\">disconnect</a>"},{"title":"error","link":"<a href=\"Cluster.html#event:error\">error</a>"},{"title":"ready","link":"<a href=\"Cluster.html#event:ready\">ready</a>"},{"title":"reconnecting","link":"<a href=\"Cluster.html#event:reconnecting\">reconnecting</a>"},{"title":"spawn","link":"<a href=\"Cluster.html#event:spawn\">spawn</a>"},{"title":"message","link":"<a href=\"ClusterClient.html#event:message\">message</a>"},{"title":"clusterCreate","link":"<a href=\"ClusterManager.html#event:clusterCreate\">clusterCreate</a>"},{"title":"debug","link":"<a href=\"ClusterManager.html#event:debug\">debug</a>"},{"title":"message","link":"<a href=\"Shard.html#event:message\">message</a>"},{"title":"ClusterSpawnOptions","link":"<a href=\"global.html#ClusterSpawnOptions\">ClusterSpawnOptions</a>"}];
+        var options = 
+          setupSearch(list, options)
+      </script>
+    
+
+    
+
+    
+
+    
+
+
+  </body>
+
+</html>

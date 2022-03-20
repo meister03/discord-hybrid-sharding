@@ -31,7 +31,7 @@
 
 
     <title>
-      Global
+      Structures/IPCMessage.js
     </title>
 
     <!--[if lt IE 9]>
@@ -98,7 +98,7 @@
     <div id="main" class="main-content">
       
       <h1 id='page-title' class="page-title">
-        Global
+        Structures/IPCMessage.js
       </h1>
       
 
@@ -106,283 +106,109 @@
 
 
 
-
-<section>
-
-
-
-<article>
-    <div class="container-overview">
     
-        
-
-        
-
-
-
-
-
-
-        
-    
-    </div>
-
-    
-
-    
-
-    
-
-     
-
-    
-
-    
-
-    
-
-    
-        <h3 class="subsection-title">Type Definitions</h3>
-
-        
-                
-<h4 class="name" id="ClusterSpawnOptions">
-    <a href="#ClusterSpawnOptions">#</a>
-    ClusterSpawnOptions
-</h4>
-
-
-
-
-<div class="description">
-    <p>Spawns multiple internal shards.</p>
-</div>
-
-
-
-    <div class="member-item-container flex">
-        <strong>Type: </strong>
-        <ul>
-            <li>
-                
-<span class="param-type">Object</span>
-
-
-            </li>
-        </ul>
-    </div>
-
-
-
-
-
-
-    <h5 class="subsection-title">Properties</h5>
-
-    
-<div class="allow-overflow">
-<table class="props">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-        <th>Attributes</th>
-        
-
-        
-        <th>Default</th>
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>amount</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">number</span>
-|
-
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-                </td>
-            
-
-            
-                <td class="default">
-                
-                    this.totalShards
-                
-                </td>
-            
-
-            <td class="description last"><p>Number of internal shards to spawn</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>delay</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">number</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-                </td>
-            
-
-            
-                <td class="default">
-                
-                    7000
-                
-                </td>
-            
-
-            <td class="description last"><p>How long to wait in between spawning each cluster (in milliseconds)</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>tTimeout</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">number</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-                </td>
-            
-
-            
-                <td class="default">
-                
-                    30000
-                
-                </td>
-            
-
-            <td class="description last"><p>The amount in milliseconds to wait until the <a href="Client.html">Client</a> has become ready
-before resolving. (-1 or Infinity for no wait)</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-</div>
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-        <div class="details-item-container">
-            <dt class="tag-source">Source:</dt>
-            <dd class="tag-source"><ul class="dummy"><li>
-                <a href="Core_ClusterManager.js.html">Core/ClusterManager.js</a>, <a href="Core_ClusterManager.js.html#line212">line 212</a>
-            </li></ul></dd>
-        </div>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-            
-    
-
-    
-</article>
-
-</section>
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>class BaseMessage {
+    constructor(message = {}) {
+        /**
+         * Marks the message as a custom Message, which can be listened on the message event
+         * @type {boolean}
+         */
+        this._sCustom = true;
+
+        /**
+         * Creates a Message ID for identifying it for further Usage such as on replies
+         * @type {String}
+         */
+        this.nonce = message.nonce || Date.now().toString(36) + Math.random().toString(36);
+        message.nonce = this.nonce;
+
+        /**
+         * Destructs the Message Object and initializes it on the Constructor
+         * @type {String}
+         */
+        this.destructMessage(message);
+    }
+
+    /**
+     * Destructs the Message Object and initializes it on the Constructor
+     * @param {Object} message The Message, which was passed in the Constructor
+     */
+    destructMessage(message) {
+        for (let [key, value] of Object.entries(message)) {
+            this[key] = value;
+        }
+        this._sCustom = true;
+        this.nonce = message.nonce;
+        return message;
+    }
+
+    toJSON() {
+        return this;
+    }
+}
+
+class IPCMessage extends BaseMessage {
+    constructor(instance, message) {
+        super(message);
+
+        /**
+         * Instance, which can be the ParentCluster or the ClusterClient
+         * @type {ClusterManager|ClusterClient}
+         */
+        this.instance = instance;
+
+        /**
+         * The Base Message, which is saved on the raw field.
+         * @type {BaseMessage}
+         */
+        this.raw = new BaseMessage(message).toJSON();
+    }
+
+    /**
+     * Sends a message to the cluster's process/worker or to the ParentCluster.
+     * @param {BaseMessage} message Message to send to the cluster/client
+     * @returns {Promise&lt;*>}
+     */
+    async send(message = {}) {
+        if (typeof message !== 'object') throw new TypeError('The Message has to be a object');
+        message = new BaseMessage(message);
+        return this.instance.send(message.toJSON());
+    }
+
+    /**
+     * Sends a Request to the cluster's process/worker or to the ParentCluster.
+     * @param {BaseMessage} message Request to send to the cluster/client
+     * @returns {Promise&lt;reply>}
+     */
+    async request(message = {}) {
+        if (typeof message !== 'object') throw new TypeError('The Message has to be a object');
+        message.nonce = this.nonce;
+        message._sRequest = true;
+        message._sReply = false;
+        message = new BaseMessage(message);
+        return this.instance.request(message.toJSON());
+    }
+
+    /**
+     * Sends a Reply to Message from the cluster's process/worker or the ParentCluster.
+     * @param {BaseMessage} message Reply to send to the cluster/client
+     * @returns {Promise&lt;reply>}
+     */
+    async reply(message = {}) {
+        if (typeof message !== 'object') throw new TypeError('The Message has to be a object');
+        message.nonce = this.raw.nonce;
+        message._sReply = true;
+        message._sRequest = false;
+        message = new BaseMessage(message);
+        return this.instance.send(message.toJSON());
+    }
+}
+module.exports = { IPCMessage, BaseMessage };
+</code></pre>
+        </article>
+    </section>
 
 
 
