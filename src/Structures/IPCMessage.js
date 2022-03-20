@@ -8,21 +8,21 @@ class BaseMessage {
 
         /**
          * Creates a Message ID for identifying it for further Usage such as on replies
-         * @type {String}
+         * @type {string}
          */
         this.nonce = message.nonce || Date.now().toString(36) + Math.random().toString(36);
         message.nonce = this.nonce;
 
         /**
          * Destructs the Message Object and initializes it on the Constructor
-         * @type {String}
+         * @type {string}
          */
         this.destructMessage(message);
     }
 
     /**
      * Destructs the Message Object and initializes it on the Constructor
-     * @param {Object} message The Message, which was passed in the Constructor
+     * @param {object} message The Message, which was passed in the Constructor
      */
     destructMessage(message) {
         for (let [key, value] of Object.entries(message)) {
