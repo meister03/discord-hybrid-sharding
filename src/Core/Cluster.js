@@ -519,21 +519,21 @@ class Cluster extends EventEmitter {
 
     /**
      * Handles the cluster's process/worker error.
-     * @param {Object} [error] the error, which occured on the worker/child process
+     * @param {Object} [error] the error, which occurred on the worker/child process
      * @private
      */
     _handleError(error) {
         /**
          * Emitted upon the cluster's child process/worker error.
          * @event Cluster#error
-         * @param {ChildProcess|Worker} process Child process/worker, where error occured
+         * @param {ChildProcess|Worker} process Child process/worker, where error occurred
          */
         this.manager.emit('error', error);
     }
 
     /**
      * Handles the keepAlive Heartbeat and validates it.
-     * @param {Object} [message] the heartbeat message, which has been recieved
+     * @param {Object} [message] the heartbeat message, which has been received
      * @private
      */
     _heartbeatMessage(message) {
