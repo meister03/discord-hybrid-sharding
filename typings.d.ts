@@ -231,7 +231,7 @@ declare module 'discord-hybrid-sharding' {
         timeout?: number;
     }
 
-    export interface Queue {
+    export class Queue {
         options: {
             auto?: boolean;
             timeout?: number;
