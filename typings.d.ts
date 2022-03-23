@@ -127,6 +127,8 @@ declare module 'discord-hybrid-sharding' {
                 queue?: {
                     auto?: boolean;
                 };
+                clusterData?: Object;
+                clusterOptions?: Object;
             },
         );
         private _performOnShards(method: string, args: any[]): Promise<any[]>;
@@ -135,6 +137,8 @@ declare module 'discord-hybrid-sharding' {
 
         public file: string;
         public respawn: boolean;
+        public clusterData: Object;
+        public clusterOptions: Object;
         public shardArgs: string[];
         public clusters: Map<number, Cluster>;
         public token: string | null;

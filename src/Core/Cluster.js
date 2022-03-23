@@ -132,17 +132,20 @@ class Cluster extends EventEmitter {
     async spawn(spawnTimeout = 30000) {
         if (this.thread) throw new Error('CLUSTERING_PROCESS_EXISTS', this.id);
         this.thread = new Thread(path.resolve(this.manager.file), {
+            ...this.manager.clusterOptions,
             execArgv: this.execArgv,
             env: this.env,
             args: this.args,
-            clusterData: this.env,
+            clusterData: {...this.env, ...this.manager.clusterData},
         });
-        this.thread
-            .spawn()
-            .on('message', this._handleMessage.bind(this))
-            .on('exit', this._exitListener)
-            .on('error', this._handleError.bind(this));
 
+        
+        this.thread
+        .spawn()
+        .on('message', this._handleMessage.bind(this))
+        .on('exit', this._exitListener)
+        .on('error', this._handleError.bind(this));
+      
         this._evals.clear();
         this._fetches.clear();
 

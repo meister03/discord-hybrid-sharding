@@ -47,7 +47,7 @@ class Child {
 
     send(message) {
         return new Promise((resolve, reject) => {
-            this.process.send(message, err => {
+            this.process?.send(message, err => {
                 if (err) reject(err);
                 else resolve(this);
             });

@@ -44,6 +44,8 @@ class ClusterManager extends EventEmitter {
                 queue: {
                     auto: true,
                 },
+                clusterData: {},
+                clusterOptions: {},
             },
             options,
         );
@@ -53,6 +55,19 @@ class ClusterManager extends EventEmitter {
          * @type {boolean}
          */
         this.respawn = options.respawn;
+
+        /**
+         * Data, which is passed to the workerData or the processEnv
+         * @type {object}
+         */
+        this.clusterData = options.clusterData;
+
+        /**
+         * Options, which is passed when forking a child or creating a thread
+         * @type {object}
+         */
+        this.clusterOptions = options.clusterOptions;
+
 
         /**
          * Path to the bot script file

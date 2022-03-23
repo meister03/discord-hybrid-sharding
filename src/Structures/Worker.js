@@ -38,7 +38,7 @@ class Worker {
 
     send(message) {
         return new Promise((resolve, reject) => {
-            this.process.postMessage(message);
+            this.process?.postMessage(message);
             resolve(this);
         });
     }
@@ -50,7 +50,7 @@ class WorkerClient {
     }
     send(message) {
         return new Promise((resolve, reject) => {
-            this.parentPort.postMessage(message);
+            this.ipc?.postMessage(message);
             resolve();
         });
     }
