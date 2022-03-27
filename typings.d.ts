@@ -109,27 +109,29 @@ declare module 'discord-hybrid-sharding' {
         public triggerReady(): Promise<void>;
         public spawnNextCluster(): Promise<void>;
     }
+    
+    export interface ManagerOptions {
+        totalShards?: number | 'auto';
+        totalClusters?: number | 'auto';
+        shardsPerClusters?: number;
+        shardList?: number[][] | 'auto';
+        mode?: ClusterManagerMode;
+        respawn?: boolean;
+        shardArgs?: string[];
+        token?: string;
+        execArgv?: string[];
+        keepAlive?: keepAliveOptions;
+        queue?: {
+            auto?: boolean;
+        };
+        clusterData?: Object;
+        clusterOptions?: Object;
+    }
 
     export class Manager extends EventEmitter {
         constructor(
             file: string,
-            options?: {
-                totalShards?: number | 'auto';
-                totalClusters?: number | 'auto';
-                shardsPerClusters?: number;
-                shardList?: number[][] | 'auto';
-                mode?: ClusterManagerMode;
-                respawn?: boolean;
-                shardArgs?: string[];
-                token?: string;
-                execArgv?: string[];
-                keepAlive?: keepAliveOptions;
-                queue?: {
-                    auto?: boolean;
-                };
-                clusterData?: Object;
-                clusterOptions?: Object;
-            },
+            options?: ManagerOptions,
         );
         private _performOnShards(method: string, args: any[]): Promise<any[]>;
         private _performOnShards(method: string, args: any[], cluster: number): Promise<any>;
