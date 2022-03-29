@@ -115,29 +115,29 @@ class ClusterClient extends EventEmitter {
         return this.process.send(message);
     }
     /**
-     * Fetches a client property value of each shard, or a given shard.
+     * Fetches a client property value of each cluster, or a given cluster.
      * @param {string} prop Name of the client property to get, using periods for nesting
-     * @param {number} [shard] Shard to fetch property from, all if undefined
+     * @param {number} [cluster] Cluster to fetch property from, all if undefined
      * @returns {Promise<*>|Promise<Array<*>>}
      * @example
-     * client.shard.fetchClientValues('guilds.cache.size')
+     * client.cluster.fetchClientValues('guilds.cache.size')
      *   .then(results => console.log(`${results.reduce((prev, val) => prev + val, 0)} total guilds`))
      *   .catch(console.error);
      * @see {@link ClusterManager#fetchClientValues}
      */
-    fetchClientValues(prop, shard) {
+    fetchClientValues(prop, cluster) {
         return new Promise((resolve, reject) => {
             const parent = this.process.ipc;
 
             const listener = message => {
-                if (!message || message._sFetchProp !== prop || message._sFetchPropShard !== shard) return;
+                if (!message || message._sFetchProp !== prop || message._sFetchPropShard !== cluster) return;
                 parent.removeListener('message', listener);
                 if (!message._error) resolve(message._result);
                 else reject(Util.makeError(message._error));
             };
             parent.on('message', listener);
 
-            this.send({ _sFetchProp: prop, _sFetchPropShard: shard }).catch(err => {
+            this.send({ _sFetchProp: prop, _sFetchPropShard: cluster }).catch(err => {
                 parent.removeListener('message', listener);
                 reject(err);
             });
