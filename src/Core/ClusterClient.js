@@ -262,10 +262,11 @@ class ClusterClient extends EventEmitter {
             script = typeof script === 'function' ? `(${script})(this, ${JSON.stringify(options.context)})` : script;
             const nonce = Date.now().toString(36) + Math.random().toString(36);
             this._nonce.set(nonce, { resolve, reject });
+            const trace = new Error().stack
             if (!options.timeout) options.timeout = 10000;
             setTimeout(() => {
                 if (this._nonce.has(nonce)) {
-                    this._nonce.get(nonce).reject(new Error('EVAL Request Timed out'));
+                    this._nonce.get(nonce).reject(new Error("EVAL Request Timed out\n" + trace));
                     this._nonce.delete(nonce);
                 }
             }, options.timeout);
