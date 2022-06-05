@@ -11,6 +11,15 @@ In other words: "Mixing both: if you need `x` shards for `n` process!"
 
 If you are interested in auto-scaling & cross-hosting on other machines, check out this package `npmjs.com/discord-cross-hosting`
 
+### Featured by Discord Creators
+[Private Community for Verified Bot Developers. ](https://discord.gg/R3hPevRtUV)
+[Meet new big bot and small bot developers and have a nice exchange...](https://discord.gg/R3hPevRtUV)
+<p>
+<a href="https://discord.gg/R3hPevRtUV">
+<img src="https://media.discordapp.net/attachments/980770619161448489/982938274677018624/banner.png?width=320&height=80">
+</a>
+</p>
+
 ## Why?
 
 The sharding manager is very heavy and uses more than 300MB per shard during light usage, while internal sharding uses just 20% of it. Internal sharding reaches its' limits at 14000 guilds and becomes slow when your bot gets bigger.
