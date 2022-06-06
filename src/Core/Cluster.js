@@ -136,16 +136,16 @@ class Cluster extends EventEmitter {
             execArgv: this.execArgv,
             env: this.env,
             args: this.args,
-            clusterData: {...this.env, ...this.manager.clusterData},
+            clusterData: { ...this.env, ...this.manager.clusterData },
         });
 
-        
+
         this.thread
-        .spawn()
-        .on('message', this._handleMessage.bind(this))
-        .on('exit', this._exitListener)
-        .on('error', this._handleError.bind(this));
-      
+            .spawn()
+            .on('message', this._handleMessage.bind(this))
+            .on('exit', this._exitListener)
+            .on('error', this._handleError.bind(this));
+
         this._evals.clear();
         this._fetches.clear();
 
@@ -276,13 +276,17 @@ class Cluster extends EventEmitter {
             const listener = message => {
                 if (!message || message._fetchProp !== prop) return;
                 child.removeListener('message', listener);
+                this.decrementMaxListeners(child);
                 this._fetches.delete(prop);
                 resolve(message._result);
             };
+
+            this.incrementMaxListeners(child);
             child.on('message', listener);
 
             this.send({ _fetchProp: prop }).catch(err => {
                 child.removeListener('message', listener);
+                this.decrementMaxListeners(child);
                 this._fetches.delete(prop);
                 reject(err);
             });
@@ -319,10 +323,12 @@ class Cluster extends EventEmitter {
                 if (!message || message._eval !== _eval) return;
                 if (tempTimeout) clearTimeout(tempTimeout);
                 child.removeListener('message', listener);
+                this.decrementMaxListeners(child);
                 this._evals.delete(_eval);
                 if (!message._error) resolve(message._result);
                 else reject(Util.makeError(message._error));
             };
+            this.incrementMaxListeners(child);
             child.on('message', listener);
 
             this.send({ _eval })
@@ -331,6 +337,7 @@ class Cluster extends EventEmitter {
                         tempTimeout = setTimeout(() => {
                             if (!this._evals.has(_eval)) return;
                             child.removeListener('message', listener);
+                            this.decrementMaxListeners(child);
                             this._evals.delete(_eval);
                             reject(new Error(`BROADCAST_EVAL_REQUEST_TIMED_OUT`));
                         }, timeout);
@@ -339,6 +346,7 @@ class Cluster extends EventEmitter {
                 .catch(err => {
                     if (tempTimeout) clearTimeout(tempTimeout);
                     child.removeListener('message', listener);
+                    this.decrementMaxListeners(child);
                     this._evals.delete(_eval);
                     reject(err);
                 });
@@ -599,6 +607,33 @@ class Cluster extends EventEmitter {
         this.heartbeat = {};
         this.manager._debug('[Heartbeat] Heartbeat has been cleared', this.id);
         return this.heartbeat;
+    }
+
+
+
+
+    /**
+    * Increments max listeners by one for a given emitter, if they are not zero.
+    * @param {EventEmitter|process} emitter The emitter that emits the events.
+    * @private
+    */
+    incrementMaxListeners(emitter) {
+        const maxListeners = emitter.getMaxListeners();
+        if (maxListeners !== 0) {
+            emitter.setMaxListeners(maxListeners + 1);
+        }
+    }
+
+    /**
+     * Decrements max listeners by one for a given emitter, if they are not zero.
+     * @param {EventEmitter|process} emitter The emitter that emits the events.
+     * @private
+     */
+    decrementMaxListeners(emitter) {
+        const maxListeners = emitter.getMaxListeners();
+        if (maxListeners !== 0) {
+            emitter.setMaxListeners(maxListeners - 1);
+        }
     }
 }
 

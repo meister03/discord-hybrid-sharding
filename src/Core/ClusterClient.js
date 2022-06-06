@@ -132,13 +132,16 @@ class ClusterClient extends EventEmitter {
             const listener = message => {
                 if (!message || message._sFetchProp !== prop || message._sFetchPropShard !== cluster) return;
                 parent.removeListener('message', listener);
+                this.decrementMaxListeners(parent);
                 if (!message._error) resolve(message._result);
                 else reject(Util.makeError(message._error));
             };
+            this.incrementMaxListeners(parent);
             parent.on('message', listener);
 
             this.send({ _sFetchProp: prop, _sFetchPropShard: cluster }).catch(err => {
                 parent.removeListener('message', listener);
+                this.decrementMaxListeners(parent);
                 reject(err);
             });
         });
@@ -171,16 +174,19 @@ class ClusterClient extends EventEmitter {
             const listener = message => {
                 if (message._sEval !== script || message._sEvalShard !== options.cluster) return;
                 parent.removeListener('message', listener);
+                this.decrementMaxListeners(parent);
                 if (evalTimeout) clearTimeout(evalTimeout);
                 if (!message._error) resolve(message._result);
                 else reject(Util.makeError(message._error));
             };
+            this.incrementMaxListeners(parent);
             parent.on('message', listener);
             this.send({ _sEval: script, _sEvalShard: options.cluster, _sEvalTimeout: options.timeout })
                 .then(m => {
                     if (options.timeout) {
                         evalTimeout = setTimeout(() => {
                             parent.removeListener('message', listener);
+                            this.decrementMaxListeners(parent);
                             reject(new Error(`BROADCAST_EVAL_REQUEST_TIMED_OUT`));
                         }, options.timeout + 100); //Add 100 ms more to prevent timeout on client side
                     }
@@ -188,6 +194,7 @@ class ClusterClient extends EventEmitter {
                 .catch(err => {
                     if (evalTimeout) clearTimeout(evalTimeout);
                     parent.removeListener('message', listener);
+                    this.decrementMaxListeners(parent);
                     reject(err);
                 });
         });
@@ -393,12 +400,16 @@ class ClusterClient extends EventEmitter {
         }
     }
 
-    _eval(script) {
-        if (this.client._eval) return this.client._eval(script);
+    async _eval(script) {
+        if (this.client._eval) {
+            const res = await this.client._eval(script);
+            return res;
+        }
         this.client._eval = function (_) {
             return eval(_);
         }.bind(this.client);
-        return this.client._eval(script);
+        const res = await this.client._eval(script);
+        return res;
     }
 
     /**
@@ -512,5 +523,30 @@ class ClusterClient extends EventEmitter {
 
         return data;
     }
+
+    /**
+   * Increments max listeners by one for a given emitter, if they are not zero.
+   * @param {EventEmitter|process} emitter The emitter that emits the events.
+   * @private
+   */
+    incrementMaxListeners(emitter) {
+        const maxListeners = emitter.getMaxListeners();
+        if (maxListeners !== 0) {
+            emitter.setMaxListeners(maxListeners + 1);
+        }
+    }
+
+    /**
+     * Decrements max listeners by one for a given emitter, if they are not zero.
+     * @param {EventEmitter|process} emitter The emitter that emits the events.
+     * @private
+     */
+    decrementMaxListeners(emitter) {
+        const maxListeners = emitter.getMaxListeners();
+        if (maxListeners !== 0) {
+            emitter.setMaxListeners(maxListeners - 1);
+        }
+    }
+
 }
 module.exports = ClusterClient;
