@@ -10,6 +10,8 @@ const Queue = require('../Structures/Queue.js');
 
 const Cluster = require('./Cluster.js');
 
+const PromiseHandler = require('../Structures/PromiseHandler.js');
+
 class ClusterManager extends EventEmitter {
     /**
      * @param {string} file Path to your bot file
@@ -208,13 +210,6 @@ class ClusterManager extends EventEmitter {
         else process.env.CLUSTER_QUEUE_MODE = 'manual';
 
         /**
-         * Ongoing promises for calls to {@link ClusterClient#evalOnCluster}, mapped by the `script` they were called with
-         * @type {Map<string, Promise>}
-         * @private
-         */
-        this._nonce = new Map();
-
-        /**
          * A Array of IDS[Number], which should be assigned to the spawned Clusters
          * @type {number[]}
          */
@@ -223,6 +218,8 @@ class ClusterManager extends EventEmitter {
         this.queue = new Queue(options.queue);
 
         this._debug(`[START] Cluster Manager has been initialized`);
+
+        this.promise = new PromiseHandler();
     }
     /**
      * Spawns multiple internal shards.
@@ -361,7 +358,7 @@ class ClusterManager extends EventEmitter {
      *   .catch(console.error);
      */
     fetchClientValues(prop, cluster) {
-        return this._performOnShards('fetchClientValue', [prop], cluster);
+        return this.broadcastEval(`this.${prop}`, { cluster });
     }
 
     /**
@@ -373,7 +370,7 @@ class ClusterManager extends EventEmitter {
      * @returns {Promise<*>|Promise<Array<*>>} Results of the method execution
      * @private
      */
-    _performOnShards(method, args, cluster, timeout) {
+    _performOnClusters(method, args, cluster, timeout) {
         if (this.clusters.size === 0) return Promise.reject(new Error('CLUSTERING_NO_CLUSTERS'));
 
         if (typeof cluster === 'number') {
@@ -425,7 +422,7 @@ class ClusterManager extends EventEmitter {
         } catch (err) {
             error = err;
         }
-        const promise = { _results: result, _error: error };
+        const promise = { _result: result, _error: error };
         return promise;
     }
 
@@ -437,36 +434,7 @@ class ClusterManager extends EventEmitter {
      * @private
      */
     evalOnCluster(script, options) {
-        script = typeof script === 'function' ? `(${script})(this, ${JSON.stringify(options.context)})` : script;
-        if (options.hasOwnProperty('guildId')) {
-            options.shard = Util.shardIdForGuildId(options.guildId, this.totalShards);
-        }
-        if (options.hasOwnProperty('shard')) {
-            const findCluster = [...this.clusters.values()].find(i => i.shardList.includes(options.shard));
-            options.cluster = findCluster ? findCluster.id : 0;
-        }
-        const cluster = this.clusters.get(options.cluster);
-        if (!cluster) return Promise.reject(new Error('CLUSTER_DOES_NOT_EXIST', options.cluster));
-        if (!cluster.thread) return Promise.reject(new Error('CLUSTERING_NO_CHILD_EXISTS', cluster.id));
-        return new Promise((resolve, reject) => {
-            const nonce = options.nonce;
-            this._nonce.set(nonce, { resolve, reject, requestCluster: options.requestCluster });
-            const sent = cluster.send(
-                { _sClusterEvalRequest: script, nonce, cluster: options.cluster },
-                void 0,
-                void 0,
-                e => {
-                    if (e) reject(new Error(`Failed to deliver Message to cluster: ${e}`));
-                    setTimeout(() => {
-                        if (this._nonce.has(nonce)) {
-                            this._nonce.get(nonce).reject(new Error('Eval Request Timed out'));
-                            this._nonce.delete(nonce);
-                        }
-                    }, options.timeout || 10000);
-                },
-            );
-            if (!sent) reject(new Error('CLUSTERING_IN_PROCESS or CLUSTERING_DIED'));
-        }).catch(e => new Error(e.toString()));
+        return this.broadcastEval(script, options).then(r => r[0]);
     }
 
     /**
