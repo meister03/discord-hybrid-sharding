@@ -10,7 +10,10 @@ class PromiseHandler{
             if(promise.timeout) clearTimeout(promise.timeout);
             this.nonce.delete(message.nonce);
             if(message._error){
-                promise.reject(message._error + new Error().stack);
+                const error = new Error(message._error.message);
+                error.stack = message.stack || message._error.stack;
+                error.name = message._error.name;
+                promise.reject(error);
             }
             else{
                 promise.resolve(message._result);
@@ -31,14 +34,17 @@ class PromiseHandler{
     }
 
     async create(message, options = {}){
+        if(Object.keys(options).length === 0 && message.options) options = message.options;
         if(!message.nonce) message.nonce = Util.generateNonce();
         const promise = await new Promise((resolve, reject) => {
             let timeout = undefined;
-            if(message.timeout){
+            if(options.timeout){
                 timeout = setTimeout(() => {
                     this.nonce.delete(message.nonce);
-                    reject(new Error('Promise timed out'));
-                }, message.timeout);
+                    const error = new Error('Promise timed out');
+                    error.stack = message.stack || error.stack;
+                    reject(error);
+                }, options.timeout);
             }
             this.nonce.set(message.nonce, {resolve, reject, options});
         });

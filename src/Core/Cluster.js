@@ -1,6 +1,9 @@
+// @ts-check
 const EventEmitter = require('events');
 const path = require('path');
 const Util = require('../Util/Util.js');
+
+const { messageType } = require('../Util/Constants.js');
 const { IPCMessage, BaseMessage } = require('../Structures/IPCMessage.js');
 const { ClusterHandler } = require('../Structures/IPCHandler.js');
 
@@ -10,7 +13,7 @@ const { Child } = require('../Structures/Child.js');
 let Thread = null;
 
 /**
- * A self-contained cluster created by the {@link ClusterManager}. Each one has a {@link ChildProcess} that contains
+ * A self-contained cluster created by the {@link ClusterManager}. Each one has a {@link Child} that contains
  * an instance of the bot and its {@link Client}. When its child process/worker exits for any reason, the cluster will
  * spawn a new one to replace it as necessary.
  * @augments EventEmitter
@@ -68,7 +71,6 @@ class Cluster extends EventEmitter {
             CLUSTER_MANAGER: true,
             CLUSTER: this.id,
             CLUSTER_COUNT: this.manager.totalClusters,
-            KEEP_ALIVE_INTERVAL: this.manager.keepAlive.interval,
             DISCORD_TOKEN: this.manager.token,
         });
         /**
@@ -78,26 +80,19 @@ class Cluster extends EventEmitter {
 
         /**
          * Process of the cluster (if {@link ClusterManager#mode} is `process`)
-         * @type {?ChildProcess|?Worker}
+         * @type {?Child|?Worker}
          */
         this.thread = null;
-
-        /**
-         * Listener function for the {@link ChildProcess}' `exit` event
-         * @type {Function}
-         * @private
-         */
-        this._exitListener = this._handleExit.bind(this, undefined);
     }
     /**
      * Forks a child process or creates a worker thread for the cluster.
      * <warn>You should not need to call this manually.</warn>
      * @param {number} [spawnTimeout=30000] The amount in milliseconds to wait until the {@link Client} has become ready
      * before resolving. (-1 or Infinity for no wait)
-     * @returns {Promise<ChildProcess>}
+     * @returns {Promise<Child>}
      */
     async spawn(spawnTimeout = 30000) {
-        if (this.thread) throw new Error('CLUSTERING_PROCESS_EXISTS', this.id);
+        if (this.thread) throw new Error('CLUSTER ALREADY SPAWNED | ClusterId: ' + this.id);
         this.thread = new Thread(path.resolve(this.manager.file), {
             ...this.manager.clusterOptions,
             execArgv: this.execArgv,
@@ -105,21 +100,18 @@ class Cluster extends EventEmitter {
             args: this.args,
             clusterData: { ...this.env, ...this.manager.clusterData },
         });
-        this.messageHandler = new ClusterHandler(this, this.thread);  
+        this.messageHandler = new ClusterHandler(this.manager, this, this.thread);  
 
         this.thread
             .spawn()
             .on('message', this._handleMessage.bind(this))
-            .on('exit', this._exitListener)
+            .on('exit', this._handleExit.bind(this))
             .on('error', this._handleError.bind(this));
-
-        this._evals.clear();
-        this._fetches.clear();
 
         /**
          * Emitted upon the creation of the cluster's child process/worker.
          * @event Cluster#spawn
-         * @param {ChildProcess|Worker} process Child process/worker that was created
+         * @param {Child|Worker} process Child process/worker that was created
          */
         this.emit('spawn', this.thread.process);
 
@@ -133,24 +125,22 @@ class Cluster extends EventEmitter {
             };
 
             const onReady = () => {
-                this._cleanupHeartbeat();
                 cleanup();
                 resolve();
-            };``
+            };
 
             const onDeath = () => {
                 cleanup();
-                reject(new Error('CLUSTERING_READY_DIED', this.id));
+                reject(new Error('CLUSTERING_READY_DIED | ClusterId: ' + this.id));
             };
 
             const onTimeout = () => {
                 cleanup();
-                reject(new Error('CLUSTERING_READY_TIMEOUT', this.id));
+                reject(new Error('CLUSTERING_READY_TIMEOUT | ClusterId: '+ this.id));
             };
 
             const spawnTimeoutTimer = setTimeout(onTimeout, spawnTimeout);
             this.once('ready', onReady);
-            this.once('disconnect', onDisconnect);
             this.once('death', onDeath);
         });
         return this.thread.process;
@@ -162,13 +152,12 @@ class Cluster extends EventEmitter {
      */
     kill(options = {}) {
         this.thread.kill(options);
-        if (options.force) this._cleanupHeartbeat();
         this._handleExit(false);
     }
     /**
      * Kills and restarts the cluster's process/worker.
      * @param {ClusterRespawnOptions} [options] Options for respawning the cluster
-     * @returns {Promise<ChildProcess>}
+     * @returns {Promise<Child>}
      */
     async respawn({ delay = 500, timeout = 30000 } = {}) {
         if (this.thread) this.kill({ force: true });
@@ -198,7 +187,8 @@ class Cluster extends EventEmitter {
     request(message = {}) {
         message._sRequest = true;
         message._sReply = false;
-        message = new BaseMessage(message).toJSON();
+        message.type = messageType.CUSTOM_REQUEST;
+        this.send(message);
         return this.manager.promise.create(message);
     }
     /**
@@ -213,7 +203,7 @@ class Cluster extends EventEmitter {
         const _eval = typeof script === 'function' ? `(${script})(this, ${JSON.stringify(context)})` : script;
 
         // cluster is dead (maybe respawning), don't cache anything and error immediately
-        if (!this.thread) return Promise.reject(new Error('CLUSTERING_NO_CHILD_EXISTS', this.id));
+        if (!this.thread) return Promise.reject(new Error('CLUSTERING_NO_CHILD_EXISTS | ClusterId: '+  this.id));
         const nonce = Util.generateNonce();
         const message = {nonce, _eval, options: {timeout}, type: messageType.CLIENT_EVAL_REQUEST};
         await this.send(message);
@@ -253,7 +243,7 @@ class Cluster extends EventEmitter {
         /**
          * Emitted upon the cluster's child process/worker exiting.
          * @event Cluster#death
-         * @param {ChildProcess|Worker} process Child process/worker that exited
+         * @param {Child|Worker} process Child process/worker that exited
          */
         this.emit('death', this.thread.process);
         this.manager._debug('[DEATH] Cluster died, attempting respawn', this.id);
@@ -273,7 +263,7 @@ class Cluster extends EventEmitter {
         /**
          * Emitted upon the cluster's child process/worker error.
          * @event Cluster#error
-         * @param {ChildProcess|Worker} process Child process/worker, where error occurred
+         * @param {Child|Worker} process Child process/worker, where error occurred
          */
         this.manager.emit('error', error);
     }

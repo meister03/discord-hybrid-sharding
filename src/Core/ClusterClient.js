@@ -1,3 +1,4 @@
+// @ts-check
 const { IPCMessage, BaseMessage } = require('../Structures/IPCMessage.js');
 const Util = require('../Util/Util.js');
 const { Events, messageType } = require('../Util/Constants.js');
@@ -114,8 +115,7 @@ class ClusterClient extends EventEmitter {
      * @see {@link ClusterManager#fetchClientValues}
      */
     fetchClientValues(prop, cluster) {
-        const res = await this.broadcastEval(`this.${prop}`, options);
-        return res;
+        return this.broadcastEval(`this.${prop}`, {cluster});
     }
 
     /**
@@ -146,6 +146,7 @@ class ClusterClient extends EventEmitter {
      * Evaluates a script or function on all clusters, or a given cluster, in the context of the {@link Client}s.
      * @param {string|Function} script JavaScript to run on each cluster
      * @param {object} options Some options such as the TargetCluster or the Eval timeout
+     * @param {number} [options.context] The Context to pass to the eval script
      * @param {number} [options.cluster] The Id od the target Cluster
      * @param {number} [options.shard] The Id od the target Shard, when the Cluster has not been provided.
      * @param {number} [options.guildId] The Id od the guild the cluster is in, when the Cluster has not been provided. 
@@ -162,20 +163,11 @@ class ClusterClient extends EventEmitter {
           throw new TypeError(
             'Script for BroadcastEvaling has not been provided or must be a valid String/Function!',
           );
-           
-        if(options.hasOwnProperty('cluster')) {
-            if(typeof options.cluster === 'number'){
-                if(options.cluster < 0 ) throw new RangeError('CLUSTER_ID_OUT_OF_RANGE');
-            }
-            if(typeof options.cluster === 'array'){
-                if(options.cluster.length === 0) throw new RangeError('ARRAY_MUST_CONTAIN_ONE CLUSTER_ID');
-            }
-        }
-
         script = typeof script === 'function' ? `(${script})(this, ${JSON.stringify(options.context)})` : script;
         const nonce = Util.generateNonce();
         const message = {nonce, _eval: script, options, type: options.type || messageType.CLIENT_BROADCAST_REQUEST};
         await this.send(message);
+
         const res = await this.promise.create(message);
         return res;
     }
@@ -213,74 +205,8 @@ class ClusterClient extends EventEmitter {
      */
     async _handleMessage(message) {
         if (!message) return;
-        const emit = this.messageHandler.handleMessage(message);
+        const emit = await this.messageHandler.handleMessage(message);
         if(!emit) return;
-     /*    if (message._fetchProp) {
-            const props = message._fetchProp.split('.');
-            let value = this.client;
-            for (const prop of props) value = value[prop];
-            this._respond('fetchProp', { _fetchProp: message._fetchProp, _result: value });
-            return;
-        } else if (message._eval) {
-            try {
-                this._respond('eval', { _eval: message._eval, _result: await this._eval(message._eval) });
-            } catch (err) {
-                this._respond('eval', { _eval: message._eval, _error: Util.makePlainError(err) });
-            }
-            return;
-        } else if (message.hasOwnProperty('_sClusterEvalRequest')) {
-            try {
-                this._respond('evalOnCluster', {
-                    _sClusterEvalResponse: await this._eval(message._sClusterEvalRequest),
-                    nonce: message.nonce,
-                    cluster: message.cluster,
-                });
-            } catch (err) {
-                this._respond('evalOnCluster', {
-                    _sClusterEvalResponse: {},
-                    _error: Util.makePlainError(err),
-                    nonce: message.nonce,
-                });
-            }
-            return;
-        } else if (message.hasOwnProperty('_sClusterEvalResponse')) {
-            const promise = this._nonce.get(message.nonce);
-            if (!promise) return;
-            if (message._error) {
-                promise.reject(message._error);
-                this._nonce.delete(message.nonce);
-            } else {
-                promise.resolve(message._sClusterEvalResponse);
-                this._nonce.delete(message.nonce);
-            }
-            return;
-        } else if (message.hasOwnProperty('_sManagerEvalResponse')) {
-            const promise = this._nonce.get(message.nonce);
-            if (!promise) return;
-            if (message._error) {
-                promise.reject(message._error);
-                this._nonce.delete(message.nonce);
-            } else {
-                promise.resolve(message._sManagerEvalResponse);
-                this._nonce.delete(message.nonce);
-            }
-            return;
-        } else if (message.ack) {
-            return this._heartbeatAckMessage();
-        } else if (message._sCustom) {
-            if (message._sReply) {
-                const promise = this._nonce.get(message.nonce);
-                if (promise) {
-                    promise.resolve(message);
-                    this._nonce.delete(message.nonce);
-                }
-                return;
-            } else if (message._sRequest) {
-                //this.request(message).then(e => this.send(e)).catch(e => this.send({...message, error: e}))
-            }
-
-         
-        } */
         let emitMessage;
         if (typeof message === 'object') emitMessage = new IPCMessage(this, message);
         else emitMessage = message;
@@ -324,48 +250,7 @@ class ClusterClient extends EventEmitter {
         });
     }
 
-    /*Heartbeat System*/
-/*     _heartbeatAckMessage() {
-        this.heartbeat.last = Date.now();
-        this.heartbeat.missed = 0;
-    }
-
-    _checkIfAckReceived() {
-        this.client.emit('clusterDebug', `[ClusterClient ${this.id}] Heartbeat Ack Interval CheckUp Started`, this.id);
-        this.heartbeat.ack = setInterval(() => {
-            if (!this.heartbeat) return;
-            const diff = Date.now() - Number(this.heartbeat.last);
-            if (isNaN(diff)) return;
-            if (diff > this.keepAliveInterval + 2000) {
-                this.heartbeat.missed = (this.heartbeat.missed || 0) + 1;
-                if (this.heartbeat.missed < 5) {
-                    this.client.emit(
-                        'clusterDebug',
-                        `[ClusterClient ${this.id}][Heartbeat_ACK_MISSING] ${this.heartbeat.missed} Heartbeat(s) Ack have been missed.`,
-                        this.id,
-                    );
-                    return;
-                } else this._cleanupHeartbeat();
-            }
-        }, this.keepAliveInterval);
-        return this.heartbeat;
-    }
-
-    _checkIfClusterAlive() {
-        this.heartbeat.interval = setInterval(() => {
-            this.send({ _keepAlive: true, heartbeat: { last: Date.now() } });
-        }, this.keepAliveInterval);
-        return this.heartbeat.interval;
-    }
-
-    _cleanupHeartbeat() {
-        clearInterval(this.heartbeat.interval);
-        clearInterval(this.heartbeat.ack);
-        this.heartbeat = {};
-        return this.heartbeat;
-    } */
-
-    //Hooks
+    // Hooks
     triggerReady() {
         this.process.send({ type: messageType.CLIENT_READY });
         this.ready = true;

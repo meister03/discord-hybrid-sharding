@@ -1,3 +1,5 @@
+// @ts-check
+const Util = require('../Util/Util.js');
 const {messageType} = require('../Util/Constants.js');
 class ClusterHandler {
   constructor(manager, cluster, ipc) {
@@ -14,7 +16,7 @@ class ClusterHandler {
          * @event Cluster#ready
          */
         this.cluster.emit('ready');
-        this.cluster.manager._debug('Ready', this.id);
+        this.cluster.manager._debug('Ready', this.cluster.id);
         return;
      }
      if(message.type === messageType.CLIENT_BROADCAST_REQUEST){
@@ -25,6 +27,7 @@ class ClusterHandler {
          .catch(err => {
             return this.ipc.send({nonce: message.nonce, type: messageType.CLIENT_BROADCAST_RESPONSE, _error: err});
          })
+         return;
      }
      if(message.type === messageType.CLIENT_MANAGER_EVAL_REQUEST){
         this.cluster.manager.evalOnManager(message._eval, message.options)
@@ -34,9 +37,10 @@ class ClusterHandler {
         .catch(err => {
             return this.ipc.send({nonce: message.nonce, type: messageType.CLIENT_MANAGER_EVAL_RESPONSE, _error: err});
         })
+        return;
      }
      if(message.type === messageType.CLIENT_EVAL_RESPONSE){
-        this.cluster.manager.promise.insertResult(message);
+        this.cluster.manager.promise.resolve(message);
         return;
      }
      if(message.type === messageType.CLIENT_RESPAWN_ALL){
@@ -52,10 +56,10 @@ class ClusterHandler {
         return;
      }
      if(message.type === messageType.CUSTOM_REPLY){
-        this.client.manager.promise.resolve(message);
+        this.cluster.manager.promise.resolve(message);
         return;
      }
-
+     return true;
   }
 }
 
@@ -65,7 +69,7 @@ class ClusterClientHandler {
       this.ipc = ipc;
     }
   
-    handleMessage(message) {
+    async handleMessage(message) {
         if(message.type === messageType.CLIENT_EVAL_REQUEST){
             try {
                 this.client._respond('eval', { 
