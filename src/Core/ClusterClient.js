@@ -133,12 +133,12 @@ class ClusterClient extends EventEmitter {
      */
     async evalOnManager(script, options = {}) {
         options.type = messageType.CLIENT_MANAGER_EVAL_REQUEST
-        const res = await this.broadcastEval(script, options).then(r =>r[0]);
+        const res = await this.broadcastEval(script, options)
         return res;
     }
 
     async evalOnCluster(script, options = {}) {
-        const res = await this.broadcastEval(script, options).then(r =>r[0]);
+        const res = await this.broadcastEval(script, options);
         return res;
     }
 

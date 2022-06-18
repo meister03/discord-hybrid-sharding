@@ -83,6 +83,24 @@ class Cluster extends EventEmitter {
          * @type {?Child|?Worker}
          */
         this.thread = null;
+
+
+        this.restarts = {
+            current: this.manager.restarts.current,
+            max: this.manager.restarts.max,
+            interval: this.manager.restarts.interval,
+            resetRestarts: () =>{ 
+               this.restarts.reset = setInterval(() => {
+                    this.restarts.current = 0;
+                }, this.manager.restarts.interval)
+            },
+            cleanup: () => {
+                clearInterval(this.restarts.reset);
+            },
+            append: () => {
+                this.restarts.current++;
+            }
+        }
     }
     /**
      * Forks a child process or creates a worker thread for the cluster.
@@ -125,6 +143,9 @@ class Cluster extends EventEmitter {
             };
 
             const onReady = () => {
+                this.manager.emit('clusterReady', this);
+                this.restarts.cleanup();
+                this.restarts.resetRestarts();
                 cleanup();
                 resolve();
             };
@@ -152,6 +173,7 @@ class Cluster extends EventEmitter {
      */
     kill(options = {}) {
         this.thread.kill(options);
+        this.manager.heartbeat?.clusters.get(this.id)?.stop();
         this._handleExit(false);
     }
     /**
@@ -162,6 +184,7 @@ class Cluster extends EventEmitter {
     async respawn({ delay = 500, timeout = 30000 } = {}) {
         if (this.thread) this.kill({ force: true });
         if (delay > 0) await Util.delayFor(delay);
+        this.manager.heartbeat?.clusters.get(this.id)?.stop();
         return this.spawn(timeout);
     }
     /**
@@ -246,12 +269,15 @@ class Cluster extends EventEmitter {
          * @param {Child|Worker} process Child process/worker that exited
          */
         this.emit('death', this.thread.process);
-        this.manager._debug('[DEATH] Cluster died, attempting respawn', this.id);
+        this.manager._debug('[DEATH] Cluster died, attempting respawn | Restarts Left: '+ (this.restarts.max - this.restarts.current), this.id);
 
         this.ready = false;
         this.thread = null;
 
-        if (respawn) this.spawn().catch(err => this.emit('error', err));
+        if(this.restarts.current >= this.restarts.max) this.manager._debug('[ATTEMPTED_RESPAWN] Attempted Respawn Declined | Max Restarts have been exceeded', this.id);
+        if (respawn && this.restarts.current < this.restarts.max) this.spawn().catch(err => this.emit('error', err));
+        
+        this.restarts.append();
     }
 
     /**

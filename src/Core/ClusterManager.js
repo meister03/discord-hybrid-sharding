@@ -19,18 +19,20 @@ class ClusterManager extends EventEmitter {
      * @param {object} [options] Options for the cluster manager
      * @param {string|number} [options.totalShards='auto'] Number of total internal shards or "auto"
      * @param {string|number} [options.totalClusters='auto'] Number of total Clusters\Process to spawn
+     * @param {number} [options.shardsPerClusters] Number of shards per cluster
      * @param {string[]} [options.shardArgs=[]] Arguments to pass to the clustered script when spawning
      * (only available when using the `process` mode)
      * @param {string[]} [options.execArgv=[]] Arguments to pass to the clustered script executable when spawning
-     * @param {boolean} [respawn=true] Whether clusters should automatically respawn upon exiting
+     * @param {boolean} [options.respawn=true] Whether clusters should automatically respawn upon exiting
      * (only available when using the `process` mode)
      * @param {ClusterManagerMode} [options.mode='worker'] Which mode to use for clustering
      * @param {number[]} [options.shardList] A Array of Internal Shards Ids, which should get spawned
-     * @param {object} [options.keepAlive] Whether Clusters should be automatically respawned, when Heartbeats have not been received for a given period of time
-     * @param {number} [options.keepAlive.interval=10000] The Interval for the Heartbeat CheckUp
-     * @param {number} [options.keepAlive.maxClusterRestarts=3] The maximal Amount of Cluster Restarts, which can be executed by the keepAlive Function in less than 1 hour.
-     * @param {number} [options.keepAlive.maxMissedHeartbeats=5] The maximal Amount of missed Heartbeats, upon the Cluster should be respawned.
      * @param {string} [options.token] Token to use for automatic internal shard count and passing to bot file
+     * @param {object} [options.restarts] Restart options
+     * @param {number} [options.restarts.interval] Interval in milliseconds on which the current restarts amount of a cluster will be resetted
+     * @param {number} [options.restarts.max] Maximum amount of restarts a cluster can have in the interval
+     * @param {object} [options.queue] Control the Spawn Queue 
+     * @param {boolean} [options.queue.auto=true] Whether the spawn queue be automatically managed
      */
     constructor(file, options = {}) {
         super();
@@ -42,10 +44,14 @@ class ClusterManager extends EventEmitter {
                 execArgv: [],
                 respawn: true,
                 mode: 'process',
-                keepAlive: {},
                 token: process.env.DISCORD_TOKEN,
                 queue: {
                     auto: true,
+                },
+                restarts: {
+                    max: 3,
+                    interval: 60000*60,
+                    current: 0,
                 },
                 clusterData: {},
                 clusterOptions: {},
@@ -53,11 +59,23 @@ class ClusterManager extends EventEmitter {
             options,
         );
 
+        if(options.keepAlive) throw new Error('keepAlive is not supported anymore on and above v1.6.0. Import it as plugin ("HeartBeatManager"), therefore check the libs readme');
+
         /**
          * Whether clusters should automatically respawn upon exiting
          * @type {boolean}
          */
         this.respawn = options.respawn;
+
+
+        /**
+         * How many times a cluster can maximally restart in the given interval
+         * @type {Object}
+         * @param {number} [interval=60000*60] Interval in milliseconds
+         * @param {number} [max=3] Max amount of restarts
+         * @param {number} [current=0] Current amount of restarts
+        */
+        this.restarts = options.restarts;
 
         /**
          * Data, which is passed to the workerData or the processEnv
@@ -429,7 +447,7 @@ class ClusterManager extends EventEmitter {
         } catch (err) {
             error = err;
         }
-        const promise = { _result: result, _error: error };
+        const promise = { _result: result, _error: error ? Util.makePlainError(error) : null };
         return promise;
     }
 
@@ -442,6 +460,20 @@ class ClusterManager extends EventEmitter {
      */
     evalOnCluster(script, options) {
         return this.broadcastEval(script, options).then(r => r[0]);
+    }
+
+    /**
+     * Adds a plugin to the cluster manager
+     */
+    extend(...plugins){
+        if(!plugins) throw new Error('NO_PLUGINS_PROVIDED');
+        if(!Array.isArray(plugins)) plugins = [plugins];
+        for(const plugin of plugins){
+            if(!plugin) throw new Error('PLUGIN_NOT_PROVIDED');
+            if(typeof plugin !== 'object') throw new Error('PLUGIN_NOT_A_OBJECT');
+            plugin.build(this);
+        }
+        return ;
     }
 
     /**

@@ -25,17 +25,15 @@ class ClusterHandler {
             return this.ipc.send({nonce: message.nonce, type: messageType.CLIENT_BROADCAST_RESPONSE, _result: results});
          })
          .catch(err => {
-            return this.ipc.send({nonce: message.nonce, type: messageType.CLIENT_BROADCAST_RESPONSE, _error: err});
+            return this.ipc.send({nonce: message.nonce, type: messageType.CLIENT_BROADCAST_RESPONSE, _error: Util.makePlainError(err)});
          })
          return;
      }
      if(message.type === messageType.CLIENT_MANAGER_EVAL_REQUEST){
         this.cluster.manager.evalOnManager(message._eval, message.options)
         .then(result => {
-            return this.ipc.send({nonce: message.nonce, type: messageType.CLIENT_MANAGER_EVAL_RESPONSE, _result: result});
-        })
-        .catch(err => {
-            return this.ipc.send({nonce: message.nonce, type: messageType.CLIENT_MANAGER_EVAL_RESPONSE, _error: err});
+            if(result._error) this.ipc.send({nonce: message.nonce, type: messageType.CLIENT_MANAGER_EVAL_RESPONSE, _error: Util.makePlainError(result._error)});
+            return this.ipc.send({nonce: message.nonce, type: messageType.CLIENT_MANAGER_EVAL_RESPONSE, _result: result._result});
         })
         return;
      }
@@ -53,6 +51,10 @@ class ClusterHandler {
      }
      if(message.type === messageType.CLIENT_SPAWN_NEXT_CLUSTER){
         this.cluster.manager.queue.next();
+        return;
+     }
+     if(message.type === messageType.HEARTBEAT_ACK){
+        this.cluster.manager.heartbeat.ack(this.cluster.id, message.date);
         return;
      }
      if(message.type === messageType.CUSTOM_REPLY){
@@ -96,8 +98,8 @@ class ClusterClientHandler {
             this.client.promise.resolve({_result: message._result, _error: message._error, nonce: message.nonce});
             return null;
         }
-        if(message.type === messageType.HEARTBEAT_ACK){
-            this.client._heartbeatAckMessage();
+        if(message.type === messageType.HEARTBEAT){
+            this.client.send({type: messageType.HEARTBEAT_ACK, date: message.date});
             return null;
         }
         if(message.type === messageType.CUSTOM_REPLY){

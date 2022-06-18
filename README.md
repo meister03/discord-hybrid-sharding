@@ -3,7 +3,7 @@
 
 # Discord-Hybrid-Sharding
 
-The first package which combines sharding manager & internal sharding to save a lot of resources, which allows clustering!
+One first package which combines sharding manager & internal sharding to save a lot of resources, which allows clustering!
 
 In other words: "Mixing both: if you need `x` shards for `n` process!"
 
@@ -26,7 +26,7 @@ The sharding manager is very heavy and uses more than 300MB per shard during lig
 
 Your only solution becomes converting to the sharding manager. That's why this new package will solve all your problems (tested by many bots with 20-170k guilds), because it spawns shards, which has internal shards. **You can save up to 60% on resources!**
 
--   **Decentralized ClusterEval function -> Listenerless, less memory leaks & cluster/client doesn't have to be ready**
+-   **Decentralized BroadCastEval function -> Listenerless, less memory leaks & cluster/client doesn't have to be ready**
 -   **Heartbeat System -> Respawn unresponsive or dead `ClusterClient`s**
 -   **IPC System -> Client <-> ClusterManager -> `.request()`, `.reply()`, `.send()`**
 -   **Fine-grained control over the cluster queue -> `manager.queue.next(), .stop(), .resume()`**
@@ -59,7 +59,7 @@ npm i discord-hybrid-sharding
 yarn add discord-hybrid-sharding
 ```
 
-# Discord.js v13
+# Discord.js v13 & other Lib Support
 
 -   Full Discord.js v13 support
 -   `Strings` and `Functions` with `context` are supported in `.broadcastEval()`
@@ -210,27 +210,26 @@ Get all ShardID's in the current cluster:
 -   Cluster will get respawned after the given amount of missed heartbeats has been reached
 
 ```js
-const manager = new Cluster.Manager(`${__dirname}/bot.js`, {
-    totalShards: 8,
-    shardsPerClusters: 2,
-    keepAlive: {
+const manager = new Cluster.Manager(`${__dirname}/bot.js`, {...});
+
+manager.extend(
+    new Cluster.HeartbeatManager({
         interval: 2000, // Interval to send a heartbeat
         maxMissedHeartbeats: 5, // Maximum amount of missed Heartbeats until Cluster will get respawned
-        maxClusterRestarts: 3, // Maximum Amount of restarts that can be performed in 1 hour in the HeartbeatSystem
-    },
-});
+    })
+)
 ```
 
-## `EvalOnCluster`
-
-Decentralized ClusterClient eval function that doesn't open any listeners and minimizes the risk of creating a memory leak during `.broadcastEval()`
-
--   Build-in eval timeout which resolves after a given time
--   No additional listeners - less memory leaks, better than `.broadCastEval()`
--   Client & all clusters don't need to be ready
-
+## `Control Restarts`
+- Cap the amount of restarts per cluster to a given amount on a given interval
 ```js
-client.cluster.evalOnCluster('this.cluster.id', { cluster: 0, timeout: 10000 });
+const manager = new Cluster.Manager(`${__dirname}/bot.js`, {
+    ...YourOptions,
+    restarts: {
+        max: 5, // Maximum amount of restarts per cluster
+        interval: 60000*60, // Interval to reset restarts
+    },
+});
 ```
 
 ## `IPC System`

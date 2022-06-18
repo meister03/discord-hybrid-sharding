@@ -59,7 +59,6 @@ declare module 'discord-hybrid-sharding' {
         public readonly count: number;
         public readonly id: number;
         public readonly ids: number[];
-        public readonly keepAliveInterval: number;
         public mode: ClusterManagerMode;
         public static getInfo: processData;
         public getInfo: processData;
@@ -101,11 +100,7 @@ declare module 'discord-hybrid-sharding' {
         public send(message: any): Promise<void>;
         public request(message: Object): Promise<BaseMessage>;
         public respawnAll(options?: ClusterRespawnOptions): Promise<void>;
-        private _heartbeatAckMessage(): Promise<any[]>;
-        private _checkIfAckReceived(): Promise<any[]>;
-        private _checkIfClusterAlive(): Promise<any[]>;
-        private _cleanupHeartbeat(): Promise<any[]>;
-
+ 
         public triggerReady(): Promise<void>;
         public spawnNextCluster(): Promise<void>;
     }
@@ -123,6 +118,11 @@ declare module 'discord-hybrid-sharding' {
         keepAlive?: keepAliveOptions;
         queue?: {
             auto?: boolean;
+        };
+        restarts: {
+            max?: number;
+            interval?: number;
+            current?: number;
         };
         clusterData?: Object;
         clusterOptions?: Object;
@@ -203,7 +203,6 @@ declare module 'discord-hybrid-sharding' {
         static CLUSTER_COUNT: number;
         static CLUSTER: number;
         static CLUSTER_MANAGER_MODE: ClusterManagerMode;
-        static KEEP_ALIVE_INTERVAL: number;
     }
 
     type ClusterManagerMode = 'process' | 'worker';
@@ -216,12 +215,10 @@ declare module 'discord-hybrid-sharding' {
         CLUSTER_COUNT: number;
         CLUSTER: number;
         CLUSTER_MANAGER_MODE: ClusterManagerMode;
-        KEEP_ALIVE_INTERVAL: number;
     };
 
     export type keepAliveOptions = {
         interval: number | 10000;
-        maxClusterRestarts: number | 3;
         maxMissedHeartbeats: number | 5;
     };
 
@@ -248,6 +245,12 @@ declare module 'discord-hybrid-sharding' {
         public resume(): Queue;
         public add(item: any): Queue;
         public next(): Promise<void>;
+    }
+
+    export class HeartBeatManager {
+        constructor(options: keepAliveOptions);
+        public start(): Promise<void>;
+        public build(): Promise<HeartBeatManager.start>;
     }
 
     export type Awaitable<T> = T | PromiseLike<T>;
