@@ -72,7 +72,7 @@ class Util {
      * Gets the Shard Id for the provided guild Id.
      * @param {string} guildId  Discord Guild Id of the Server
      * @param {number} totalShards The Amount of totalShards on the current instance
-     * @returns {Promise<string>} The shard Id
+     * @returns {number} The shard Id
      */
     static shardIdForGuildId(guildId, totalShards = 1) {
         const shard = Number(BigInt(guildId) >> 22n) % totalShards;
@@ -99,6 +99,10 @@ class Util {
                 throw res;
             })
             .then(data => data.shards * (1000 / guildsPerShard));
+    }
+
+    static generateNonce(){
+        return Date.now().toString(36) + Math.random().toString(36);
     }
 }
 module.exports = Util;

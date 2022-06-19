@@ -24,6 +24,7 @@ class Queue {
 
         const length = this.queue.length;
         for (let i = 0; i < length; i++) {
+            if(!this.queue[0]) continue;
             const timeout = this.queue[0].timeout;
             await this.next();
             await delayFor(timeout);
@@ -44,7 +45,7 @@ class Queue {
 
     /**
      * Stop's the queue and blocks the next item from running
-     * @returns {Promise<Queue>}
+     * @returns {Queue}
      */
     stop() {
         this.paused = true;
@@ -53,7 +54,7 @@ class Queue {
 
     /**
      * Resume's the queue
-     * @returns {Promise<Queue>}
+     * @returns {Queue}
      */
     resume() {
         this.paused = false;
@@ -63,7 +64,7 @@ class Queue {
     /**
      * Adds an item to the queue
      * @param item
-     * @returns {Promise<Queue>}
+     * @returns {Queue}
      */
     add(item) {
         this.queue.push({

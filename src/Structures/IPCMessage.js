@@ -1,23 +1,19 @@
+const {messageType} = require('../Util/Constants.js');
+const Util = require('../Util/Util.js');
 class BaseMessage {
     constructor(message = {}) {
-        /**
-         * Marks the message as a custom Message, which can be listened on the message event
-         * @type {boolean}
-         */
-        this._sCustom = true;
-
         /**
          * Creates a Message ID for identifying it for further Usage such as on replies
          * @type {string}
          */
-        this.nonce = message.nonce || Date.now().toString(36) + Math.random().toString(36);
+        this.nonce = message.nonce || Util.generateNonce();
         message.nonce = this.nonce;
 
         /**
          * Destructs the Message Object and initializes it on the Constructor
          * @type {string}
          */
-        this.destructMessage(message);
+        this._raw = this.destructMessage(message);
     }
 
     /**
@@ -28,13 +24,17 @@ class BaseMessage {
         for (let [key, value] of Object.entries(message)) {
             this[key] = value;
         }
-        this._sCustom = true;
         this.nonce = message.nonce;
+        this._type = message._type || messageType.CUSTOM_MESSAGE;
+        if(message._type === messageType.CUSTOM_MESSAGE){
+            this._sCustom = true;
+            message._sCustom = true;
+        }
         return message;
     }
 
     toJSON() {
-        return this;
+        return this._raw;
     }
 }
 
@@ -62,6 +62,7 @@ class IPCMessage extends BaseMessage {
      */
     async send(message = {}) {
         if (typeof message !== 'object') throw new TypeError('The Message has to be a object');
+        message._type = messageType.CUSTOM_MESSAGE;
         message = new BaseMessage(message);
         return this.instance.send(message.toJSON());
     }
@@ -74,6 +75,7 @@ class IPCMessage extends BaseMessage {
     async request(message = {}) {
         if (typeof message !== 'object') throw new TypeError('The Message has to be a object');
         message.nonce = this.nonce;
+        message._type = messageType.CUSTOM_REQUEST;
         message._sRequest = true;
         message._sReply = false;
         message = new BaseMessage(message);
@@ -88,8 +90,10 @@ class IPCMessage extends BaseMessage {
     async reply(message = {}) {
         if (typeof message !== 'object') throw new TypeError('The Message has to be a object');
         message.nonce = this.raw.nonce;
+        message._type = messageType.CUSTOM_REPLY;
         message._sReply = true;
         message._sRequest = false;
+        message._result = {...message}
         message = new BaseMessage(message);
         return this.instance.send(message.toJSON());
     }
