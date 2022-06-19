@@ -184,7 +184,8 @@ class ClusterClient extends EventEmitter {
     request(message = {}) {
         message._sRequest = true;
         message._sReply = false;
-        message = new BaseMessage(message).toJSON();
+        message.type = messageType.CUSTOM_REQUEST;
+        this.send(message);
         return this.promise.create(message);
     }
 
