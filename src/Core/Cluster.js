@@ -210,7 +210,7 @@ class Cluster extends EventEmitter {
     request(message = {}) {
         message._sRequest = true;
         message._sReply = false;
-        message.type = messageType.CUSTOM_REQUEST;
+        message._type = messageType.CUSTOM_REQUEST;
         this.send(message);
         return this.manager.promise.create(message);
     }
@@ -228,7 +228,7 @@ class Cluster extends EventEmitter {
         // cluster is dead (maybe respawning), don't cache anything and error immediately
         if (!this.thread) return Promise.reject(new Error('CLUSTERING_NO_CHILD_EXISTS | ClusterId: '+  this.id));
         const nonce = Util.generateNonce();
-        const message = {nonce, _eval, options: {timeout}, type: messageType.CLIENT_EVAL_REQUEST};
+        const message = {nonce, _eval, options: {timeout}, _type: messageType.CLIENT_EVAL_REQUEST};
         await this.send(message);
         const res = await this.manager.promise.create(message);
         return res;

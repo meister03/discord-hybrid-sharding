@@ -132,7 +132,7 @@ class ClusterClient extends EventEmitter {
      * @see {@link ClusterManager#evalOnManager}
      */
     async evalOnManager(script, options = {}) {
-        options.type = messageType.CLIENT_MANAGER_EVAL_REQUEST
+        options._type = messageType.CLIENT_MANAGER_EVAL_REQUEST
         const res = await this.broadcastEval(script, options)
         return res;
     }
@@ -165,7 +165,7 @@ class ClusterClient extends EventEmitter {
           );
         script = typeof script === 'function' ? `(${script})(this, ${JSON.stringify(options.context)})` : script;
         const nonce = Util.generateNonce();
-        const message = {nonce, _eval: script, options, type: options.type || messageType.CLIENT_BROADCAST_REQUEST};
+        const message = {nonce, _eval: script, options, _type: options._type || messageType.CLIENT_BROADCAST_REQUEST};
         await this.send(message);
 
         const res = await this.promise.create(message);
@@ -184,7 +184,7 @@ class ClusterClient extends EventEmitter {
     request(message = {}) {
         message._sRequest = true;
         message._sReply = false;
-        message.type = messageType.CUSTOM_REQUEST;
+        message._type = messageType.CUSTOM_REQUEST;
         this.send(message);
         return this.promise.create(message);
     }
@@ -196,7 +196,7 @@ class ClusterClient extends EventEmitter {
      * @see {@link ClusterManager#respawnAll}
      */
     respawnAll({ clusterDelay = 5000, respawnDelay = 7000, timeout = 30000 } = {}) {
-        return this.send({ type: messageType.CLIENT_RESPAWN_ALL , options: { clusterDelay, respawnDelay, timeout } });
+        return this.send({ _type: messageType.CLIENT_RESPAWN_ALL , options: { clusterDelay, respawnDelay, timeout } });
     }
 
     /**
@@ -253,7 +253,7 @@ class ClusterClient extends EventEmitter {
 
     // Hooks
     triggerReady() {
-        this.process.send({ type: messageType.CLIENT_READY });
+        this.process.send({ _type: messageType.CLIENT_READY });
         this.ready = true;
         return this.ready;
     }
@@ -261,7 +261,7 @@ class ClusterClient extends EventEmitter {
     spawnNextCluster() {
         if (this.queue.mode === 'auto')
             throw new Error('Next Cluster can just be spawned when the queue is not on auto mode.');
-        return this.process.send({ type: messageType.CLIENT_SPAWN_NEXT_CLUSTER});
+        return this.process.send({ _type: messageType.CLIENT_SPAWN_NEXT_CLUSTER});
     }
 
     /**

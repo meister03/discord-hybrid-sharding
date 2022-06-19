@@ -322,9 +322,9 @@ class ClusterManager extends EventEmitter {
      * @param totalShards
      * @returns {CLUSTER} Note that the created cluster needs to be explicitly spawned using its spawn method.
      */
-    createCluster(id, shardsToSpawn, totalShards) {
+    createCluster(id, shardsToSpawn, totalShards, recluster = false) {
         const cluster = new Cluster(this, id, shardsToSpawn, totalShards);
-        this.clusters.set(id, cluster);
+        if(!recluster) this.clusters.set(id, cluster);
         /**
          * Emitted upon creating a cluster.
          * @event ClusterManager#clusterCreate

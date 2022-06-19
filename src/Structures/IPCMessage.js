@@ -25,8 +25,8 @@ class BaseMessage {
             this[key] = value;
         }
         this.nonce = message.nonce;
-        this.type = message.type || messageType.CUSTOM_MESSAGE;
-        if(message.type === messageType.CUSTOM_MESSAGE){
+        this._type = message._type || messageType.CUSTOM_MESSAGE;
+        if(message._type === messageType.CUSTOM_MESSAGE){
             this._sCustom = true;
             message._sCustom = true;
         }
@@ -62,7 +62,7 @@ class IPCMessage extends BaseMessage {
      */
     async send(message = {}) {
         if (typeof message !== 'object') throw new TypeError('The Message has to be a object');
-        message.type = messageType.CUSTOM_MESSAGE;
+        message._type = messageType.CUSTOM_MESSAGE;
         message = new BaseMessage(message);
         return this.instance.send(message.toJSON());
     }
@@ -75,7 +75,7 @@ class IPCMessage extends BaseMessage {
     async request(message = {}) {
         if (typeof message !== 'object') throw new TypeError('The Message has to be a object');
         message.nonce = this.nonce;
-        message.type = messageType.CUSTOM_REQUEST;
+        message._type = messageType.CUSTOM_REQUEST;
         message._sRequest = true;
         message._sReply = false;
         message = new BaseMessage(message);
@@ -90,7 +90,7 @@ class IPCMessage extends BaseMessage {
     async reply(message = {}) {
         if (typeof message !== 'object') throw new TypeError('The Message has to be a object');
         message.nonce = this.raw.nonce;
-        message.type = messageType.CUSTOM_REPLY;
+        message._type = messageType.CUSTOM_REPLY;
         message._sReply = true;
         message._sRequest = false;
         message._result = {...message}
