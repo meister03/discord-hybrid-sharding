@@ -200,7 +200,7 @@ class Cluster extends EventEmitter {
 
     /**
      * Sends a Request to the ClusterClient and returns the reply
-     * @param {BaseMessage} message Message, which should be sent as request
+     * @param {Object} message Message, which should be sent as request
      * @returns {Promise<*>} Reply of the Message
      * @example
      * client.cluster.request({content: 'hello'})

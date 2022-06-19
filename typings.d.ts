@@ -30,7 +30,7 @@ declare module 'discord-hybrid-sharding' {
         public kill(): void;
         public respawn(options?: { delay?: number; timeout?: number }): Promise<ChildProcess>;
         public send(message: any): Promise<Cluster>;
-        public request(message: BaseMessage): Promise<BaseMessage>;
+        public request(message: object): Promise<BaseMessage>;
         public spawn(timeout?: number): Promise<ChildProcess>;
 
         public triggerMaintenance(reason: string): any;
@@ -175,6 +175,7 @@ declare module 'discord-hybrid-sharding' {
         public respawnAll(options?: ClusterRespawnOptions): Promise<Map<number, Cluster>>;
         public spawn(options?: ClusterSpawnOptions): Promise<Map<number, Cluster>>;
         public triggerMaintenance(reason: string): any;
+        public extend(...plugins: object[]): void;
 
         public on(event: 'clusterCreate', listener: (cluster: Cluster) => void): this;
         public on(event: 'debug', listener: (message: string) => void): this;
@@ -262,13 +263,13 @@ declare module 'discord-hybrid-sharding' {
     export class HeartBeatManager {
         constructor(options: keepAliveOptions);
         public start(): Promise<void>;
-        public build(): Promise<HeartBeatManager.start>;
+        public build(): Promise<typeof this.start>;
     }
 
     export class ReClusterManager {
-        constructor(options: {});
-        private _start(): Promise<{success: Boolean}>;
-        public start(options: ReClusterOptions): ReClusterManager._start;
+        constructor(options: object);
+        private _start(): Promise<{success: boolean}>;
+        public start(options: ReClusterOptions): typeof this._start;
         public build(manager: Manager): Manager;
     }
 

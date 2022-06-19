@@ -1,6 +1,6 @@
 // @ts-check
 const Util = require('../Util/Util.js');
-class Manager {
+class ReClusterManager {
     constructor(options = {}) {
         this.name = 'recluster';
         this.onProgress = false;
@@ -21,9 +21,9 @@ class Manager {
      * @param {?number} options.shardsPerClusters The amount of shards per cluster
      * @param {?number[][]} options.shardClusterList The shardList chunked over the clusters
      * @param {?number[]} options.shardList The new shardList of the Cluster Manager
-     * @param {?string} options.restartMode The restartMode of the clusterManager, gracefulSwitch = waits until all new clusters have spawned with maintenance mode, rolling = Once the Cluster is Ready, the old cluster will be killed 
-     * @returns 
-     */    
+     * @param {?string} options.restartMode The restartMode of the clusterManager, gracefulSwitch = waits until all new clusters have spawned with maintenance mode, rolling = Once the Cluster is Ready, the old cluster will be killed
+     * @returns
+     */
     async start({delay, timeout, totalShards, totalClusters, shardsPerClusters, shardClusterList, shardList = this.manager.shardList, restartMode = 'gracefulSwitch'}){
         if(this.onProgress) throw new Error('Zero Downtime Reclustering is already in progress');
         if(totalShards){
@@ -55,7 +55,7 @@ class Manager {
                 `├── Shards Per Cluster: ${this.manager.shardsPerClusters}`,
                 `├── Shard Cluster List: ${this.manager.shardClusterList.join(', ')}`,
                 `└── Shard List: ${this.manager.shardList.join(', ')}`,
-            ].join('\n')    
+            ].join('\n')
         )
         return this._start({restartMode, delay, timeout});
     }
@@ -92,7 +92,7 @@ class Manager {
                             const oldCluster = this.manager.clusters.get(clusterId);
                             if(oldCluster){
                                 oldCluster.kill({force: true});
-                                oldClusters.delete(clusterId);  
+                                oldClusters.delete(clusterId);
                             }
                             this.manager.clusters.set(clusterId, cluster);
                             cluster.triggerMaintenance();
@@ -130,7 +130,7 @@ class Manager {
                 this.manager._debug(`[↻][ReClustering][${clusterId}] Switched OldCluster to NewCluster and exited Maintenance Mode`);
             }
         }
-       
+
         newClusters.clear();
         this.onProgress = false;
         process.env.MAINTENANCE = undefined;
@@ -138,4 +138,4 @@ class Manager {
         return {success: true};
     }
 }
-module.exports = Manager;
+module.exports = ReClusterManager;
