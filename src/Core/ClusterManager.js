@@ -31,7 +31,7 @@ class ClusterManager extends EventEmitter {
      * @param {object} [options.restarts] Restart options
      * @param {number} [options.restarts.interval] Interval in milliseconds on which the current restarts amount of a cluster will be resetted
      * @param {number} [options.restarts.max] Maximum amount of restarts a cluster can have in the interval
-     * @param {object} [options.queue] Control the Spawn Queue 
+     * @param {object} [options.queue] Control the Spawn Queue
      * @param {boolean} [options.queue.auto=true] Whether the spawn queue be automatically managed
      */
     constructor(file, options = {}) {
@@ -339,15 +339,15 @@ class ClusterManager extends EventEmitter {
     /**
      * Evaluates a script on all clusters, or a given cluster, in the context of the {@link Client}s.
      * @param {string|Function} script JavaScript to run on each cluster
-     * @param {BroadcastEvalOptions} [options={}] The options for the broadcastEVal
+     * @param {Object} [options={}] The options for the broadcastEVal
      * @returns {Promise<*>|Promise<Array<*>>} Results of the script execution
      */
     broadcastEval(script, options = {}) {
         if (!script || (typeof script !== 'string' && typeof script !== 'function'))
             return Promise.reject(new TypeError('ClUSTERING_INVALID_EVAL_BROADCAST'));
         script = typeof script === 'function' ? `(${script})(this, ${JSON.stringify(options.context)})` : script;
-                   
-        if(options.hasOwnProperty('cluster')) {
+
+        if(Object.prototype.hasOwnProperty.call(options, 'cluster')) {
             if(typeof options.cluster === 'number'){
                 if(options.cluster < 0 ) throw new RangeError('CLUSTER_ID_OUT_OF_RANGE');
             }
@@ -413,7 +413,7 @@ class ClusterManager extends EventEmitter {
     /**
      * Kills all running clusters and respawns them.
      * @param {ClusterRespawnOptions} [options] Options for respawning shards
-     * @returns {Promise<Collection<string, Shard>>}
+     * @returns {Promise<Collection<number, Cluster>>}
      */
     async respawnAll({ clusterDelay = 5500, respawnDelay = 500, timeout = -1 } = {}) {
         this.promise.nonce.clear();
@@ -447,8 +447,7 @@ class ClusterManager extends EventEmitter {
         } catch (err) {
             error = err;
         }
-        const promise = { _result: result, _error: error ? Util.makePlainError(error) : null };
-        return promise;
+        return {_result: result, _error: error ? Util.makePlainError(error) : null};
     }
 
     /**
@@ -473,7 +472,6 @@ class ClusterManager extends EventEmitter {
             if(typeof plugin !== 'object') throw new Error('PLUGIN_NOT_A_OBJECT');
             plugin.build(this);
         }
-        return ;
     }
 
     /**

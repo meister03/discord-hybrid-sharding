@@ -89,7 +89,7 @@ class Cluster extends EventEmitter {
             current: this.manager.restarts.current,
             max: this.manager.restarts.max,
             interval: this.manager.restarts.interval,
-            resetRestarts: () =>{ 
+            resetRestarts: () =>{
                this.restarts.reset = setInterval(() => {
                     this.restarts.current = 0;
                 }, this.manager.restarts.interval)
@@ -118,7 +118,7 @@ class Cluster extends EventEmitter {
             args: this.args,
             clusterData: { ...this.env, ...this.manager.clusterData },
         });
-        this.messageHandler = new ClusterHandler(this.manager, this, this.thread);  
+        this.messageHandler = new ClusterHandler(this.manager, this, this.thread);
 
         this.thread
             .spawn()
@@ -230,8 +230,7 @@ class Cluster extends EventEmitter {
         const nonce = Util.generateNonce();
         const message = {nonce, _eval, options: {timeout}, _type: messageType.CLIENT_EVAL_REQUEST};
         await this.send(message);
-        const res = await this.manager.promise.create(message);
-        return res;
+        return await this.manager.promise.create(message);
     }
 
     /**
@@ -276,7 +275,7 @@ class Cluster extends EventEmitter {
 
         if(this.restarts.current >= this.restarts.max) this.manager._debug('[ATTEMPTED_RESPAWN] Attempted Respawn Declined | Max Restarts have been exceeded', this.id);
         if (respawn && this.restarts.current < this.restarts.max) this.spawn().catch(err => this.emit('error', err));
-        
+
         this.restarts.append();
     }
 

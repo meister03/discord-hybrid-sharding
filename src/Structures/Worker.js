@@ -37,7 +37,7 @@ class Worker {
     }
 
     send(message) {
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve) => {
             this.process?.postMessage(message);
             resolve(this);
         });
@@ -49,7 +49,7 @@ class WorkerClient {
         this.ipc = require('worker_threads').parentPort;
     }
     send(message) {
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve) => {
             this.ipc?.postMessage(message);
             resolve();
         });

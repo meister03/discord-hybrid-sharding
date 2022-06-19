@@ -44,7 +44,7 @@ class Queue {
 
     /**
      * Stop's the queue and blocks the next item from running
-     * @returns {Promise<Queue>}
+     * @returns {Queue}
      */
     stop() {
         this.paused = true;
@@ -53,7 +53,7 @@ class Queue {
 
     /**
      * Resume's the queue
-     * @returns {Promise<Queue>}
+     * @returns {Queue}
      */
     resume() {
         this.paused = false;
@@ -63,7 +63,7 @@ class Queue {
     /**
      * Adds an item to the queue
      * @param item
-     * @returns {Promise<Queue>}
+     * @returns {Queue}
      */
     add(item) {
         this.queue.push({

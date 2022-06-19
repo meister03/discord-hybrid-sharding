@@ -6,7 +6,7 @@ exports.Events = {
 exports.DefaultOptions = {
     http: {
         api: 'https://discord.com/api',
-        version: '9',
+        version: '10',
     },
 };
 
