@@ -220,8 +220,10 @@ declare module 'discord-hybrid-sharding' {
     };
 
     export type keepAliveOptions = {
-        interval: number | 10000;
-        maxMissedHeartbeats: number | 5;
+        /** Default interval is 20000 */
+        interval?: number;
+        /** Default maxMissedHeartbeats is 5 */
+        maxMissedHeartbeats?: number;
     };
 
     export interface ClusterSpawnOptions {
@@ -261,13 +263,13 @@ declare module 'discord-hybrid-sharding' {
     }
 
     export class HeartBeatManager {
-        constructor(options: keepAliveOptions);
+        constructor(options?: keepAliveOptions);
         public start(): Promise<void>;
         public build(): Promise<typeof this.start>;
     }
 
     export class ReClusterManager {
-        constructor(options: object);
+        constructor(options?: object);
         private _start(): Promise<{success: boolean}>;
         public start(options: ReClusterOptions): typeof this._start;
         public build(manager: Manager): Manager;
