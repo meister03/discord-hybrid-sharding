@@ -56,7 +56,7 @@ class Heartbeat {
         return this.interval = setInterval(() => {
             const start = Date.now();
             this.heartbeats.set(start, true)
-            this.instance.send({_type: messageType.HEARTBEAT, date: start}).catch(e => null);
+            this.instance.send({_type: messageType.HEARTBEAT, date: start}).catch(() => null);
             if(this.heartbeats.size > this.options.maxMissedHeartbeats){
                this.manager.stop(this.instance, `Missed ${this.heartbeats.size} Heartbeat Acks | Attempting Respawn`);
             }

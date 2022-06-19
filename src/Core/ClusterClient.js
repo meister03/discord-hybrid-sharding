@@ -31,7 +31,7 @@ class ClusterClient extends EventEmitter {
 
         /**
          * If the Cluster is spawned automatically or with a own controller
-         * @type {ClusterQueueMode}
+         * @type {Object}
          */
         this.queue = {
             mode: this.info.CLUSTER_QUEUE_MODE,
@@ -55,8 +55,8 @@ class ClusterClient extends EventEmitter {
         if (mode === 'process') this.process = new ChildClient(this);
         else if (mode === 'worker') this.process = new WorkerClient(this);
 
-        this.messageHandler = new ClusterClientHandler(this, this.process);  
-        
+        this.messageHandler = new ClusterClientHandler(this, this.process);
+
         this.promise = new PromiseHandler();
 
         this.process.ipc.on('message', this._handleMessage.bind(this));
@@ -137,13 +137,11 @@ class ClusterClient extends EventEmitter {
      */
     async evalOnManager(script, options = {}) {
         options._type = messageType.CLIENT_MANAGER_EVAL_REQUEST
-        const res = await this.broadcastEval(script, options)
-        return res;
+        return await this.broadcastEval(script, options);
     }
 
     async evalOnCluster(script, options = {}) {
-        const res = await this.broadcastEval(script, options);
-        return res;
+        return await this.broadcastEval(script, options);
     }
 
     /**
@@ -153,7 +151,7 @@ class ClusterClient extends EventEmitter {
      * @param {number} [options.context] The Context to pass to the eval script
      * @param {number} [options.cluster] The Id od the target Cluster
      * @param {number} [options.shard] The Id od the target Shard, when the Cluster has not been provided.
-     * @param {number} [options.guildId] The Id od the guild the cluster is in, when the Cluster has not been provided. 
+     * @param {number} [options.guildId] The Id od the guild the cluster is in, when the Cluster has not been provided.
      * @param {number} [options.timeout=10000] The time in ms to wait, until the eval will be rejected without any response
      * @returns {Promise<*>|Promise<Array<*>>} Results of the script execution
      * @example
@@ -172,12 +170,11 @@ class ClusterClient extends EventEmitter {
         const message = {nonce, _eval: script, options, _type: options._type || messageType.CLIENT_BROADCAST_REQUEST};
         await this.send(message);
 
-        const res = await this.promise.create(message);
-        return res;
+        return await this.promise.create(message);
     }
     /**
      * Sends a Request to the ParentCluster and returns the reply
-     * @param {BaseMessage} message Message, which should be sent as request
+     * @param {Object} message Message, which should be sent as request
      * @returns {Promise<*>} Reply of the Message
      * @example
      * client.cluster.request({content: 'hello'})
@@ -225,14 +222,12 @@ class ClusterClient extends EventEmitter {
 
     async _eval(script) {
         if (this.client._eval) {
-            const res = await this.client._eval(script);
-            return res;
+            return await this.client._eval(script);
         }
         this.client._eval = function (_) {
             return eval(_);
         }.bind(this.client);
-        const res = await this.client._eval(script);
-        return res;
+        return await this.client._eval(script);
     }
 
     /**
@@ -292,7 +287,7 @@ class ClusterClient extends EventEmitter {
 
     /**
      * gets the total Internal shard count and shard list.
-     * @returns {ClusterClientUtil}
+     * @returns {Object}
      */
     static getInfo() {
         let clusterMode = process.env.CLUSTER_MANAGER_MODE;

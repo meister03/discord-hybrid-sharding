@@ -99,12 +99,12 @@ declare module 'discord-hybrid-sharding' {
         public send(message: any): Promise<void>;
         public request(message: Object): Promise<BaseMessage>;
         public respawnAll(options?: ClusterRespawnOptions): Promise<void>;
- 
+
         public triggerReady(): Promise<void>;
         public triggerMaintenance(reason: string, all?: Boolean): any;
         public spawnNextCluster(): Promise<void>;
     }
-    
+
     export interface ManagerOptions {
         totalShards?: number | 'auto';
         totalClusters?: number | 'auto';
@@ -119,7 +119,7 @@ declare module 'discord-hybrid-sharding' {
         queue?: {
             auto?: boolean;
         };
-        restarts: {
+        restarts?: {
             max?: number;
             interval?: number;
             current?: number;
