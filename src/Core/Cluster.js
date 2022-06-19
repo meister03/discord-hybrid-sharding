@@ -1,7 +1,11 @@
+// @ts-check
 const EventEmitter = require('events');
 const path = require('path');
 const Util = require('../Util/Util.js');
+
+const { messageType } = require('../Util/Constants.js');
 const { IPCMessage, BaseMessage } = require('../Structures/IPCMessage.js');
+const { ClusterHandler } = require('../Structures/IPCHandler.js');
 
 const { Worker } = require('../Structures/Worker.js');
 const { Child } = require('../Structures/Child.js');
@@ -9,7 +13,7 @@ const { Child } = require('../Structures/Child.js');
 let Thread = null;
 
 /**
- * A self-contained cluster created by the {@link ClusterManager}. Each one has a {@link ChildProcess} that contains
+ * A self-contained cluster created by the {@link ClusterManager}. Each one has a {@link Child} that contains
  * an instance of the bot and its {@link Client}. When its child process/worker exits for any reason, the cluster will
  * spawn a new one to replace it as necessary.
  * @augments EventEmitter
@@ -67,7 +71,6 @@ class Cluster extends EventEmitter {
             CLUSTER_MANAGER: true,
             CLUSTER: this.id,
             CLUSTER_COUNT: this.manager.totalClusters,
-            KEEP_ALIVE_INTERVAL: this.manager.keepAlive.interval,
             DISCORD_TOKEN: this.manager.token,
         });
         /**
@@ -77,60 +80,37 @@ class Cluster extends EventEmitter {
 
         /**
          * Process of the cluster (if {@link ClusterManager#mode} is `process`)
-         * @type {?ChildProcess|?Worker}
+         * @type {?Child|?Worker}
          */
         this.thread = null;
 
-        /**
-         * The Heartbeat Object, which contains the missed Heartbeats, the last Heartbeat and the Heartbeat Interval
-         * @type {object}
-         */
-        this.heartbeat = {};
 
-        /**
-         * The Amount of maximal Restarts, which can be executed by the HeartBeat Checkup
-         * @type {object}
-         */
-        this._restarts = {};
-        if (this.manager.keepAlive) {
-            if (Object.keys(this.manager.keepAlive)) {
-                this._restarts.current = 0;
-                this._restarts.interval = setInterval(() => {
-                    this._restarts.current = 0;
-                }, 60000 * 60);
+        this.restarts = {
+            current: this.manager.restarts.current,
+            max: this.manager.restarts.max,
+            interval: this.manager.restarts.interval,
+            resetRestarts: () =>{ 
+               this.restarts.reset = setInterval(() => {
+                    this.restarts.current = 0;
+                }, this.manager.restarts.interval)
+            },
+            cleanup: () => {
+                clearInterval(this.restarts.reset);
+            },
+            append: () => {
+                this.restarts.current++;
             }
         }
-
-        /**
-         * Ongoing promises for calls to {@link Cluster#eval}, mapped by the `script` they were called with
-         * @type {Map<string, Promise>}
-         * @private
-         */
-        this._evals = new Map();
-
-        /**
-         * Ongoing promises for calls to {@link Cluster#fetchClientValue}, mapped by the `prop` they were called with
-         * @type {Map<string, Promise>}
-         * @private
-         */
-        this._fetches = new Map();
-
-        /**
-         * Listener function for the {@link ChildProcess}' `exit` event
-         * @type {Function}
-         * @private
-         */
-        this._exitListener = this._handleExit.bind(this, undefined);
     }
     /**
      * Forks a child process or creates a worker thread for the cluster.
      * <warn>You should not need to call this manually.</warn>
      * @param {number} [spawnTimeout=30000] The amount in milliseconds to wait until the {@link Client} has become ready
      * before resolving. (-1 or Infinity for no wait)
-     * @returns {Promise<ChildProcess>}
+     * @returns {Promise<Child>}
      */
     async spawn(spawnTimeout = 30000) {
-        if (this.thread) throw new Error('CLUSTERING_PROCESS_EXISTS', this.id);
+        if (this.thread) throw new Error('CLUSTER ALREADY SPAWNED | ClusterId: ' + this.id);
         this.thread = new Thread(path.resolve(this.manager.file), {
             ...this.manager.clusterOptions,
             execArgv: this.execArgv,
@@ -138,21 +118,18 @@ class Cluster extends EventEmitter {
             args: this.args,
             clusterData: { ...this.env, ...this.manager.clusterData },
         });
-
+        this.messageHandler = new ClusterHandler(this.manager, this, this.thread);  
 
         this.thread
             .spawn()
             .on('message', this._handleMessage.bind(this))
-            .on('exit', this._exitListener)
+            .on('exit', this._handleExit.bind(this))
             .on('error', this._handleError.bind(this));
-
-        this._evals.clear();
-        this._fetches.clear();
 
         /**
          * Emitted upon the creation of the cluster's child process/worker.
          * @event Cluster#spawn
-         * @param {ChildProcess|Worker} process Child process/worker that was created
+         * @param {Child|Worker} process Child process/worker that was created
          */
         this.emit('spawn', this.thread.process);
 
@@ -162,34 +139,29 @@ class Cluster extends EventEmitter {
             const cleanup = () => {
                 clearTimeout(spawnTimeoutTimer);
                 this.off('ready', onReady);
-                this.off('disconnect', onDisconnect);
                 this.off('death', onDeath);
             };
 
             const onReady = () => {
-                this._cleanupHeartbeat();
+                this.manager.emit('clusterReady', this);
+                this.restarts.cleanup();
+                this.restarts.resetRestarts();
                 cleanup();
                 resolve();
             };
 
-            const onDisconnect = () => {
-                cleanup();
-                reject(new Error('CLUSTERING_READY_DISCONNECTED', this.id));
-            };
-
             const onDeath = () => {
                 cleanup();
-                reject(new Error('CLUSTERING_READY_DIED', this.id));
+                reject(new Error('CLUSTERING_READY_DIED | ClusterId: ' + this.id));
             };
 
             const onTimeout = () => {
                 cleanup();
-                reject(new Error('CLUSTERING_READY_TIMEOUT', this.id));
+                reject(new Error('CLUSTERING_READY_TIMEOUT | ClusterId: '+ this.id));
             };
 
             const spawnTimeoutTimer = setTimeout(onTimeout, spawnTimeout);
             this.once('ready', onReady);
-            this.once('disconnect', onDisconnect);
             this.once('death', onDeath);
         });
         return this.thread.process;
@@ -201,17 +173,19 @@ class Cluster extends EventEmitter {
      */
     kill(options = {}) {
         this.thread.kill(options);
-        if (options.force) this._cleanupHeartbeat();
+        this.manager.heartbeat?.clusters.get(this.id)?.stop();
+        this.restarts.cleanup();
         this._handleExit(false);
     }
     /**
      * Kills and restarts the cluster's process/worker.
      * @param {ClusterRespawnOptions} [options] Options for respawning the cluster
-     * @returns {Promise<ChildProcess>}
+     * @returns {Promise<Child>}
      */
     async respawn({ delay = 500, timeout = 30000 } = {}) {
         if (this.thread) this.kill({ force: true });
         if (delay > 0) await Util.delayFor(delay);
+        this.manager.heartbeat?.clusters.get(this.id)?.stop();
         return this.spawn(timeout);
     }
     /**
@@ -237,65 +211,10 @@ class Cluster extends EventEmitter {
     request(message = {}) {
         message._sRequest = true;
         message._sReply = false;
-        message = new BaseMessage(message).toJSON();
-        return new Promise((resolve, reject) => {
-            const nonce = message.nonce;
-            this.manager._nonce.set(nonce, { resolve, reject });
-            const sent = this.send(message, void 0, void 0, e => {
-                if (e) reject(new Error(`Failed to deliver Message to cluster: ${e}`));
-                setTimeout(() => {
-                    if (this.manager._nonce.has(nonce)) {
-                        this.manager._nonce.get(nonce).reject(new Error('Eval Request Timed out'));
-                        this.manager._nonce.delete(nonce);
-                    }
-                }, message.timeout || 10000);
-            });
-            if (!sent) reject(new Error('CLUSTERING_IN_PROCESS or CLUSTERING_DIED'));
-        }).catch(e => ({ ...message, error: new Error(e.toString()) }));
+        message._type = messageType.CUSTOM_REQUEST;
+        this.send(message);
+        return this.manager.promise.create(message);
     }
-
-    /**
-     * Fetches a client property value of the cluster.
-     * @param {string} prop Name of the client property to get, using periods for nesting
-     * @returns {Promise<*>}
-     * @example
-     * cluster.fetchClientValue('guilds.cache.size')
-     *   .then(count => console.log(`${count} guilds in cluster ${cluster.id}`))
-     *   .catch(console.error);
-     */
-    fetchClientValue(prop) {
-        // Shard is dead (maybe respawning), don't cache anything and error immediately
-        if (!this.thread) return Promise.reject(new Error('CLUSTERING_NO_CHILD_EXISTS', this.id));
-
-        // Cached promise from previous call
-        if (this._fetches.has(prop)) return this._fetches.get(prop);
-
-        const promise = new Promise((resolve, reject) => {
-            const child = this.thread.process;
-
-            const listener = message => {
-                if (!message || message._fetchProp !== prop) return;
-                child.removeListener('message', listener);
-                this.decrementMaxListeners(child);
-                this._fetches.delete(prop);
-                resolve(message._result);
-            };
-
-            this.incrementMaxListeners(child);
-            child.on('message', listener);
-
-            this.send({ _fetchProp: prop }).catch(err => {
-                child.removeListener('message', listener);
-                this.decrementMaxListeners(child);
-                this._fetches.delete(prop);
-                reject(err);
-            });
-        });
-
-        this._fetches.set(prop, promise);
-        return promise;
-    }
-
     /**
      * Evaluates a script or function on the cluster, in the context of the {@link Client}.
      * @param {string|Function} script JavaScript to run on the cluster
@@ -303,57 +222,25 @@ class Cluster extends EventEmitter {
      * @param timeout
      * @returns {Promise<*>} Result of the script execution
      */
-    eval(script, context, timeout) {
+    async eval(script, context, timeout) {
         // Stringify the script if it's a Function
         const _eval = typeof script === 'function' ? `(${script})(this, ${JSON.stringify(context)})` : script;
 
         // cluster is dead (maybe respawning), don't cache anything and error immediately
-        if (!this.thread) return Promise.reject(new Error('CLUSTERING_NO_CHILD_EXISTS', this.id));
+        if (!this.thread) return Promise.reject(new Error('CLUSTERING_NO_CHILD_EXISTS | ClusterId: '+  this.id));
+        const nonce = Util.generateNonce();
+        const message = {nonce, _eval, options: {timeout}, _type: messageType.CLIENT_EVAL_REQUEST};
+        await this.send(message);
+        const res = await this.manager.promise.create(message);
+        return res;
+    }
 
-        // Cached promise from previous call
-        if (this._evals.has(_eval)) return this._evals.get(_eval);
-
-        const promise = new Promise((resolve, reject) => {
-            const child = this.thread.process;
-
-            //Set A timeout for the eval
-            let tempTimeout;
-
-            const listener = message => {
-                if (!message || message._eval !== _eval) return;
-                if (tempTimeout) clearTimeout(tempTimeout);
-                child.removeListener('message', listener);
-                this.decrementMaxListeners(child);
-                this._evals.delete(_eval);
-                if (!message._error) resolve(message._result);
-                else reject(Util.makeError(message._error));
-            };
-            this.incrementMaxListeners(child);
-            child.on('message', listener);
-
-            this.send({ _eval })
-                .then(m => {
-                    if (timeout) {
-                        tempTimeout = setTimeout(() => {
-                            if (!this._evals.has(_eval)) return;
-                            child.removeListener('message', listener);
-                            this.decrementMaxListeners(child);
-                            this._evals.delete(_eval);
-                            reject(new Error(`BROADCAST_EVAL_REQUEST_TIMED_OUT`));
-                        }, timeout);
-                    }
-                })
-                .catch(err => {
-                    if (tempTimeout) clearTimeout(tempTimeout);
-                    child.removeListener('message', listener);
-                    this.decrementMaxListeners(child);
-                    this._evals.delete(_eval);
-                    reject(err);
-                });
-        });
-
-        this._evals.set(_eval, promise);
-        return promise;
+    /**
+    * @param {string} reason If maintenance should be enabled with a given reason or disabled when nonce provided
+    */
+    triggerMaintenance(reason) {
+        const _type = reason ? messageType.CLIENT_MAINTENANCE_ENABLE : messageType.CLIENT_MAINTENANCE_DISABLE;
+        return this.send({ _type, maintenance: reason });
     }
 
     /**
@@ -362,138 +249,9 @@ class Cluster extends EventEmitter {
      * @private
      */
     _handleMessage(message) {
-        if (message) {
-            // Cluster is ready
-            if (message._ready) {
-                this.ready = true;
-                /**
-                 * Emitted upon the cluster's {@link Client#ready} event.
-                 * @event Cluster#ready
-                 */
-                this.emit('ready');
-                this.manager._debug('Ready', this.id);
-                this._cleanupHeartbeat();
-                this._checkIfClusterAlive();
-                return;
-            }
-
-            // Cluster has disconnected
-            if (message._disconnect) {
-                this.ready = false;
-                /**
-                 * Emitted upon the cluster's {@link Client#disconnect} event.
-                 * @event Cluster#disconnect
-                 */
-                this.emit('disconnect');
-                this.manager._debug('[DISCONNECT] Some Shards disconnected', this.id);
-                return;
-            }
-
-            // Cluster is attempting to reconnect
-            if (message._reconnecting) {
-                this.ready = false;
-                /**
-                 * Emitted upon the cluster's {@link Client#reconnecting} event.
-                 * @event Cluster#reconnecting
-                 */
-                this.emit('reconnecting');
-                this.manager._debug('[RECONNECTING] Some Shards are attempting reconnect', this.id);
-                return;
-            }
-
-            //The Heartbeat, which has been sent by Client
-            if (message._keepAlive) {
-                if (this.manager.keepAlive) this._heartbeatMessage(message);
-                return;
-            }
-
-            // Cluster is requesting a property fetch
-            if (message._sFetchProp) {
-                const resp = { _sFetchProp: message._sFetchProp, _sFetchPropShard: message._sFetchPropShard };
-                this.manager.fetchClientValues(message._sFetchProp, message._sFetchPropShard).then(
-                    results => this.send({ ...resp, _result: results }),
-                    err => this.send({ ...resp, _error: Util.makePlainError(err) }),
-                );
-                return;
-            }
-
-            // Cluster is requesting an eval broadcast
-            if (message._sEval) {
-                const resp = { _sEval: message._sEval, _sEvalShard: message._sEvalShard };
-                this.manager
-                    ._performOnShards('eval', [message._sEval], message._sEvalShard, message._sEvalTimeout)
-                    .then(
-                        results => this.send({ ...resp, _result: results }),
-                        err => this.send({ ...resp, _error: Util.makePlainError(err) }),
-                    );
-                return;
-            }
-
-            //Evals a Request on a Cluster
-            if (message.hasOwnProperty('_sManagerEval')) {
-                this.manager.evalOnManager(message._sManagerEval).then(result => {
-                    if (result._results) return this.send({ _sManagerEvalResponse: result._results, ...message });
-                    if (result._error) return this.send({ _error: Util.makePlainError(result._error), ...message });
-                });
-                return;
-            }
-
-            //Evals a Request on a Cluster
-            if (message.hasOwnProperty('_sClusterEval')) {
-                this.manager
-                    .evalOnCluster(message._sClusterEval, { ...message, requestCluster: this.id })
-                    .catch(e => new Error(e));
-                return;
-            }
-
-            //If Message is a Eval Response
-            if (message.hasOwnProperty('_sClusterEvalResponse')) {
-                const promise = this.manager._nonce.get(message.nonce);
-                if (!promise) return;
-                if (promise) {
-                    if (message._error) {
-                        promise.reject(message._error);
-                        this.manager._nonce.delete(message.nonce);
-                        if (this.manager.clusters.has(promise.requestCluster)) {
-                            this.manager.clusters.get(promise.requestCluster).send(message);
-                        }
-                    } else {
-                        promise.resolve(message._sClusterEvalResponse);
-                        this.manager._nonce.delete(message.nonce);
-                        if (this.manager.clusters.has(promise.requestCluster)) {
-                            this.manager.clusters.get(promise.requestCluster).send(message);
-                        }
-                    }
-                }
-                return;
-            }
-
-            // Cluster is requesting a respawn of all shards
-            if (message._sRespawnAll) {
-                const { clusterDelay, respawnDelay, timeout } = message._sRespawnAll;
-                this.manager._debug('Cluster requested respawn of all Clusters', this.id);
-                this.manager.respawnAll({ clusterDelay, respawnDelay, timeout }).catch(() => {
-                    // Do nothing
-                });
-                return;
-            }
-
-            if (message._spawnNextCluster) {
-                return this.manager.queue.next();
-            }
-
-            if (message._sCustom) {
-                if (message._sReply) {
-                    const promise = this.manager._nonce.get(message.nonce);
-                    if (promise) {
-                        promise.resolve(message);
-                        this.manager._nonce.delete(message.nonce);
-                    }
-                } else if (message._sRequest) {
-                    // this.manager.request(message).then(e => this.send(e)).catch(e => this.send({...message, error: e}))
-                }
-            }
-        }
+        if (!message) return;
+        const emit = this.messageHandler.handleMessage(message);
+        if(!emit) return;
 
         let emitMessage;
         if (typeof message === 'object') {
@@ -517,20 +275,19 @@ class Cluster extends EventEmitter {
         /**
          * Emitted upon the cluster's child process/worker exiting.
          * @event Cluster#death
-         * @param {ChildProcess|Worker} process Child process/worker that exited
+         * @param {Child|Worker} process Child process/worker that exited
          */
         this.emit('death', this.thread.process);
-        this.manager._debug('[DEATH] Cluster died, attempting respawn', this.id);
+        this.manager._debug('[DEATH] Cluster died, attempting respawn | Restarts Left: '+ (this.restarts.max - this.restarts.current), this.id);
 
         this.ready = false;
         this.thread = null;
-        this._evals.clear();
-        this._fetches.clear();
 
-        if (respawn) this.spawn().catch(err => this.emit('error', err));
+        if(this.restarts.current >= this.restarts.max) this.manager._debug('[ATTEMPTED_RESPAWN] Attempted Respawn Declined | Max Restarts have been exceeded', this.id);
+        if (respawn && this.restarts.current < this.restarts.max) this.spawn().catch(err => this.emit('error', err));
+        
+        this.restarts.append();
     }
-
-    ///Custom Functions
 
     /**
      * Handles the cluster's process/worker error.
@@ -541,99 +298,9 @@ class Cluster extends EventEmitter {
         /**
          * Emitted upon the cluster's child process/worker error.
          * @event Cluster#error
-         * @param {ChildProcess|Worker} process Child process/worker, where error occurred
+         * @param {Child|Worker} process Child process/worker, where error occurred
          */
         this.manager.emit('error', error);
-    }
-
-    /**
-     * Handles the keepAlive Heartbeat and validates it.
-     * @param {object} [message] the heartbeat message, which has been received
-     * @private
-     */
-    _heartbeatMessage(message) {
-        if (!this.manager.keepAlive) return;
-        if (Object.keys(this.manager.keepAlive).length === 0) return;
-        this.heartbeat.last = Date.now();
-        this.heartbeat.missed = 0;
-        this.send({ ack: true, last: Date.now() }).catch(e =>
-            this.manager._debug('[ACK_FAILED] ACK could not be sent. IPC Channel is dead or busy', this.id),
-        );
-    }
-
-    _checkIfClusterAlive() {
-        if (!this.manager.keepAlive) return;
-        if (Object.keys(this.manager.keepAlive).length === 0) return;
-        this.manager._debug('Heartbeat Interval CheckUp has started', this.id);
-        this.heartbeat.interval = setInterval(() => {
-            if (!this.heartbeat) return;
-            const diff = Date.now() - Number(this.heartbeat.last);
-            if (isNaN(diff)) return;
-            if (diff > this.manager.keepAlive.interval + 2000) {
-                this.heartbeat.missed++;
-                if (this.heartbeat.missed < this.manager.keepAlive.maxMissedHeartbeats)
-                    this.manager._debug(
-                        `[Heartbeat_MISSING] ${this.heartbeat.missed} Heartbeat(s) have been missed.`,
-                        this.id,
-                    );
-                if (this.heartbeat.missed > this.manager.keepAlive.maxMissedHeartbeats) {
-                    if (this._restarts) {
-                        if (this._restarts.current !== undefined) {
-                            this._restarts.current++;
-                            if (this._restarts.current === this.manager.keepAlive.maxClusterRestarts) {
-                                return this.manager._debug(
-                                    `[Heartbeat_MISSING] Already attempted maximal Amount of Respawns in less then 1 hour | Cluster will be respawned, when the cooldown ends.`,
-                                    this.id,
-                                );
-                            }
-                            if (this._restarts.current > this.manager.keepAlive.maxClusterRestarts) return;
-                        }
-                    }
-                    this.manager._debug(
-                        `[Heartbeat_MISSING] Attempting respawn | Too many heartbeats were missing.`,
-                        this.id,
-                    );
-                    this._cleanupHeartbeat();
-                    this.respawn();
-                }
-            } else return;
-        }, this.manager.keepAlive.interval);
-        return this.heartbeat;
-    }
-
-    _cleanupHeartbeat() {
-        clearInterval(this.heartbeat.interval);
-        if (Object.keys(this.manager.keepAlive).length === 0) return;
-        this.heartbeat = {};
-        this.manager._debug('[Heartbeat] Heartbeat has been cleared', this.id);
-        return this.heartbeat;
-    }
-
-
-
-
-    /**
-    * Increments max listeners by one for a given emitter, if they are not zero.
-    * @param {EventEmitter|process} emitter The emitter that emits the events.
-    * @private
-    */
-    incrementMaxListeners(emitter) {
-        const maxListeners = emitter.getMaxListeners();
-        if (maxListeners !== 0) {
-            emitter.setMaxListeners(maxListeners + 1);
-        }
-    }
-
-    /**
-     * Decrements max listeners by one for a given emitter, if they are not zero.
-     * @param {EventEmitter|process} emitter The emitter that emits the events.
-     * @private
-     */
-    decrementMaxListeners(emitter) {
-        const maxListeners = emitter.getMaxListeners();
-        if (maxListeners !== 0) {
-            emitter.setMaxListeners(maxListeners - 1);
-        }
     }
 }
 

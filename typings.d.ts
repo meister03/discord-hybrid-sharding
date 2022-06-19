@@ -33,8 +33,7 @@ declare module 'discord-hybrid-sharding' {
         public request(message: BaseMessage): Promise<BaseMessage>;
         public spawn(timeout?: number): Promise<ChildProcess>;
 
-        private _checkIfClusterAlive(): Promise<any[]>;
-        private _cleanupHeartbeat(): Promise<any[]>;
+        public triggerMaintenance(reason: string): any;
 
         public on(event: 'spawn' | 'death', listener: (child: ChildProcess) => void): this;
         public on(event: 'disconnect' | 'ready' | 'reconnecting', listener: () => void): this;
@@ -53,14 +52,13 @@ declare module 'discord-hybrid-sharding' {
         constructor(client: client);
         private _handleMessage(message: any): void;
         private _respond(type: string, message: any): void;
-        private _nonce: Map<string, Promise<any>>;
 
         public client: client;
         public readonly count: number;
         public readonly id: number;
         public readonly ids: number[];
-        public readonly keepAliveInterval: number;
         public mode: ClusterManagerMode;
+        public maintenance: string;
         public static getInfo: processData;
         public getInfo: processData;
         public parentPort: any | null;
@@ -101,12 +99,9 @@ declare module 'discord-hybrid-sharding' {
         public send(message: any): Promise<void>;
         public request(message: Object): Promise<BaseMessage>;
         public respawnAll(options?: ClusterRespawnOptions): Promise<void>;
-        private _heartbeatAckMessage(): Promise<any[]>;
-        private _checkIfAckReceived(): Promise<any[]>;
-        private _checkIfClusterAlive(): Promise<any[]>;
-        private _cleanupHeartbeat(): Promise<any[]>;
-
+ 
         public triggerReady(): Promise<void>;
+        public triggerMaintenance(reason: string, all?: Boolean): any;
         public spawnNextCluster(): Promise<void>;
     }
     
@@ -123,6 +118,11 @@ declare module 'discord-hybrid-sharding' {
         keepAlive?: keepAliveOptions;
         queue?: {
             auto?: boolean;
+        };
+        restarts: {
+            max?: number;
+            interval?: number;
+            current?: number;
         };
         clusterData?: Object;
         clusterOptions?: Object;
@@ -174,6 +174,7 @@ declare module 'discord-hybrid-sharding' {
         private evalOnCluster(script: string, options: Object): Promise<any[]>;
         public respawnAll(options?: ClusterRespawnOptions): Promise<Map<number, Cluster>>;
         public spawn(options?: ClusterSpawnOptions): Promise<Map<number, Cluster>>;
+        public triggerMaintenance(reason: string): any;
 
         public on(event: 'clusterCreate', listener: (cluster: Cluster) => void): this;
         public on(event: 'debug', listener: (message: string) => void): this;
@@ -203,7 +204,6 @@ declare module 'discord-hybrid-sharding' {
         static CLUSTER_COUNT: number;
         static CLUSTER: number;
         static CLUSTER_MANAGER_MODE: ClusterManagerMode;
-        static KEEP_ALIVE_INTERVAL: number;
     }
 
     type ClusterManagerMode = 'process' | 'worker';
@@ -216,12 +216,10 @@ declare module 'discord-hybrid-sharding' {
         CLUSTER_COUNT: number;
         CLUSTER: number;
         CLUSTER_MANAGER_MODE: ClusterManagerMode;
-        KEEP_ALIVE_INTERVAL: number;
     };
 
     export type keepAliveOptions = {
         interval: number | 10000;
-        maxClusterRestarts: number | 3;
         maxMissedHeartbeats: number | 5;
     };
 
@@ -237,6 +235,17 @@ declare module 'discord-hybrid-sharding' {
         timeout?: number;
     }
 
+    export interface ReClusterOptions {
+        delay?: number;
+        timeout?: number;
+        totalShards?: number | 'auto';
+        totalClusters?: number;
+        shardsPerClusters?: number;
+        shardList?: number[];
+        shardClusterList?: number[][];
+        restartMode?: 'gracefulSwitch' | 'rolling';
+    }
+
     export class Queue {
         options: {
             auto?: boolean;
@@ -248,6 +257,19 @@ declare module 'discord-hybrid-sharding' {
         public resume(): Queue;
         public add(item: any): Queue;
         public next(): Promise<void>;
+    }
+
+    export class HeartBeatManager {
+        constructor(options: keepAliveOptions);
+        public start(): Promise<void>;
+        public build(): Promise<HeartBeatManager.start>;
+    }
+
+    export class ReClusterManager {
+        constructor(options: {});
+        private _start(): Promise<{success: Boolean}>;
+        public start(options: ReClusterOptions): ReClusterManager._start;
+        public build(manager: Manager): Manager;
     }
 
     export type Awaitable<T> = T | PromiseLike<T>;

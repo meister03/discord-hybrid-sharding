@@ -24,6 +24,7 @@ class Queue {
 
         const length = this.queue.length;
         for (let i = 0; i < length; i++) {
+            if(!this.queue[0]) continue;
             const timeout = this.queue[0].timeout;
             await this.next();
             await delayFor(timeout);
