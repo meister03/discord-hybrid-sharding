@@ -38,11 +38,15 @@ class ClusterClient extends EventEmitter {
         };
 
         /**
-         * Ongoing promises for calls to {@link ClusterManager#evalOnCluster}, mapped by the `script` they were called with
-         * @type {Map<string, Promise>}
-         * @private
+         * If the Cluster is under maintenance
+         * @type {String}
          */
-        this._nonce = new Map();
+        this.maintenance = this.info.MAINTENANCE;
+        if(this.maintenance === 'undefined') this.maintenance = false;
+        if(!this.maintenance) {
+            // Wait 100ms so listener can be added
+           setTimeout(() => this.triggerClusterReady() , 100);
+        }
 
         this.ready = false;
 
@@ -258,6 +262,28 @@ class ClusterClient extends EventEmitter {
         return this.ready;
     }
 
+    triggerClusterReady() {
+        return this.emit('ready', this);
+    }
+
+    /**
+     * 
+     * @param {String} maintenance Whether the cluster should opt in maintenance when a reason was provided or opt-out when no reason was provided.
+     * @param {Boolean} all Whether to target it on all clusters or just the current one.
+     * @returns {String} The maintenance status of the cluster.
+     */
+    triggerMaintenance(maintenance, all = false) {
+        let _type = messageType.CLIENT_MAINTENANCE;
+        if(all) _type = messageType.CLIENT_MAINTENANCE_ALL;
+        this.process.send({ _type, maintenance });
+        this.maintenance = maintenance;
+        return this.maintenance;
+    }
+
+    /**
+     * Manually spawn the next cluster, when queue mode is on 'manual'
+     * @returns {Promise<*>}
+     */
     spawnNextCluster() {
         if (this.queue.mode === 'auto')
             throw new Error('Next Cluster can just be spawned when the queue is not on auto mode.');
@@ -284,7 +310,7 @@ class ClusterClient extends EventEmitter {
                 CLUSTER_COUNT: Number(process.env.CLUSTER_COUNT),
                 CLUSTER: Number(process.env.CLUSTER),
                 CLUSTER_MANAGER_MODE: clusterMode,
-                KEEP_ALIVE_INTERVAL: Number(process.env.KEEP_ALIVE_INTERVAL),
+                MAINTENANCE: process.env.MAINTENANCE,
                 CLUSTER_QUEUE_MODE: process.env.CLUSTER_QUEUE_MODE,
             };
         } else {

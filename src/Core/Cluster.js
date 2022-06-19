@@ -174,6 +174,7 @@ class Cluster extends EventEmitter {
     kill(options = {}) {
         this.thread.kill(options);
         this.manager.heartbeat?.clusters.get(this.id)?.stop();
+        this.restarts.cleanup();
         this._handleExit(false);
     }
     /**
@@ -232,6 +233,14 @@ class Cluster extends EventEmitter {
         await this.send(message);
         const res = await this.manager.promise.create(message);
         return res;
+    }
+
+    /**
+    * @param {string} reason If maintenance should be enabled with a given reason or disabled when nonce provided
+    */
+    triggerMaintenance(reason) {
+        const _type = reason ? messageType.CLIENT_MAINTENANCE_ENABLE : messageType.CLIENT_MAINTENANCE_DISABLE;
+        return this.send({ _type, maintenance: reason });
     }
 
     /**

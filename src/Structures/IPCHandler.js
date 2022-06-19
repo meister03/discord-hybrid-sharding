@@ -49,6 +49,14 @@ class ClusterHandler {
         this.cluster.respawn(message.options);
         return;
      }
+     if(message._type === messageType.CLIENT_MAINTENANCE){
+        this.cluster.triggerMaintenance(message.maintenance);
+        return;
+     }
+     if(message._type === messageType.CLIENT_MAINTENANCE_ALL){
+        this.cluster.manager.triggerMaintenance(message.maintenance);
+        return;
+     }
      if(message._type === messageType.CLIENT_SPAWN_NEXT_CLUSTER){
         this.cluster.manager.queue.next();
         return;
@@ -100,6 +108,15 @@ class ClusterClientHandler {
         }
         if(message._type === messageType.HEARTBEAT){
             this.client.send({_type: messageType.HEARTBEAT_ACK, date: message.date});
+            return null;
+        }
+        if(message._type === messageType.CLIENT_MAINTENANCE_DISABLE){
+            this.client.maintenance = false;
+            this.client.triggerClusterReady();
+            return null;
+        }
+        if(message._type === messageType.CLIENT_MAINTENANCE_ENABLE){
+            this.client.maintenance = message.maintenance || true;
             return null;
         }
         if(message._type === messageType.CUSTOM_REPLY){

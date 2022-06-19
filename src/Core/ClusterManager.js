@@ -209,6 +209,7 @@ class ClusterManager extends EventEmitter {
         process.env.CLUSTER_MANAGER = true;
         process.env.CLUSTER_MANAGER_MODE = this.mode;
         process.env.DISCORD_TOKEN = this.token;
+        process.env.MAINTENANCE = undefined;
 
         if (options.queue.auto) process.env.CLUSTER_QUEUE_MODE = 'auto';
         else process.env.CLUSTER_QUEUE_MODE = 'manual';
@@ -476,6 +477,12 @@ class ClusterManager extends EventEmitter {
         return ;
     }
 
+    /**
+    * @param {string} reason If maintenance should be enabled on all clusters with a given reason or disabled when nonce provided
+    */
+    triggerMaintenance(reason) {
+       return [...this.clusters.values()].forEach(cluster => cluster.triggerMaintenance(reason));
+    }
     /**
      * Logs out the Debug Messages
      * <warn>Using this method just emits the Debug Event.</warn>

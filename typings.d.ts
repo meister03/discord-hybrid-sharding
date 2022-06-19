@@ -33,8 +33,7 @@ declare module 'discord-hybrid-sharding' {
         public request(message: BaseMessage): Promise<BaseMessage>;
         public spawn(timeout?: number): Promise<ChildProcess>;
 
-        private _checkIfClusterAlive(): Promise<any[]>;
-        private _cleanupHeartbeat(): Promise<any[]>;
+        public triggerMaintenance(reason: string): any;
 
         public on(event: 'spawn' | 'death', listener: (child: ChildProcess) => void): this;
         public on(event: 'disconnect' | 'ready' | 'reconnecting', listener: () => void): this;
@@ -53,13 +52,13 @@ declare module 'discord-hybrid-sharding' {
         constructor(client: client);
         private _handleMessage(message: any): void;
         private _respond(type: string, message: any): void;
-        private _nonce: Map<string, Promise<any>>;
 
         public client: client;
         public readonly count: number;
         public readonly id: number;
         public readonly ids: number[];
         public mode: ClusterManagerMode;
+        public maintenance: string;
         public static getInfo: processData;
         public getInfo: processData;
         public parentPort: any | null;
@@ -102,6 +101,7 @@ declare module 'discord-hybrid-sharding' {
         public respawnAll(options?: ClusterRespawnOptions): Promise<void>;
  
         public triggerReady(): Promise<void>;
+        public triggerMaintenance(reason: string, all?: Boolean): any;
         public spawnNextCluster(): Promise<void>;
     }
     
@@ -174,6 +174,7 @@ declare module 'discord-hybrid-sharding' {
         private evalOnCluster(script: string, options: Object): Promise<any[]>;
         public respawnAll(options?: ClusterRespawnOptions): Promise<Map<number, Cluster>>;
         public spawn(options?: ClusterSpawnOptions): Promise<Map<number, Cluster>>;
+        public triggerMaintenance(reason: string): any;
 
         public on(event: 'clusterCreate', listener: (cluster: Cluster) => void): this;
         public on(event: 'debug', listener: (message: string) => void): this;
@@ -234,6 +235,17 @@ declare module 'discord-hybrid-sharding' {
         timeout?: number;
     }
 
+    export interface ReClusterOptions {
+        delay?: number;
+        timeout?: number;
+        totalShards?: number | 'auto';
+        totalClusters?: number;
+        shardsPerClusters?: number;
+        shardList?: number[];
+        shardClusterList?: number[][];
+        restartMode?: 'gracefulSwitch' | 'rolling';
+    }
+
     export class Queue {
         options: {
             auto?: boolean;
@@ -251,6 +263,13 @@ declare module 'discord-hybrid-sharding' {
         constructor(options: keepAliveOptions);
         public start(): Promise<void>;
         public build(): Promise<HeartBeatManager.start>;
+    }
+
+    export class ReClusterManager {
+        constructor(options: {});
+        private _start(): Promise<{success: Boolean}>;
+        public start(options: ReClusterOptions): ReClusterManager._start;
+        public build(manager: Manager): Manager;
     }
 
     export type Awaitable<T> = T | PromiseLike<T>;
