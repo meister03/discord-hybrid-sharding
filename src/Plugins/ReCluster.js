@@ -2,6 +2,7 @@
 const Util = require('../Util/Util.js');
 class ReClusterManager {
     constructor(options = {}) {
+        this.options = options;
         this.name = 'recluster';
         this.onProgress = false;
     }
@@ -57,7 +58,7 @@ class ReClusterManager {
                 `└── Shard List: ${this.manager.shardList.join(', ')}`,
             ].join('\n')
         )
-        return this._start({restartMode, delay, timeout});
+        return this._start({restartMode, timeout, delay});
     }
 
     async _start({restartMode, timeout = 30000*6 , delay = 7000}){
@@ -67,8 +68,7 @@ class ReClusterManager {
 
         let switchClusterAfterReady = false;
         // when no shard settings have been updated
-        if(restartMode === 'rolling') switchClusterAfterReady = true;
-        else switchClusterAfterReady = false; //gracefulSwitch, spawn all clusters and kill all old clusters, when new clusters are ready
+        switchClusterAfterReady = restartMode === 'rolling'; //gracefulSwitch, spawn all clusters and kill all old clusters, when new clusters are ready
 
         const newClusters = new Map();
         const oldClusters = new Map();

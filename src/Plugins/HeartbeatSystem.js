@@ -1,7 +1,7 @@
 // @ts-check
 const { messageType } = require('../Util/Constants.js');
 class HeartbeatManager {
-    constructor(options) {
+    constructor(options = {}) {
         this.options = options;
 
         if(!this.options.interval) this.options.interval = 20000;
