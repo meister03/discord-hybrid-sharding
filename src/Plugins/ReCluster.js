@@ -42,7 +42,7 @@ class ReClusterManager {
         if(shardList) this.manager.shardList = shardList;
         else this.manager.shardList = [...Array(this.manager.totalShards).keys()];
         if(shardClusterList) this.manager.shardClusterList = shardClusterList;
-        else this.manager.shardClusterList = this.manager.shardList.chunk(Math.ceil(this.manager.shardList.length / this.manager.totalClusters));
+        else this.manager.shardClusterList = this.manager.shardList?.chunk(Math.ceil(this.manager.shardList.length / this.manager.totalClusters));
 
         if (this.manager.shardClusterList.length !== this.manager.totalClusters) {
             this.manager.totalClusters = this.manager.shardClusterList.length;

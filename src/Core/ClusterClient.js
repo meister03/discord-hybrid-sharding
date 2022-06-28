@@ -74,7 +74,7 @@ class ClusterClient extends EventEmitter {
     }
     /**
      * Array of shard IDs of this client
-     * @type {number[]}
+     * @type {Map<number, any>}
      * @readonly
      */
     get ids() {

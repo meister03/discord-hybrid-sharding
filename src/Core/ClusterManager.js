@@ -358,6 +358,7 @@ class ClusterManager extends EventEmitter {
         }
         if(options.guildId){
             options.shard = Util.shardIdForGuildId(options.guildId, this.totalShards);
+            console.log(options.shard);
         }
         if(options.shard){
             if(typeof options.shard === 'number'){
