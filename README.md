@@ -87,7 +87,7 @@ const manager = new Cluster.Manager(`${__dirname}/bot.js`, {
 });
 
 manager.on('clusterCreate', cluster => console.log(`Launched Cluster ${cluster.id}`));
-manager.spawn({ timeout: -1 });
+manager.spawn({ amount: 20, timeout: -1 });
 ```
 
 After that, insert the code below into your `bot.js` file
