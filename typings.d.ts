@@ -199,7 +199,7 @@ declare module 'discord-hybrid-sharding' {
         public reply(message: Object): Promise<Object>;
     }
 
-    export interface data {
+    export class data {
         SHARD_LIST: number[];
         TOTAL_SHARDS: number;
         LAST_SHARD_ID: number;
