@@ -59,6 +59,7 @@ declare module 'discord-hybrid-sharding' {
         public readonly ids: Collection<number,any>;
         public mode: ClusterManagerMode;
         public maintenance: string;
+        public ready: boolean;
         public static getInfo: processData;
         get getInfo(): processData;
         public parentPort: any | null;
@@ -151,6 +152,8 @@ declare module 'discord-hybrid-sharding' {
         public clusterList: number[];
         public keepAlive: keepAliveOptions;
         public queue: Queue;
+        public recluster?: ReClusterManager;
+        public heartbeat?: HeartBeatManager;
         public broadcast(message: any): Promise<Cluster[]>;
         public broadcastEval(script: string): Promise<any[]>;
         public broadcastEval(script: string, options?: evalOptions): Promise<any>;
