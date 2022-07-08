@@ -50,7 +50,7 @@ class ClusterManager extends EventEmitter {
                 },
                 restarts: {
                     max: 3,
-                    interval: 60000*60,
+                    interval: 60000 * 60,
                     current: 0,
                 },
                 clusterData: {},
@@ -59,7 +59,10 @@ class ClusterManager extends EventEmitter {
             options,
         );
 
-        if(options.keepAlive) throw new Error('keepAlive is not supported anymore on and above v1.6.0. Import it as plugin ("HeartBeatManager"), therefore check the libs readme');
+        if (options.keepAlive)
+            throw new Error(
+                'keepAlive is not supported anymore on and above v1.6.0. Import it as plugin ("HeartBeatManager"), therefore check the libs readme',
+            );
 
         /**
          * Whether clusters should automatically respawn upon exiting
@@ -67,14 +70,13 @@ class ClusterManager extends EventEmitter {
          */
         this.respawn = options.respawn;
 
-
         /**
          * How many times a cluster can maximally restart in the given interval
          * @type {Object}
          * @param {number} [interval=60000*60] Interval in milliseconds
          * @param {number} [max=3] Max amount of restarts
          * @param {number} [current=0] Current amount of restarts
-        */
+         */
         this.restarts = options.restarts;
 
         /**
@@ -88,7 +90,6 @@ class ClusterManager extends EventEmitter {
          * @type {object}
          */
         this.clusterOptions = options.clusterOptions;
-
 
         /**
          * Path to the bot script file
@@ -179,7 +180,8 @@ class ClusterManager extends EventEmitter {
                 throw new TypeError('CLIENT_INVALID_OPTION | shardList must be an array.');
             }
             this.shardList = [...new Set(this.shardList)];
-            if (this.shardList.length < 1) throw new RangeError('CLIENT_INVALID_OPTION | shardList must contain at least 1 ID.');
+            if (this.shardList.length < 1)
+                throw new RangeError('CLIENT_INVALID_OPTION | shardList must contain at least 1 ID.');
             if (
                 this.shardList.some(
                     shardID =>
@@ -253,7 +255,8 @@ class ClusterManager extends EventEmitter {
             if (typeof amount !== 'number' || isNaN(amount)) {
                 throw new TypeError('CLIENT_INVALID_OPTION | Amount of Internal Shards must be a number.');
             }
-            if (amount < 1) throw new RangeError('CLIENT_INVALID_OPTION | Amount of Internal Shards must be at least 1.');
+            if (amount < 1)
+                throw new RangeError('CLIENT_INVALID_OPTION | Amount of Internal Shards must be at least 1.');
             if (!Number.isInteger(amount)) {
                 throw new RangeError('CLIENT_INVALID_OPTION | Amount of Internal Shards must be an integer.');
             }
@@ -266,7 +269,8 @@ class ClusterManager extends EventEmitter {
             if (typeof clusterAmount !== 'number' || isNaN(clusterAmount)) {
                 throw new TypeError('CLIENT_INVALID_OPTION | Amount of Clusters must be a number.');
             }
-            if (clusterAmount < 1) throw new RangeError('CLIENT_INVALID_OPTION | Amount of Clusters must be at least 1.');
+            if (clusterAmount < 1)
+                throw new RangeError('CLIENT_INVALID_OPTION | Amount of Clusters must be at least 1.');
             if (!Number.isInteger(clusterAmount)) {
                 throw new RangeError('CLIENT_INVALID_OPTION | Amount of Clusters must be an integer.');
             }
@@ -325,7 +329,7 @@ class ClusterManager extends EventEmitter {
      */
     createCluster(id, shardsToSpawn, totalShards, recluster = false) {
         const cluster = new Cluster(this, id, shardsToSpawn, totalShards);
-        if(!recluster) this.clusters.set(id, cluster);
+        if (!recluster) this.clusters.set(id, cluster);
         /**
          * Emitted upon creating a cluster.
          * @event ClusterManager#clusterCreate
@@ -348,26 +352,26 @@ class ClusterManager extends EventEmitter {
             return Promise.reject(new TypeError('ClUSTERING_INVALID_EVAL_BROADCAST'));
         script = typeof script === 'function' ? `(${script})(this, ${JSON.stringify(options.context)})` : script;
 
-        if(Object.prototype.hasOwnProperty.call(options, 'cluster')) {
-            if(typeof options.cluster === 'number'){
-                if(options.cluster < 0 ) throw new RangeError('CLUSTER_ID_OUT_OF_RANGE');
+        if (Object.prototype.hasOwnProperty.call(options, 'cluster')) {
+            if (typeof options.cluster === 'number') {
+                if (options.cluster < 0) throw new RangeError('CLUSTER_ID_OUT_OF_RANGE');
             }
-            if(Array.isArray(options.cluster)){
-                if(options.cluster.length === 0) throw new RangeError('ARRAY_MUST_CONTAIN_ONE CLUSTER_ID');
+            if (Array.isArray(options.cluster)) {
+                if (options.cluster.length === 0) throw new RangeError('ARRAY_MUST_CONTAIN_ONE CLUSTER_ID');
             }
         }
-        if(options.guildId){
+        if (options.guildId) {
             options.shard = Util.shardIdForGuildId(options.guildId, this.totalShards);
-            console.log(options.shard);
         }
-        if(options.shard){
-            if(typeof options.shard === 'number'){
-                if(options.shard < 0 ) throw new RangeError('SHARD_ID_OUT_OF_RANGE');
+        if (options.shard) {
+            if (typeof options.shard === 'number') {
+                if (options.shard < 0) throw new RangeError('SHARD_ID_OUT_OF_RANGE');
             }
-            if(Array.isArray(options.shard)){
-                if(options.shard.length === 0) throw new RangeError('ARRAY_MUST_CONTAIN_ONE SHARD_ID');
+            if (Array.isArray(options.shard)) {
+                // @todo Support Array of Shards
+                if (options.shard.length === 0) throw new RangeError('ARRAY_MUST_CONTAIN_ONE SHARD_ID');
             }
-            options.cluster = [...this.clusters.values()].find(c => c.shardId === options.shard);
+            options.cluster = [...this.clusters.values()].find(c => c.shardList.includes(options.shard));
         }
         return this._performOnClusters('eval', [script], options.cluster, options.timeout);
     }
@@ -403,7 +407,7 @@ class ClusterManager extends EventEmitter {
         }
         let clusters = [...this.clusters.values()];
         if (cluster) clusters = clusters.filter(c => cluster.includes(c.id));
-        if(clusters.length === 0) return Promise.reject(new Error('CLUSTERING_NO_CLUSTERS_FOUND'));
+        if (clusters.length === 0) return Promise.reject(new Error('CLUSTERING_NO_CLUSTERS_FOUND'));
 
         /* if (this.clusters.size !== this.totalClusters && !cluster) return Promise.reject(new Error('CLUSTERING_IN_PROCESS')); */
 
@@ -449,7 +453,7 @@ class ClusterManager extends EventEmitter {
         } catch (err) {
             error = err;
         }
-        return {_result: result, _error: error ? Util.makePlainError(error) : null};
+        return { _result: result, _error: error ? Util.makePlainError(error) : null };
     }
 
     /**
@@ -466,21 +470,21 @@ class ClusterManager extends EventEmitter {
     /**
      * Adds a plugin to the cluster manager
      */
-    extend(...plugins){
-        if(!plugins) throw new Error('NO_PLUGINS_PROVIDED');
-        if(!Array.isArray(plugins)) plugins = [plugins];
-        for(const plugin of plugins){
-            if(!plugin) throw new Error('PLUGIN_NOT_PROVIDED');
-            if(typeof plugin !== 'object') throw new Error('PLUGIN_NOT_A_OBJECT');
+    extend(...plugins) {
+        if (!plugins) throw new Error('NO_PLUGINS_PROVIDED');
+        if (!Array.isArray(plugins)) plugins = [plugins];
+        for (const plugin of plugins) {
+            if (!plugin) throw new Error('PLUGIN_NOT_PROVIDED');
+            if (typeof plugin !== 'object') throw new Error('PLUGIN_NOT_A_OBJECT');
             plugin.build(this);
         }
     }
 
     /**
-    * @param {string} reason If maintenance should be enabled on all clusters with a given reason or disabled when nonce provided
-    */
+     * @param {string} reason If maintenance should be enabled on all clusters with a given reason or disabled when nonce provided
+     */
     triggerMaintenance(reason) {
-       return [...this.clusters.values()].forEach(cluster => cluster.triggerMaintenance(reason));
+        return [...this.clusters.values()].forEach(cluster => cluster.triggerMaintenance(reason));
     }
     /**
      * Logs out the Debug Messages
