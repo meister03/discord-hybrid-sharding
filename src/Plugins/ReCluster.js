@@ -40,9 +40,7 @@ class ReClusterManager {
             if (totalShards === 'auto') totalShards = await Util.fetchRecommendedShards(this.manager.token);
             this.manager.totalShards = totalShards;
         }
-        console.log(totalClusters);
         if (totalClusters) this.manager.totalClusters = totalClusters;
-        console.log(this.manager.totalClusters);
         if (shardsPerClusters) {
             this.manager.shardsPerClusters = shardsPerClusters;
             this.manager.totalClusters = Math.ceil(this.manager.totalShards / this.manager.shardsPerClusters);
