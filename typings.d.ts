@@ -49,14 +49,14 @@ declare module 'discord-hybrid-sharding' {
     }
 
     export class Client extends EventEmitter {
-        constructor(client: client|any);
+        constructor(client: client | any);
         private _handleMessage(message: any): void;
         private _respond(type: string, message: any): void;
 
         public client: client;
         public readonly count: number;
         public readonly id: number;
-        public readonly ids: Collection<number,any>;
+        public readonly ids: Collection<number, any>;
         public mode: ClusterManagerMode;
         public maintenance: string;
         public ready: boolean;
@@ -68,18 +68,9 @@ declare module 'discord-hybrid-sharding' {
         public evalOnManager<T>(fn: (manager: Manager) => T, options?: evalOptions): Promise<T>;
         public evalOnManager<T>(fn: (manager: Manager) => T, options?: evalOptions): Promise<any[]>;
 
-        public evalOnCluster(
-            script: string,
-            options?: evalOptions,
-        ): Promise<any[]>;
-        public evalOnCluster<T>(
-            fn: (client: DJsClient) => T,
-            options?: evalOptions,
-        ): Promise<T>;
-        public evalOnCluster<T>(
-            fn: (client: DJsClient) => T,
-            options?: evalOptions,
-        ): Promise<any[]>;
+        public evalOnCluster(script: string, options?: evalOptions): Promise<any[]>;
+        public evalOnCluster<T>(fn: (client: DJsClient) => T, options?: evalOptions): Promise<T>;
+        public evalOnCluster<T>(fn: (client: DJsClient) => T, options?: evalOptions): Promise<any[]>;
         public broadcastEval(script: string): Promise<any[]>;
         public broadcastEval(script: string, options?: evalOptions): Promise<any>;
         public broadcastEval<T>(fn: (client: DJsClient) => Awaitable<T>): Promise<Serialized<T>[]>;
@@ -130,10 +121,7 @@ declare module 'discord-hybrid-sharding' {
     }
 
     export class Manager extends EventEmitter {
-        constructor(
-            file: string,
-            options?: ManagerOptions,
-        );
+        constructor(file: string, options?: ManagerOptions);
         private _performOnShards(method: string, args: any[]): Promise<any[]>;
         private _performOnShards(method: string, args: any[], cluster: number): Promise<any>;
         private _nonce: Map<string, Promise<any>>;
@@ -220,12 +208,10 @@ declare module 'discord-hybrid-sharding' {
         CLUSTER_COUNT: number;
         CLUSTER: number;
         CLUSTER_MANAGER_MODE: ClusterManagerMode;
-    }
+    };
 
     type ClusterManagerMode = 'process' | 'worker';
     type client = DJsClient;
-
-
 
     export type keepAliveOptions = {
         /** Default interval is 20000 */
@@ -258,10 +244,10 @@ declare module 'discord-hybrid-sharding' {
     }
 
     export interface evalOptions<T = object> {
-        cluster?: number | number[],
-        shard?: number,
-        guildId?: string,
-        context?: T,
+        cluster?: number | number[];
+        shard?: number;
+        guildId?: string;
+        context?: T;
         timeout?: number;
     }
 
@@ -286,7 +272,7 @@ declare module 'discord-hybrid-sharding' {
 
     export class ReClusterManager {
         constructor(options?: object);
-        private _start(): Promise<{success: boolean}>;
+        private _start(): Promise<{ success: boolean }>;
         public start(options: ReClusterOptions): typeof this._start;
         public build(manager: Manager): Manager;
     }

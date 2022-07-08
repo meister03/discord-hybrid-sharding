@@ -101,7 +101,7 @@ class Util {
             .then(data => data.shards * (1000 / guildsPerShard));
     }
 
-    static generateNonce(){
+    static generateNonce() {
         return Date.now().toString(36) + Math.random().toString(36);
     }
 }

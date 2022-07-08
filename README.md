@@ -12,8 +12,10 @@ In other words: "Mixing both: if you need `x` shards for `n` process!"
 If you are interested in auto-scaling & cross-hosting on other machines, check out this package `npmjs.com/discord-cross-hosting`
 
 ### Featured by Discord Creators
+
 [Private Community for Verified Bot Developers. ](https://discord.gg/R3hPevRtUV)
 [Meet new big bot and small bot developers and have a nice exchange...](https://discord.gg/R3hPevRtUV)
+
 <p>
 <a href="https://discord.gg/R3hPevRtUV">
 <img src="https://media.discordapp.net/attachments/980770619161448489/982938274677018624/banner.png?width=320&height=80">
@@ -205,12 +207,15 @@ Get all ShardID's in the current cluster:
 # New functions & events:
 
 ## `Zero Downtime Reclustering`:
+
 Zero Downtime Reclustering is a Plugin, which is used to reshard/recluster or even restart your bot with having a theoretical outage of some seconds.
 There are two options for the `restartMode`:
-- `gracefulSwitch`: Spawns all new Clusters with the provided Info in maintenance mode, once all clusters have been spawned and the DiscordClient is ready, the clusters will exit maintenance mode, where as it will fire the `client.cluster.on('ready')` event. In order to load the Database and listen to events. Moreover all Clusters will be gracefully killed, once all clusters exited maintenance mode.
-- `rolling`: Spawns the Clusters with the provided Info in maintenance mode, once the DiscordClient is ready of the Cluster, the Cluster will exit maintenance mode, where as it will fire the `client.cluster.on('ready')` event. In order to load the Database and listen to events. Moreover the OldCluster will be killed, since the Cluster has exited maintenance mode. Not recommended, when shardData has not been updated.
+
+-   `gracefulSwitch`: Spawns all new Clusters with the provided Info in maintenance mode, once all clusters have been spawned and the DiscordClient is ready, the clusters will exit maintenance mode, where as it will fire the `client.cluster.on('ready')` event. In order to load the Database and listen to events. Moreover all Clusters will be gracefully killed, once all clusters exited maintenance mode.
+-   `rolling`: Spawns the Clusters with the provided Info in maintenance mode, once the DiscordClient is ready of the Cluster, the Cluster will exit maintenance mode, where as it will fire the `client.cluster.on('ready')` event. In order to load the Database and listen to events. Moreover the OldCluster will be killed, since the Cluster has exited maintenance mode. Not recommended, when shardData has not been updated.
 
 Cluster.js
+
 ```js
 const manager = new Cluster.Manager(`${__dirname}/bot.js`, {...});
 
@@ -224,18 +229,19 @@ manager.recluster.start({restartMode: 'gracefulSwitch', ...optional})
 ```
 
 Bot.js
+
 ```js
-const client = new Discord.Client({})
+const client = new Discord.Client({});
 client.cluster = new Cluster.Client(client);
 
-if(client.cluster.maintenance) console.log(`Bot on maintenance mode with ${client.cluster.maintenance}`)
+if (client.cluster.maintenance) console.log(`Bot on maintenance mode with ${client.cluster.maintenance}`);
 
 client.cluster.on('ready', () => {
     // Load Events
     // Handle Database stuff, to not process outdated data
-})
+});
 
-client.login(token)
+client.login(token);
 ```
 
 ## `HeartbeatSystem`
@@ -256,13 +262,15 @@ manager.extend(
 ```
 
 ## `Control Restarts`
-- Cap the amount of restarts per cluster to a given amount on a given interval
+
+-   Cap the amount of restarts per cluster to a given amount on a given interval
+
 ```js
 const manager = new Cluster.Manager(`${__dirname}/bot.js`, {
     ...YourOptions,
     restarts: {
         max: 5, // Maximum amount of restarts per cluster
-        interval: 60000*60, // Interval to reset restarts
+        interval: 60000 * 60, // Interval to reset restarts
     },
 });
 ```

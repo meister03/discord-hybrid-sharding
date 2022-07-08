@@ -42,10 +42,10 @@ class ClusterClient extends EventEmitter {
          * @type {String}
          */
         this.maintenance = this.info.MAINTENANCE;
-        if(this.maintenance === 'undefined') this.maintenance = false;
-        if(!this.maintenance) {
+        if (this.maintenance === 'undefined') this.maintenance = false;
+        if (!this.maintenance) {
             // Wait 100ms so listener can be added
-           setTimeout(() => this.triggerClusterReady() , 100);
+            setTimeout(() => this.triggerClusterReady(), 100);
         }
 
         this.ready = false;
@@ -119,7 +119,7 @@ class ClusterClient extends EventEmitter {
      * @see {@link ClusterManager#fetchClientValues}
      */
     fetchClientValues(prop, cluster) {
-        return this.broadcastEval(`this.${prop}`, {cluster});
+        return this.broadcastEval(`this.${prop}`, { cluster });
     }
 
     /**
@@ -136,7 +136,7 @@ class ClusterClient extends EventEmitter {
      * @see {@link ClusterManager#evalOnManager}
      */
     async evalOnManager(script, options = {}) {
-        options._type = messageType.CLIENT_MANAGER_EVAL_REQUEST
+        options._type = messageType.CLIENT_MANAGER_EVAL_REQUEST;
         return await this.broadcastEval(script, options);
     }
 
@@ -162,12 +162,12 @@ class ClusterClient extends EventEmitter {
      */
     async broadcastEval(script, options = {}) {
         if (!script || (typeof script !== 'string' && typeof script !== 'function'))
-          throw new TypeError(
-            'Script for BroadcastEvaling has not been provided or must be a valid String/Function!',
-          );
+            throw new TypeError(
+                'Script for BroadcastEvaling has not been provided or must be a valid String/Function!',
+            );
         script = typeof script === 'function' ? `(${script})(this, ${JSON.stringify(options.context)})` : script;
         const nonce = Util.generateNonce();
-        const message = {nonce, _eval: script, options, _type: options._type || messageType.CLIENT_BROADCAST_REQUEST};
+        const message = { nonce, _eval: script, options, _type: options._type || messageType.CLIENT_BROADCAST_REQUEST };
         await this.send(message);
 
         return await this.promise.create(message);
@@ -197,7 +197,7 @@ class ClusterClient extends EventEmitter {
      * @see {@link ClusterManager#respawnAll}
      */
     respawnAll({ clusterDelay = 5000, respawnDelay = 7000, timeout = 30000 } = {}) {
-        return this.send({ _type: messageType.CLIENT_RESPAWN_ALL , options: { clusterDelay, respawnDelay, timeout } });
+        return this.send({ _type: messageType.CLIENT_RESPAWN_ALL, options: { clusterDelay, respawnDelay, timeout } });
     }
 
     /**
@@ -208,7 +208,7 @@ class ClusterClient extends EventEmitter {
     async _handleMessage(message) {
         if (!message) return;
         const emit = await this.messageHandler.handleMessage(message);
-        if(!emit) return;
+        if (!emit) return;
         let emitMessage;
         if (typeof message === 'object') emitMessage = new IPCMessage(this, message);
         else emitMessage = message;
@@ -262,14 +262,14 @@ class ClusterClient extends EventEmitter {
     }
 
     /**
-     * 
+     *
      * @param {String} maintenance Whether the cluster should opt in maintenance when a reason was provided or opt-out when no reason was provided.
      * @param {Boolean} all Whether to target it on all clusters or just the current one.
      * @returns {String} The maintenance status of the cluster.
      */
     triggerMaintenance(maintenance, all = false) {
         let _type = messageType.CLIENT_MAINTENANCE;
-        if(all) _type = messageType.CLIENT_MAINTENANCE_ALL;
+        if (all) _type = messageType.CLIENT_MAINTENANCE_ALL;
         this.process.send({ _type, maintenance });
         this.maintenance = maintenance;
         return this.maintenance;
@@ -282,7 +282,7 @@ class ClusterClient extends EventEmitter {
     spawnNextCluster() {
         if (this.queue.mode === 'auto')
             throw new Error('Next Cluster can just be spawned when the queue is not on auto mode.');
-        return this.process.send({ _type: messageType.CLIENT_SPAWN_NEXT_CLUSTER});
+        return this.process.send({ _type: messageType.CLIENT_SPAWN_NEXT_CLUSTER });
     }
 
     /**

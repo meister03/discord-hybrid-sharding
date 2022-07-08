@@ -1,4 +1,4 @@
-const {messageType} = require('../Util/Constants.js');
+const { messageType } = require('../Util/Constants.js');
 const Util = require('../Util/Util.js');
 class BaseMessage {
     constructor(message = {}) {
@@ -26,7 +26,7 @@ class BaseMessage {
         }
         this.nonce = message.nonce;
         this._type = message._type || messageType.CUSTOM_MESSAGE;
-        if(message._type === messageType.CUSTOM_MESSAGE){
+        if (message._type === messageType.CUSTOM_MESSAGE) {
             this._sCustom = true;
             message._sCustom = true;
         }
@@ -93,7 +93,7 @@ class IPCMessage extends BaseMessage {
         message._type = messageType.CUSTOM_REPLY;
         message._sReply = true;
         message._sRequest = false;
-        message._result = {...message}
+        message._result = { ...message };
         message = new BaseMessage(message);
         return this.instance.send(message.toJSON());
     }
