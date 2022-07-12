@@ -264,7 +264,7 @@ declare module 'discord-hybrid-sharding' {
         public next(): Promise<void>;
     }
 
-    export class HeartBeatManager {
+    export class HeartbeatManager {
         constructor(options?: keepAliveOptions);
         public start(): Promise<void>;
         public build(): Promise<typeof this.start>;
