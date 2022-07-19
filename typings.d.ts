@@ -60,8 +60,8 @@ declare module 'discord-hybrid-sharding' {
         public mode: ClusterManagerMode;
         public maintenance: string;
         public ready: boolean;
-        public static getInfo: processData;
-        get getInfo(): processData;
+        public static getInfo: data;
+        get getInfo(): data;
         public parentPort: any | null;
         public evalOnManager(script: string): Promise<any[]>;
         public evalOnManager(script: string, options?: evalOptions): Promise<any>;
@@ -190,17 +190,7 @@ declare module 'discord-hybrid-sharding' {
         public reply(message: Object): Promise<Object>;
     }
 
-    export class data {
-        static SHARD_LIST: number[];
-        static TOTAL_SHARDS: number;
-        static LAST_SHARD_ID: number;
-        static FIRST_SHARD_ID: number;
-        static CLUSTER_COUNT: number;
-        static CLUSTER: number;
-        static CLUSTER_MANAGER_MODE: ClusterManagerMode;
-    }
-
-    export type processData = {
+    export type data = {
         SHARD_LIST: number[];
         TOTAL_SHARDS: number;
         LAST_SHARD_ID: number;

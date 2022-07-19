@@ -61,7 +61,7 @@ class ClusterManager extends EventEmitter {
 
         if (options.keepAlive)
             throw new Error(
-                'keepAlive is not supported anymore on and above v1.6.0. Import it as plugin ("HeartBeatManager"), therefore check the libs readme',
+                'keepAlive is not supported anymore on and above v1.6.0. Import it as plugin ("HeartbeatManager"), therefore check the libs readme',
             );
 
         /**
@@ -371,7 +371,7 @@ class ClusterManager extends EventEmitter {
                 // @todo Support Array of Shards
                 if (options.shard.length === 0) throw new RangeError('ARRAY_MUST_CONTAIN_ONE SHARD_ID');
             }
-            options.cluster = [...this.clusters.values()].find(c => c.shardList.includes(options.shard));
+            options.cluster = [...this.clusters.values()].find(c => c.shardList.includes(options.shard))?.id;
         }
         return this._performOnClusters('eval', [script], options.cluster, options.timeout);
     }
