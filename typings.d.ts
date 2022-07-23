@@ -60,7 +60,7 @@ declare module 'discord-hybrid-sharding' {
         public mode: ClusterManagerMode;
         public maintenance: string;
         public ready: boolean;
-        public static getInfo: data;
+        public static getInfo(): data;
         get getInfo(): data;
         public parentPort: any | null;
         public evalOnManager(script: string): Promise<any[]>;
