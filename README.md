@@ -14,7 +14,7 @@ If you are interested in auto-scaling & cross-hosting on other machines, check o
 ### Featured by Discord Creators
 
 [Private Community for Verified Bot Developers. ](https://discord.gg/R3hPevRtUV)
-[Meet new big bot and small bot developers and have a nice exchange...](https://discord.gg/R3hPevRtUV)
+[Meet big bot and small bot developers and have a nice exchange...](https://discord.gg/R3hPevRtUV)
 
 <p>
 <a href="https://discord.gg/R3hPevRtUV">
@@ -62,9 +62,9 @@ npm i discord-hybrid-sharding
 yarn add discord-hybrid-sharding
 ```
 
-# Discord.js v13 & other Lib Support
+# Supports all Discord.js Versions & all other Libraries (Eris, Discordeno)
 
--   Full Discord.js v13 support
+-   **Full Discord.js v12, v13, v14 support**
 -   `Strings` and `Functions` with `context` are supported in `.broadcastEval()`
 -   Most public methods accept sole objects, such as `.spawn({ amount: 20, timeout: -1 })`
 -   Very similar functions to the Discord.js ShardingManager and more for the advanced usage
@@ -407,6 +407,7 @@ const shardList = Cluster.data.SHARD_LIST;
 client.cluster = new Cluster.Client(client);
 
 ///When the Client is ready, You can listen to the client's ready event:
+// Just add, when the client.on('ready') does not exist
 client.cluster.triggerReady();
 ```
 
