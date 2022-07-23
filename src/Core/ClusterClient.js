@@ -143,6 +143,10 @@ class ClusterClient extends EventEmitter {
     }
 
     async evalOnCluster(script, options = {}) {
+        if (!Object.prototype.hasOwnProperty.call(options, 'cluster') && !options.guildId)
+            return Promise.reject(
+                new Error('Target cluster can not be retrieved, since no guildId or cluster id has been provided'),
+            );
         return await this.broadcastEval(script, options).then(r => r[0]);
     }
 
