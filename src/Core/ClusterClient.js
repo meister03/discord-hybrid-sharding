@@ -143,7 +143,7 @@ class ClusterClient extends EventEmitter {
     }
 
     async evalOnCluster(script, options = {}) {
-        return await this.broadcastEval(script, options);
+        return await this.broadcastEval(script, options).then(r => r[0]);
     }
 
     /**

@@ -99,6 +99,7 @@ const Cluster = require('discord-hybrid-sharding');
 const Discord = require('discord.js');
 
 const client = new Discord.Client({
+    // @ts-ignore | For Typescript use Cluster.Client.getInfo() instead of Cluster.data
     shards: Cluster.data.SHARD_LIST, // An array of shards that will get spawned
     shardCount: Cluster.data.TOTAL_SHARDS, // Total number of shards
 });
