@@ -170,11 +170,11 @@ class Cluster extends EventEmitter {
      * @param {object} options Some Options for managing the Kill
      * @param {object} options.force Whether the Cluster should be force kill and be ever respawned...
      */
-    kill(options = {}) {
+    kill(resharding = false, options = {}) {
         this.thread.kill(options);
         this.manager.heartbeat?.clusters.get(this.id)?.stop();
         this.restarts.cleanup();
-        this._handleExit(false);
+        this._handleExit(resharding, false);
     }
     /**
      * Kills and restarts the cluster's process/worker.
@@ -269,17 +269,24 @@ class Cluster extends EventEmitter {
      * @param {boolean} [respawn=this.manager.respawn] Whether to spawn the cluster again
      * @private
      */
-    _handleExit(respawn = this.manager.respawn) {
+    _handleExit(resharding, respawn = this.manager.respawn) {
         /**
          * Emitted upon the cluster's child process/worker exiting.
          * @event Cluster#death
          * @param {Child|Worker} process Child process/worker that exited
          */
-        this.emit('death', this.thread.process);
-        this.manager._debug(
-            '[DEATH] Cluster died, attempting respawn | Restarts Left: ' + (this.restarts.max - this.restarts.current),
-            this.id,
-        );
+        if (!resharding) {
+            this.emit('death', this.thread.process);
+            this.manager._debug(
+                '[DEATH] Cluster died, attempting respawn | Restarts Left: ' + (this.restarts.max - this.restarts.current),
+                this.id,
+            );
+        } else {
+            this.manager._debug(
+                '[DEATH] Cluster killed by resharding',
+                this.id,
+            );
+        }
 
         this.ready = false;
         this.thread = null;
