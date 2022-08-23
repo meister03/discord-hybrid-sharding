@@ -33,6 +33,7 @@ class ClusterManager extends EventEmitter {
      * @param {number} [options.restarts.max] Maximum amount of restarts a cluster can have in the interval
      * @param {object} [options.queue] Control the Spawn Queue
      * @param {boolean} [options.queue.auto=true] Whether the spawn queue be automatically managed
+     * @param {Object} [options.spawnOptions] Options to pass to the spawn,respawn method
      */
     constructor(file, options = {}) {
         super();
@@ -55,6 +56,10 @@ class ClusterManager extends EventEmitter {
                 },
                 clusterData: {},
                 clusterOptions: {},
+                spawnOptions: {
+                    delay: 7000,
+                    timeout: -1,
+                },
             },
             options,
         );
@@ -227,6 +232,8 @@ class ClusterManager extends EventEmitter {
         this._debug(`[START] Cluster Manager has been initialized`);
 
         this.promise = new PromiseHandler();
+
+        this.spawnOptions = options.spawnOptions;
     }
     /**
      * Spawns multiple internal shards.
@@ -237,7 +244,7 @@ class ClusterManager extends EventEmitter {
      * before resolving. (-1 or Infinity for no wait)
      * @returns {Promise<Collection<number, Cluster>>}
      */
-    async spawn({ amount = this.totalShards, delay = 7000, timeout = -1 } = {}) {
+    async spawn({ amount = this.totalShards, delay, timeout } = this.spawnOptions) {
         if (delay < 7000) {
             process.emitWarning(
                 `Spawn Delay (delay: ${delay}) is smaller than 7s, this can cause global rate limits on /gateway/bot`,

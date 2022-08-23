@@ -140,6 +140,7 @@ declare module 'discord-hybrid-sharding' {
         public clusterList: number[];
         public keepAlive: keepAliveOptions;
         public queue: Queue;
+        public spawnOptions: ClusterSpawnOptions;
         public recluster?: ReClusterManager;
         public heartbeat?: HeartbeatManager;
         public broadcast(message: any): Promise<Cluster[]>;

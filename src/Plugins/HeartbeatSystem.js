@@ -26,7 +26,7 @@ class HeartbeatManager {
         this.clusters.get(cluster.id).stop(reason);
         this.manager._debug(`[Heartbeat_MISSING] ${reason}`, cluster.id);
         if (cluster.restarts.current < cluster.restarts.max) {
-            cluster.respawn({ auto: true });
+            cluster.respawn({ auto: true, ...this.manager.spawnOptions });
             this.manager._debug('[Heartbeat_MISSING] Attempted Respawn', cluster.id);
         } else {
             this.manager._debug('[Heartbeat_MISSING] Respawn Rejected | Max Restarts of Cluster Reached', cluster.id);

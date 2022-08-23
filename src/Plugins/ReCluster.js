@@ -111,7 +111,7 @@ class ReClusterManager {
                         if (switchClusterAfterReady) {
                             const oldCluster = this.manager.clusters.get(clusterId);
                             if (oldCluster) {
-                                oldCluster.kill({ force: true });
+                                oldCluster.kill({ force: true, reason: 'Reclusterig' });
                                 oldClusters.delete(clusterId);
                             }
                             this.manager.clusters.set(clusterId, cluster);
@@ -131,7 +131,7 @@ class ReClusterManager {
         if (oldClusters.size) {
             this.manager._debug('[↻][ReClustering] Killing old clusters');
             for (let [id, cluster] of oldClusters) {
-                cluster.kill({ force: true });
+                cluster.kill({ force: true, reason: 'Reclusterig' });
                 this.manager._debug(`[↻][ReClustering][${id}] Killed OldCluster`);
                 this.manager.clusters.delete(id);
             }
@@ -146,7 +146,7 @@ class ReClusterManager {
                 const cluster = newClusters.get(clusterId);
                 const oldCluster = this.manager.clusters.get(clusterId);
                 if (oldCluster) {
-                    oldCluster.kill({ force: true });
+                    oldCluster.kill({ force: true, reason: 'Reclusterig' });
                     oldClusters.delete(clusterId);
                 }
                 this.manager.clusters.set(clusterId, cluster);

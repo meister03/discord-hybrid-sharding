@@ -174,14 +174,14 @@ class Cluster extends EventEmitter {
         this.thread.kill(options);
         this.manager.heartbeat?.clusters.get(this.id)?.stop();
         this.restarts.cleanup();
-        this._handleExit(false);
+        this._handleExit(false, options);
     }
     /**
      * Kills and restarts the cluster's process/worker.
      * @param {ClusterRespawnOptions} [options] Options for respawning the cluster
      * @returns {Promise<Child>}
      */
-    async respawn({ delay = 500, timeout = 30000 } = {}) {
+    async respawn({ delay = 500, timeout = 30000 } = this.manager.spawnOptions) {
         if (this.thread) this.kill({ force: true });
         if (delay > 0) await Util.delayFor(delay);
         this.manager.heartbeat?.clusters.get(this.id)?.stop();
@@ -269,20 +269,27 @@ class Cluster extends EventEmitter {
      * @param {boolean} [respawn=this.manager.respawn] Whether to spawn the cluster again
      * @private
      */
-    _handleExit(respawn = this.manager.respawn) {
+    _handleExit(respawn = this.manager.respawn, options = {}) {
         /**
          * Emitted upon the cluster's child process/worker exiting.
          * @event Cluster#death
          * @param {Child|Worker} process Child process/worker that exited
          */
         this.emit('death', this.thread.process);
-        this.manager._debug(
-            '[DEATH] Cluster died, attempting respawn | Restarts Left: ' + (this.restarts.max - this.restarts.current),
-            this.id,
-        );
+        if (respawn) {
+            this.manager._debug(
+                '[DEATH] Cluster died, attempting respawn | Restarts Left: ' +
+                    (this.restarts.max - this.restarts.current),
+                this.id,
+            );
+        } else {
+            this.manager._debug('[KILL] Cluster killed with reason: ' + (options.reason || 'not given'), this.id);
+        }
 
         this.ready = false;
         this.thread = null;
+
+        if (!respawn) return;
 
         if (this.restarts.current >= this.restarts.max)
             this.manager._debug(
