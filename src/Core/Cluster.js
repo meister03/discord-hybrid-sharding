@@ -269,13 +269,13 @@ class Cluster extends EventEmitter {
      * @param {boolean} [respawn=this.manager.respawn] Whether to spawn the cluster again
      * @private
      */
-    _handleExit(respawn = this.manager.respawn, options = {reason: null}) {
+    _handleExit(respawn = this.manager.respawn, options = {emitdeath: true}) {
         /**
          * Emitted upon the cluster's child process/worker exiting.
          * @event Cluster#death
          * @param {Child|Worker} process Child process/worker that exited
          */   
-        if (options.reason != 'Reclustering') {
+        if (options.emitdeath) {
             this.emit('death', this.thread.process);
         }
         
