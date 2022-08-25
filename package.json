@@ -1,6 +1,6 @@
 {
     "name": "discord-hybrid-sharding",
-    "version": "1.7.3",
+    "version": "1.7.4",
     "description": "The first package which combines sharding manager & internal sharding to save a lot of resources, which allows clustering!",
     "main": "index.js",
     "types": "./typings.d.ts",

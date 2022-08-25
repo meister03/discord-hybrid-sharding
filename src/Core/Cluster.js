@@ -275,7 +275,7 @@ class Cluster extends EventEmitter {
          * @event Cluster#death
          * @param {Child|Worker} process Child process/worker that exited
          */
-        if (options.reason !== 'reclustering') this.emit('death', this.thread.process);
+        if (options?.reason !== 'reclustering') this.emit('death', this.thread.process);
         if (respawn) {
             this.manager._debug(
                 '[DEATH] Cluster died, attempting respawn | Restarts Left: ' +
@@ -283,7 +283,7 @@ class Cluster extends EventEmitter {
                 this.id,
             );
         } else {
-            this.manager._debug('[KILL] Cluster killed with reason: ' + (options.reason || 'not given'), this.id);
+            this.manager._debug('[KILL] Cluster killed with reason: ' + (options?.reason || 'not given'), this.id);
         }
 
         this.ready = false;
