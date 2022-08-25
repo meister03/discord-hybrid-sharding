@@ -89,7 +89,7 @@ declare module 'discord-hybrid-sharding' {
         public fetchClientValues(prop: string): Promise<any[]>;
         public fetchClientValues(prop: string, cluster: number): Promise<any>;
         public send(message: any): Promise<void>;
-        public request(message: Object): Promise<BaseMessage>;
+        public request(message: object): Promise<BaseMessage>;
         public respawnAll(options?: ClusterRespawnOptions): Promise<void>;
 
         public triggerReady(): Promise<void>;
@@ -116,8 +116,12 @@ declare module 'discord-hybrid-sharding' {
             interval?: number;
             current?: number;
         };
-        clusterData?: Object;
-        clusterOptions?: Object;
+        clusterData?: object;
+        clusterOptions?: object;
+        spawnOptions?: {
+            delay?: number;
+            timeout?: number;
+        };
     }
 
     export class Manager extends EventEmitter {
@@ -128,8 +132,8 @@ declare module 'discord-hybrid-sharding' {
 
         public file: string;
         public respawn: boolean;
-        public clusterData: Object;
-        public clusterOptions: Object;
+        public clusterData: object;
+        public clusterOptions: object;
         public shardArgs: string[];
         public clusters: Map<number, Cluster>;
         public token: string | null;
@@ -163,7 +167,7 @@ declare module 'discord-hybrid-sharding' {
         public fetchClientValues(prop: string): Promise<any[]>;
         public fetchClientValues(prop: string, cluster: number): Promise<any>;
         public evalOnManager(script: string): Promise<any[]>;
-        private evalOnCluster(script: string, options: Object): Promise<any[]>;
+        private evalOnCluster(script: string, options: object): Promise<any[]>;
         public respawnAll(options?: ClusterRespawnOptions): Promise<Map<number, Cluster>>;
         public spawn(options?: ClusterSpawnOptions): Promise<Map<number, Cluster>>;
         public triggerMaintenance(reason: string): any;
@@ -179,16 +183,16 @@ declare module 'discord-hybrid-sharding' {
     export class BaseMessage {
         public _sCustom: true;
         public nonce: String;
-        private destructMessage(message: Object): Promise<Object>;
-        public toJSON(): Promise<Object>;
+        private destructMessage(message: object): Promise<object>;
+        public toJSON(): Promise<object>;
     }
 
     export class IPCMessage {
         public instance: Cluster | Client;
         public raw: BaseMessage;
-        public send(message: Object): Promise<Cluster | Client>;
-        public request(message: Object): Promise<Object>;
-        public reply(message: Object): Promise<Object>;
+        public send(message: object): Promise<Cluster | Client>;
+        public request(message: object): Promise<object>;
+        public reply(message: object): Promise<object>;
     }
 
     export type data = {
