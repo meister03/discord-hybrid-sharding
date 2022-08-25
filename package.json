@@ -42,12 +42,12 @@
     },
     "homepage": "https://github.com/meister03/discord-hybrid-sharding#readme",
     "devDependencies": {
-        "clean-jsdoc-theme": "^4.0.7",
-        "eslint": "^8.18.0",
+        "clean-jsdoc-theme": "^4.1.7",
+        "eslint": "^8.22.0",
         "eslint-config-prettier": "^8.5.0",
-        "eslint-plugin-jsdoc": "^39.3.3",
-        "eslint-plugin-prettier": "^4.0.0",
-        "jsdoc": "^3.6.10",
+        "eslint-plugin-jsdoc": "^39.3.6",
+        "eslint-plugin-prettier": "^4.2.1",
+        "jsdoc": "^3.6.11",
         "prettier": "^2.7.1"
     }
 }
