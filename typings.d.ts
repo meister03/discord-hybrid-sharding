@@ -268,7 +268,7 @@ declare module 'discord-hybrid-sharding' {
     export class ReClusterManager {
         constructor(options?: object);
         private _start(): Promise<{ success: boolean }>;
-        public start(options: ReClusterOptions): typeof this._start;
+        public start(options: ReClusterOptions): ReturnType<typeof this._start>;
         public build(manager: Manager): Manager;
     }
 
