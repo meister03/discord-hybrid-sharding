@@ -7,6 +7,7 @@ One first package which combines sharding manager & internal sharding to save a 
 
 In other words: "Mixing both: if you need `x` shards for `n` process!"
 
+**[NEW: TypeScript Rewrite](#Use-with-other-libraries)**
 **[NEW: Clustering Support for all JS Libraries](#Use-with-other-libraries)**
 
 If you are interested in auto-scaling & cross-hosting on other machines, check out this package `npmjs.com/discord-cross-hosting`
@@ -77,7 +78,8 @@ First, add the module into your project (into your shard/cluster file).
 Filename: `Cluster.js`
 
 ```js
-const Cluster = require('discord-hybrid-sharding');
+// Typescript: import { ClusterManager } from 'discord-hybrid-sharding'
+const { ClusterManager } = require('discord-hybrid-sharding');
 
 const manager = new Cluster.Manager(`${__dirname}/bot.js`, {
     totalShards: 7, // or 'auto'
@@ -95,16 +97,16 @@ manager.spawn({ timeout: -1 });
 After that, insert the code below into your `bot.js` file
 
 ```js
-const Cluster = require('discord-hybrid-sharding');
+// Typescript: import { ClusterClient, getInfo } from 'discord-hybrid-sharding'
+const { ClusterClient, getInfo } = require('discord-hybrid-sharding');
 const Discord = require('discord.js');
 
 const client = new Discord.Client({
-    // @ts-ignore | For Typescript use Cluster.Client.getInfo() instead of Cluster.data
-    shards: Cluster.data.SHARD_LIST, // An array of shards that will get spawned
-    shardCount: Cluster.data.TOTAL_SHARDS, // Total number of shards
+    shards: getInfo().SHARD_LIST, // An array of shards that will get spawned
+    shardCount: getInfo().TOTAL_SHARDS, // Total number of shards
 });
 
-client.cluster = new Cluster.Client(client); // initialize the Client, so we access the .broadcastEval()
+client.cluster = new ClusterClient(client); // initialize the Client, so we access the .broadcastEval()
 client.login('YOUR_TOKEN');
 ```
 
@@ -218,21 +220,25 @@ There are two options for the `restartMode`:
 Cluster.js
 
 ```js
-const manager = new Cluster.Manager(`${__dirname}/bot.js`, {...});
+// Typescript: import { ClusterManager, ReClusterManager  } from 'discord-hybrid-sharding'
+const { ClusterManager, ReClusterManager } = require('discord-hybrid-sharding');
+const manager = new ClusterManager(`${__dirname}/bot.js`, {...});
 
 manager.extend(
-    new Cluster.ReClusterManager()
+    new ReClusterManager()
 )
 ... ///SOME CODE
 // Start reclustering
 const optional = {totalShards, totalClusters....}
-manager.recluster.start({restartMode: 'gracefulSwitch', ...optional})
+manager.recluster?.start({restartMode: 'gracefulSwitch', ...optional})
 ```
 
 Bot.js
 
 ```js
-const client = new Discord.Client({});
+// Typescript: import { ClusterClient, getInfo } from 'discord-hybrid-sharding'
+const { ClusterClient, getInfo } = require('discord-hybrid-sharding');
+const client = new Discord.Client(...)
 client.cluster = new Cluster.Client(client);
 
 if (client.cluster.maintenance) console.log(`Bot on maintenance mode with ${client.cluster.maintenance}`);
@@ -252,10 +258,12 @@ client.login(token);
 -   Cluster will get respawned after the given amount of missed heartbeats has been reached
 
 ```js
-const manager = new Cluster.Manager(`${__dirname}/bot.js`, {...});
+// Typescript: import { ClusterManager, HeartbeatManager  } from 'discord-hybrid-sharding'
+const { ClusterManager, HeartbeatManager } = require('discord-hybrid-sharding');
+const manager = new ClusterManager(`${__dirname}/bot.js`, {...});
 
 manager.extend(
-    new Cluster.HeartbeatManager({
+    new HeartbeatManager({
         interval: 2000, // Interval to send a heartbeat
         maxMissedHeartbeats: 5, // Maximum amount of missed Heartbeats until Cluster will get respawned
     })
@@ -267,7 +275,7 @@ manager.extend(
 -   Cap the amount of restarts per cluster to a given amount on a given interval
 
 ```js
-const manager = new Cluster.Manager(`${__dirname}/bot.js`, {
+const manager = new ClusterManager(`${__dirname}/bot.js`, {
     ...YourOptions,
     restarts: {
         max: 5, // Maximum amount of restarts per cluster
@@ -286,8 +294,9 @@ const manager = new Cluster.Manager(`${__dirname}/bot.js`, {
 ClusterManager | `cluster.js`
 
 ```js
-const Cluster = require('discord-hybrid-sharding');
-const manager = new Cluster.Manager(`${__dirname}/testbot.js`, {
+// Typescript: import { ClusterManager, messageType } from 'discord-hybrid-sharding'
+const { ClusterManager, messageType } = require('discord-hybrid-sharding');
+const manager = new ClusterManager(`${__dirname}/testbot.js`, {
     totalShards: 1,
     totalClusters: 1,
 });
@@ -295,7 +304,7 @@ const manager = new Cluster.Manager(`${__dirname}/testbot.js`, {
 manager.on('clusterCreate', cluster => {
     cluster.on('message', message => {
         console.log(message);
-        if (!message._sRequest) return; // Check if the message needs a reply
+        if (message._type !== messageType.CUSTOM_REQUEST) return; // Check if the message needs a reply
         message.reply({ content: 'hello world' });
     });
     setInterval(() => {
@@ -309,17 +318,18 @@ manager.spawn({ timeout: -1 });
 ClusterClient | `client.js`
 
 ```js
-const Cluster = require('discord-hybrid-sharding');
+// Typescript: import { ClusterClient, getInfo, messageType } from 'discord-hybrid-sharding'
+const { ClusterClient, getInfo, messageType} = require('discord-hybrid-sharding');
 const Discord = require('discord.js');
 const client = new Discord.Client({
-    shards: Cluster.data.SHARD_LIST, // An array of shards that will get spawned
-    shardCount: Cluster.data.TOTAL_SHARDS, // Total number of shards
+    shards: getInfo().SHARD_LIST, // An array of shards that will get spawned
+    shardCount: getInfo().data.TOTAL_SHARDS, // Total number of shards
 });
 
-client.cluster = new Cluster.Client(client);
+client.cluster = new ClusterClient(client);
 client.cluster.on('message', message => {
     console.log(message);
-    if(!message._sRequest) return; // Check if the message needs a reply
+    if (message._type !== messageType.CUSTOM_REQUEST) return; // Check if the message needs a reply
     if(message.alive) message.reply({ content: 'Yes I am!' }):
 });
 setInterval(() => {
@@ -335,7 +345,7 @@ With a complex code-base, you probably need a fine-grained control over the clus
 The queue system can be controlled from the cluster manager.
 
 ```js
-const manager = new Cluster.Manager(`${__dirname}/bot.js`, {
+const manager = new ClusterManager(`${__dirname}/bot.js`, {
     totalShards: 8,
     shardsPerClusters: 2,
     queue: {
@@ -396,16 +406,17 @@ Using the package with other libraries requires some minor changes:
 -   Your Bot.js file will have some additional code
 
 ```js
-const Cluster = require('discord-hybrid-sharding');
+// Typescript: import { ClusterClient, getInfo } from 'discord-hybrid-sharding'
+const { ClusterClient, getInfo } = require('discord-hybrid-sharding');
 
 ///Create your Discord Client:
 /* Use the Data below for telling the Client, which shards to spawn */
-const lastShard = Cluster.data.LAST_SHARD_ID;
-const firstShard = Cluster.data.FIRST_SHARD_ID;
-const totalShards = Cluster.data.TOTAL_SHARDS;
-const shardList = Cluster.data.SHARD_LIST;
+const lastShard = getInfo().LAST_SHARD_ID;
+const firstShard = getInfo().FIRST_SHARD_ID;
+const totalShards = getInfo().TOTAL_SHARDS;
+const shardList = getInfo().SHARD_LIST;
 
-client.cluster = new Cluster.Client(client);
+client.cluster = new ClusterClient(client);
 
 ///When the Client is ready, You can listen to the client's ready event:
 // Just add, when the client.on('ready') does not exist
