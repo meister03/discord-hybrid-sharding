@@ -1,0 +1,54 @@
+{
+    "name": "discord-hybrid-sharding",
+    "version": "1.7.4",
+    "description": "The first package which combines sharding manager & internal sharding to save a lot of resources, which allows clustering!",
+    "main": "./dist/index.js",
+    "types": "./dist/index.d.ts",
+    "dependencies": {
+        "node-fetch": "^2.6.7"
+    },
+    "scripts": {
+        "lint": "eslint . --ext .js",
+        "lint:fix": "eslint . --fix --ext .js",
+        "format": "prettier --check .",
+        "format:fix": "prettier --write .",
+        "generate-docs": "jsdoc -c ./.jsdoc.conf.json"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/meister03/discord-hybrid-sharding.git"
+    },
+    "publishConfig": {
+        "access": "public"
+    },
+    "keywords": [
+        "discord",
+        "discord-sharding",
+        "discord-clustering",
+        "hybrid-sharding",
+        "discord.js-hybrid-sharding",
+        "discord.js",
+        "eris",
+        "discordeno.js",
+        "bot",
+        "bots",
+        "cluster",
+        "framework"
+    ],
+    "author": "meister03",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/meister03/discord-hybrid-sharding/issues"
+    },
+    "homepage": "https://github.com/meister03/discord-hybrid-sharding#readme",
+    "devDependencies": {
+        "@types/node": "^18.7.17",
+        "clean-jsdoc-theme": "^4.1.7",
+        "eslint": "^8.22.0",
+        "eslint-config-prettier": "^8.5.0",
+        "eslint-plugin-jsdoc": "^39.3.6",
+        "eslint-plugin-prettier": "^4.2.1",
+        "jsdoc": "^3.6.11",
+        "prettier": "^2.7.1"
+    }
+}

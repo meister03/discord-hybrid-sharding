@@ -1,0 +1,24 @@
+{
+    "root": true,
+    "parserOptions": {
+        "ecmaVersion": 2021
+    },
+    "env": {
+        "es2021": true,
+        "node": true
+    },
+    "plugins": ["prettier", "jsdoc"],
+    "extends": ["eslint:recommended", "plugin:prettier/recommended"],
+    "rules": {
+        "jsdoc/newline-after-description": ["warn", "never"],
+        "jsdoc/no-undefined-types": "warn",
+        "no-unused-vars": [
+            "error",
+            {
+                "argsIgnorePattern": "^_",
+                "varsIgnorePattern": "^_"
+            }
+        ],
+        "prettier/prettier": "off"
+    }
+}

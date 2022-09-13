@@ -1,0 +1,7 @@
+docs
+.github
+node_modules
+test
+.test
+.jsdoc.conf.json
+package-lock.json
