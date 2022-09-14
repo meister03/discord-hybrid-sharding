@@ -2,7 +2,6 @@
 /// <reference types="node" />
 /// <reference types="node" />
 /// <reference types="node" />
-/// <reference types="node" />
 import { ClusterManager } from "./ClusterManager";
 import EventEmitter from 'events';
 import { ClusterEvents, ClusterKillOptions } from '../types/shared';
@@ -38,9 +37,9 @@ export declare class Cluster extends EventEmitter {
     messageHandler: any;
     ready: boolean;
     constructor(manager: ClusterManager, id: number, shardList: number[], totalShards: number);
-    spawn(spawnTimeout?: number): Promise<import("child_process").ChildProcess | import("worker_threads").Worker | null>;
+    spawn(spawnTimeout?: number): Promise<import("worker_threads").Worker | import("child_process").ChildProcess | null>;
     kill(options: ClusterKillOptions): void;
-    respawn({ delay, timeout }?: import("../types/shared").ClusterManagerSpawnOptions): Promise<import("child_process").ChildProcess | import("worker_threads").Worker | null>;
+    respawn({ delay, timeout }?: import("../types/shared").ClusterManagerSpawnOptions): Promise<import("worker_threads").Worker | import("child_process").ChildProcess | null>;
     send(message: RawMessage): Promise<unknown> | undefined;
     request(message: RawMessage): Promise<unknown>;
     eval(script: string, context: any, timeout: number): Promise<unknown>;

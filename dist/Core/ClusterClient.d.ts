@@ -1,7 +1,6 @@
 /// <reference types="node" />
-/// <reference types="node" />
 import { RawMessage } from '../Structures/IPCMessage';
-import { Awaitable, ClusterClientEvents, evalOptions, Serialized } from '../types/shared';
+import { Awaitable, ClusterClientEvents, DjsClient, evalOptions, Serialized } from '../types/shared';
 import { ClusterManager as Manager } from '../Core/ClusterManager';
 import { WorkerClient } from '../Structures/Worker';
 import { ChildClient } from '../Structures/Child';
@@ -9,7 +8,7 @@ import { PromiseHandler } from '../Structures/PromiseHandler';
 import EventEmitter from 'events';
 import { Serializable } from 'child_process';
 export declare class ClusterClient extends EventEmitter {
-    client: any;
+    client: DjsClient;
     mode: 'process' | 'worker';
     queue: {
         mode: 'auto' | string | undefined;
@@ -19,9 +18,9 @@ export declare class ClusterClient extends EventEmitter {
     process: ChildClient | WorkerClient | null;
     messageHandler: any;
     promise: PromiseHandler;
-    constructor(client: any);
+    constructor(client: DjsClient);
     get id(): number;
-    get ids(): any;
+    get ids(): number[] | import("discord.js").Collection<number, import("discord.js").WebSocketShard>;
     get count(): number;
     get info(): import("../Structures/Data").ClusterClientData;
     send(message: Serializable): Promise<void> | undefined;
@@ -43,7 +42,7 @@ export declare class ClusterClient extends EventEmitter {
         timeout?: number | undefined;
     }): Promise<void> | undefined;
     private _handleMessage;
-    _eval(script: string): Promise<any>;
+    _eval(script: string): Promise<unknown>;
     _respond(type: string, message: Serializable): void;
     triggerReady(): boolean;
     triggerClusterReady(): boolean;

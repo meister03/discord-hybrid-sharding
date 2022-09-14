@@ -1,5 +1,5 @@
 import { IPCMessage, BaseMessage, RawMessage } from '../Structures/IPCMessage';
-import { Awaitable, ClusterClientEvents, evalOptions, Events, messageType, Serialized } from '../types/shared';
+import { Awaitable, ClusterClientEvents, DjsClient, evalOptions, Events, messageType, Serialized } from '../types/shared';
 
 import { ClusterManager as Manager} from '../Core/ClusterManager';
 
@@ -15,7 +15,7 @@ import { Serializable } from 'child_process';
 import { generateNonce } from '../Util/Util';
 ///communicates between the master workers and the process
 export class ClusterClient extends EventEmitter {
-    client: any;
+    client: DjsClient;
     mode: 'process' | 'worker';
     queue: { mode: 'auto' | string | undefined; };
     maintenance: string | undefined | Boolean;
@@ -23,7 +23,7 @@ export class ClusterClient extends EventEmitter {
     process: ChildClient | WorkerClient | null;
     messageHandler: any;
     promise: PromiseHandler;
-    constructor(client: any) {
+    constructor(client: DjsClient) {
         super();
         /**
          * Client for the Cluster
@@ -218,12 +218,16 @@ export class ClusterClient extends EventEmitter {
     }
 
     public async _eval(script: string) {
+        // @ts-expect-error
         if (this.client._eval) {
+            // @ts-expect-error
             return await this.client._eval(script);
         }
+        // @ts-expect-error
         this.client._eval = function (_: string) {
             return eval(_);
         }.bind(this.client);
+        // @ts-expect-error
         return await this.client._eval(script);
     }
 

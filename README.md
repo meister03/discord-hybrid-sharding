@@ -7,7 +7,7 @@ One first package which combines sharding manager & internal sharding to save a 
 
 In other words: "Mixing both: if you need `x` shards for `n` process!"
 
-**[NEW: TypeScript Rewrite](#Use-with-other-libraries)**
+**[NEW: TypeScript Rewrite | Upgrade Guide](https://gist.github.com/meister03/882ba6f6d805384f27336dd5ba389a54)**
 **[NEW: Clustering Support for all JS Libraries](#Use-with-other-libraries)**
 
 If you are interested in auto-scaling & cross-hosting on other machines, check out this package `npmjs.com/discord-cross-hosting`

@@ -1,4 +1,3 @@
-/// <reference types="node" />
 import EventEmitter from 'events';
 import { Queue } from '../Structures/Queue';
 import { Cluster } from './Cluster';
@@ -35,8 +34,8 @@ export declare class ClusterManager extends EventEmitter {
     spawn({ amount, delay, timeout }?: ClusterManagerSpawnOptions): Promise<unknown>;
     broadcast(message: BaseMessage): Promise<unknown[]>;
     createCluster(id: number, shardsToSpawn: number[], totalShards: number, recluster?: boolean): Cluster;
-    broadcastEval(script: string, evalOptions?: evalOptions): Promise<unknown[]> | undefined;
-    fetchClientValues(prop: string, cluster?: number): Promise<unknown[]> | undefined;
+    broadcastEval(script: string, evalOptions?: evalOptions): Promise<any[]> | undefined;
+    fetchClientValues(prop: string, cluster?: number): Promise<any[]> | undefined;
     private _performOnClusters;
     respawnAll({ clusterDelay, respawnDelay, timeout }?: {
         clusterDelay?: number | undefined;

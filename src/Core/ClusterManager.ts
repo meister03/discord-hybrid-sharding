@@ -233,10 +233,10 @@ export class ClusterManager extends EventEmitter {
             );
         }
 
-        if (amount === -1) {
+        if (amount === -1 || amount === 'auto') {
             if (!this.token) throw new Error('A Token must be provided, when totalShards is set on auto.')
             amount = await fetchRecommendedShards(this.token, 1000);
-            this.totalShards = amount;
+            this.totalShards = amount as number;
             this._debug(`Discord recommended a total shard count of ${amount}`);
         } else {
             if (typeof amount !== 'number' || isNaN(amount)) {

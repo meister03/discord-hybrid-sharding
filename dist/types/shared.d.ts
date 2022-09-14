@@ -8,6 +8,7 @@ import { ClusterManager } from "../Core/ClusterManager";
 import { ChildProcessOptions } from "../Structures/Child";
 import { BaseMessage } from "../Structures/IPCMessage";
 import { WorkerThreadOptions } from "../Structures/Worker";
+import { Client } from "discord.js";
 export declare const Events: {
     ERROR: string;
     WARN: string;
@@ -116,5 +117,7 @@ export interface ClusterEvents {
 export interface ClusterClientEvents {
     message: [message: BaseMessage | Serializable];
     ready: [clusterClient: ClusterClient];
+}
+export interface DjsClient extends Client {
 }
 //# sourceMappingURL=shared.d.ts.map

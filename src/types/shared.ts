@@ -6,6 +6,7 @@ import { ClusterManager } from "../Core/ClusterManager";
 import { ChildProcessOptions } from "../Structures/Child";
 import { BaseMessage } from "../Structures/IPCMessage";
 import { WorkerThreadOptions } from "../Structures/Worker";
+import { Client } from "discord.js";
 
 export const Events = {
     ERROR: 'warn',
@@ -164,3 +165,6 @@ export interface ClusterClientEvents {
     ready: [clusterClient: ClusterClient];
 }
 
+export interface DjsClient extends Client {
+
+}
