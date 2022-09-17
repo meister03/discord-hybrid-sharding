@@ -1,9 +1,10 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.ChildClient = exports.Child = void 0;
-var child_process_1 = require("child_process");
-var Child = (function () {
-    function Child(file, options) {
+import { fork } from 'child_process';
+export class Child {
+    file;
+    process;
+    processOptions;
+    args;
+    constructor(file, options) {
         this.file = file;
         this.process = null;
         this.processOptions = {};
@@ -40,52 +41,45 @@ var Child = (function () {
         if (options.timeout)
             this.processOptions.timeout = options.timeout;
     }
-    Child.prototype.spawn = function () {
-        return (this.process = (0, child_process_1.fork)(this.file, this.args, this.processOptions));
-    };
-    Child.prototype.respawn = function () {
+    spawn() {
+        return (this.process = fork(this.file, this.args, this.processOptions));
+    }
+    respawn() {
         this.kill();
         return this.spawn();
-    };
-    Child.prototype.kill = function () {
-        var _a, _b;
-        (_a = this.process) === null || _a === void 0 ? void 0 : _a.removeAllListeners();
-        return (_b = this.process) === null || _b === void 0 ? void 0 : _b.kill();
-    };
-    Child.prototype.send = function (message) {
-        var _this = this;
-        return new Promise(function (resolve, reject) {
-            var _a;
-            (_a = _this.process) === null || _a === void 0 ? void 0 : _a.send(message, function (err) {
+    }
+    kill() {
+        this.process?.removeAllListeners();
+        return this.process?.kill();
+    }
+    send(message) {
+        return new Promise((resolve, reject) => {
+            this.process?.send(message, err => {
                 if (err)
                     reject(err);
                 else
-                    resolve(_this);
+                    resolve(this);
             });
         });
-    };
-    return Child;
-}());
-exports.Child = Child;
-var ChildClient = (function () {
-    function ChildClient() {
+    }
+}
+export class ChildClient {
+    ipc;
+    constructor() {
         this.ipc = process;
     }
-    ChildClient.prototype.send = function (message) {
-        var process = this.ipc;
-        return new Promise(function (resolve, reject) {
-            var _a;
-            (_a = process.send) === null || _a === void 0 ? void 0 : _a.call(process, message, function (err) {
+    send(message) {
+        const process = this.ipc;
+        return new Promise((resolve, reject) => {
+            process.send?.(message, (err) => {
                 if (err)
                     reject(err);
                 else
                     resolve();
             });
         });
-    };
-    ChildClient.prototype.getData = function () {
+    }
+    getData() {
         return process.env;
-    };
-    return ChildClient;
-}());
-exports.ChildClient = ChildClient;
+    }
+}

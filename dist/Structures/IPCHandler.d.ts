@@ -1,10 +1,10 @@
-import { Cluster } from "../Core/Cluster";
-import { ClusterClient } from "../Core/ClusterClient";
-import { ClusterManager } from "../Core/ClusterManager";
-import { Child, ChildClient } from "./Child";
-import { RawMessage } from "./IPCMessage";
-import { ResolveMessage } from "./PromiseHandler";
-import { Worker, WorkerClient } from "./Worker";
+import { Cluster } from '../Core/Cluster';
+import { ClusterClient } from '../Core/ClusterClient';
+import { ClusterManager } from '../Core/ClusterManager';
+import { Child, ChildClient } from './Child';
+import { RawMessage } from './IPCMessage';
+import { ResolveMessage } from './PromiseHandler';
+import { Worker, WorkerClient } from './Worker';
 export declare class ClusterHandler {
     manager: ClusterManager;
     cluster: Cluster;

@@ -1,14 +1,14 @@
 /// <reference types="node" />
 /// <reference types="node" />
-import { ChildProcess, Serializable } from "child_process";
-import { Worker } from "worker_threads";
-import { Cluster } from "../Core/Cluster";
-import { ClusterClient } from "../Core/ClusterClient";
-import { ClusterManager } from "../Core/ClusterManager";
-import { ChildProcessOptions } from "../Structures/Child";
-import { BaseMessage } from "../Structures/IPCMessage";
-import { WorkerThreadOptions } from "../Structures/Worker";
-import { Client } from "discord.js";
+import { ChildProcess, Serializable } from 'child_process';
+import { Worker } from 'worker_threads';
+import { Cluster } from '../Core/Cluster';
+import { ClusterClient } from '../Core/ClusterClient';
+import { ClusterManager } from '../Core/ClusterManager';
+import { ChildProcessOptions } from '../Structures/Child';
+import { BaseMessage } from '../Structures/IPCMessage';
+import { WorkerThreadOptions } from '../Structures/Worker';
+import { Client } from 'discord.js';
 export declare const Events: {
     ERROR: string;
     WARN: string;
@@ -81,6 +81,7 @@ export interface ClusterManagerOptions {
     queue?: QueueOptions;
     spawnOptions?: ClusterManagerSpawnOptions;
     clusterData?: object;
+    keepAlive?: boolean;
     clusterOptions?: ChildProcessOptions | WorkerThreadOptions;
 }
 export interface ClusterRestartOptions {
@@ -89,12 +90,12 @@ export interface ClusterRestartOptions {
     current?: number;
 }
 export interface QueueOptions {
-    auto: Boolean;
+    auto: boolean;
     timeout?: number;
 }
 export interface ClusterKillOptions {
     reason?: string;
-    force: Boolean;
+    force: boolean;
 }
 export interface handleExitOptions {
     reason?: string;
@@ -119,5 +120,6 @@ export interface ClusterClientEvents {
     ready: [clusterClient: ClusterClient];
 }
 export interface DjsClient extends Client {
+    _eval: (_: string) => unknown;
 }
 //# sourceMappingURL=shared.d.ts.map
