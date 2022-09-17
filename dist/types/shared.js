@@ -1,20 +1,17 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.messageType = exports.Endpoints = exports.DefaultOptions = exports.Events = void 0;
-exports.Events = {
+export const Events = {
     ERROR: 'warn',
     WARN: 'error',
 };
-exports.DefaultOptions = {
+export const DefaultOptions = {
     http: {
         api: 'https://discord.com/api',
         version: '10',
     },
 };
-exports.Endpoints = {
+export const Endpoints = {
     botGateway: '/gateway/bot',
 };
-var messageType;
+export var messageType;
 (function (messageType) {
     messageType[messageType["CLIENT_SPAWN_NEXT_CLUSTER"] = 0] = "CLIENT_SPAWN_NEXT_CLUSTER";
     messageType[messageType["CLIENT_RESPAWN"] = 1] = "CLIENT_RESPAWN";
@@ -37,4 +34,4 @@ var messageType;
     messageType[messageType["CLIENT_MANAGER_EVAL_RESPONSE"] = 18] = "CLIENT_MANAGER_EVAL_RESPONSE";
     messageType[messageType["MANAGER_BROADCAST_REQUEST"] = 19] = "MANAGER_BROADCAST_REQUEST";
     messageType[messageType["MANAGER_BROADCAST_RESPONSE"] = 20] = "MANAGER_BROADCAST_RESPONSE";
-})(messageType = exports.messageType || (exports.messageType = {}));
+})(messageType || (messageType = {}));

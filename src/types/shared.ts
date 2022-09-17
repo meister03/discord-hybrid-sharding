@@ -1,12 +1,12 @@
-import { ChildProcess, Serializable } from "child_process";
-import { Worker } from "worker_threads";
-import { Cluster } from "../Core/Cluster";
-import { ClusterClient } from "../Core/ClusterClient";
-import { ClusterManager } from "../Core/ClusterManager";
-import { ChildProcessOptions } from "../Structures/Child";
-import { BaseMessage } from "../Structures/IPCMessage";
-import { WorkerThreadOptions } from "../Structures/Worker";
-import { Client } from "discord.js";
+import { ChildProcess, Serializable } from 'child_process';
+import { Worker } from 'worker_threads';
+import { Cluster } from '../Core/Cluster';
+import { ClusterClient } from '../Core/ClusterClient';
+import { ClusterManager } from '../Core/ClusterManager';
+import { ChildProcessOptions } from '../Structures/Child';
+import { BaseMessage } from '../Structures/IPCMessage';
+import { WorkerThreadOptions } from '../Structures/Worker';
+import { Client } from 'discord.js';
 
 export const Events = {
     ERROR: 'warn',
@@ -58,6 +58,7 @@ export interface evalOptions<T = object> {
 }
 
 export type Awaitable<T> = T | PromiseLike<T>;
+
 export type Serialized<T> = T extends symbol | bigint | (() => any)
     ? never
     : T extends number | string | boolean | undefined
@@ -69,7 +70,6 @@ export type Serialized<T> = T extends symbol | bigint | (() => any)
     : T extends ReadonlyMap<unknown, unknown> | ReadonlySet<unknown>
     ? {}
     : { [K in keyof T]: Serialized<T[K]> };
-
 
 export interface ClusterSpawnOptions {
     delay: number;
@@ -91,13 +91,13 @@ export interface ClusterManagerOptions {
     shardsPerClusters?: number;
     /** Arguments to pass to the clustered script when spawning (only available when using the `process` mode)*/
     shardArgs?: string[];
-    /**  Arguments to pass to the clustered script executable when spawning*/
+    /** Arguments to pass to the clustered script executable when spawning*/
     execArgv?: string[];
     /** Whether clusters should automatically respawn upon exiting */
     respawn?: boolean;
     /** Which mode to use for clustering */
     mode?: 'worker' | 'process';
-    /**  A Array of Internal Shards Ids, which should get spawned */
+    /** An Array of Internal Shards Ids, which should get spawned */
     shardList?: number[];
     /** An Array of Ids to assign to the spawned Clusters, when the default id scheme is not wanted */
     clusterList?: number[];
@@ -109,6 +109,7 @@ export interface ClusterManagerOptions {
     spawnOptions?: ClusterManagerSpawnOptions;
     /** Data, which is passed to the Cluster */
     clusterData?: object;
+    keepAlive?: boolean;
     /** Options, which is passed when forking a child or creating a thread */
     clusterOptions?: ChildProcessOptions | WorkerThreadOptions;
 }
@@ -124,14 +125,14 @@ export interface ClusterRestartOptions {
 
 export interface QueueOptions {
     /** Whether the spawn queue be automatically managed */
-    auto: Boolean;
+    auto: boolean;
     /** Time to wait until next item */
-    timeout?: number
+    timeout?: number;
 }
 
 export interface ClusterKillOptions {
     reason?: string;
-    force: Boolean;
+    force: boolean;
 }
 
 export interface handleExitOptions {
@@ -142,9 +143,6 @@ export interface Plugin {
     build(manager: ClusterManager): void;
 }
 
-
-
-
 // Events
 export interface ClusterManagerEvents {
     clusterCreate: [cluster: Cluster];
@@ -154,7 +152,7 @@ export interface ClusterManagerEvents {
 
 export interface ClusterEvents {
     message: [message: BaseMessage | Serializable];
-    clientRequest: [message: BaseMessage| Serializable];
+    clientRequest: [message: BaseMessage | Serializable];
     death: [cluster: Cluster, thread: ChildProcess | Worker | undefined | null];
     error: [error: Error];
     spawn: [thread: ChildProcess | Worker | undefined | null];
@@ -165,6 +163,7 @@ export interface ClusterClientEvents {
     ready: [clusterClient: ClusterClient];
 }
 
+// @ts-expect-error
 export interface DjsClient extends Client {
-
+    _eval: (_: string) => unknown;
 }

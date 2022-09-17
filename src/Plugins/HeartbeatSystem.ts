@@ -1,4 +1,3 @@
-// @ts-check
 import { Cluster } from '../Core/Cluster';
 import { ClusterManager } from '../Core/ClusterManager';
 import { messageType } from '../types/shared';
@@ -16,7 +15,7 @@ export class HeartbeatManager {
     manager: null | ClusterManager;
     name: 'heartbeat';
     constructor(options: keepAliveOptions) {
-        if(!options) options = {};
+        if (!options) options = {};
         this.options = options;
 
         if (!this.options.interval) this.options.interval = 20000;

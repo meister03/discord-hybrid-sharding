@@ -1,9 +1,9 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.WorkerClient = exports.Worker = void 0;
-var worker_threads_1 = require("worker_threads");
-var Worker = (function () {
-    function Worker(file, options) {
+import { Worker as Worker_Thread, parentPort, workerData } from 'worker_threads';
+export class Worker {
+    file;
+    process;
+    workerOptions;
+    constructor(file, options) {
         this.file = file;
         this.process = null;
         this.workerOptions = {};
@@ -30,44 +30,36 @@ var Worker = (function () {
         if (options.resourceLimits)
             this.workerOptions.resourceLimits = options.resourceLimits;
     }
-    Worker.prototype.spawn = function () {
-        return (this.process = new worker_threads_1.Worker(this.file, this.workerOptions));
-    };
-    Worker.prototype.respawn = function () {
+    spawn() {
+        return (this.process = new Worker_Thread(this.file, this.workerOptions));
+    }
+    respawn() {
         this.kill();
         return this.spawn();
-    };
-    Worker.prototype.kill = function () {
-        var _a, _b;
-        (_a = this.process) === null || _a === void 0 ? void 0 : _a.removeAllListeners();
-        return (_b = this.process) === null || _b === void 0 ? void 0 : _b.terminate();
-    };
-    Worker.prototype.send = function (message) {
-        var _this = this;
-        return new Promise(function (resolve) {
-            var _a;
-            (_a = _this.process) === null || _a === void 0 ? void 0 : _a.postMessage(message);
-            resolve(_this);
-        });
-    };
-    return Worker;
-}());
-exports.Worker = Worker;
-var WorkerClient = (function () {
-    function WorkerClient() {
-        this.ipc = worker_threads_1.parentPort;
     }
-    WorkerClient.prototype.send = function (message) {
-        var _this = this;
-        return new Promise(function (resolve) {
-            var _a;
-            (_a = _this.ipc) === null || _a === void 0 ? void 0 : _a.postMessage(message);
+    kill() {
+        this.process?.removeAllListeners();
+        return this.process?.terminate();
+    }
+    send(message) {
+        return new Promise(resolve => {
+            this.process?.postMessage(message);
+            resolve(this);
+        });
+    }
+}
+export class WorkerClient {
+    ipc;
+    constructor() {
+        this.ipc = parentPort;
+    }
+    send(message) {
+        return new Promise(resolve => {
+            this.ipc?.postMessage(message);
             resolve();
         });
-    };
-    WorkerClient.prototype.getData = function () {
-        return worker_threads_1.workerData;
-    };
-    return WorkerClient;
-}());
-exports.WorkerClient = WorkerClient;
+    }
+    getData() {
+        return workerData;
+    }
+}

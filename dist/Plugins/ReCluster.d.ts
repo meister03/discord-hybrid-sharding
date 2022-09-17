@@ -1,4 +1,4 @@
-import { ClusterManager } from "../Core/ClusterManager";
+import { ClusterManager } from '../Core/ClusterManager';
 export declare type ReClusterRestartMode = 'gracefulSwitch' | 'rolling';
 export interface ReClusterOptions {
     delay?: number;

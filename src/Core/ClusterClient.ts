@@ -1,7 +1,15 @@
 import { IPCMessage, BaseMessage, RawMessage } from '../Structures/IPCMessage';
-import { Awaitable, ClusterClientEvents, DjsClient, evalOptions, Events, messageType, Serialized } from '../types/shared';
+import {
+    Awaitable,
+    ClusterClientEvents,
+    DjsClient,
+    evalOptions,
+    Events,
+    messageType,
+    Serialized,
+} from '../types/shared';
 
-import { ClusterManager as Manager} from '../Core/ClusterManager';
+import { ClusterManager as Manager } from '../Core/ClusterManager';
 
 import { getInfo } from '../Structures/Data';
 
@@ -17,7 +25,7 @@ import { generateNonce } from '../Util/Util';
 export class ClusterClient extends EventEmitter {
     client: DjsClient;
     mode: 'process' | 'worker';
-    queue: { mode: 'auto' | string | undefined; };
+    queue: { mode: 'auto' | string | undefined };
     maintenance: string | undefined | Boolean;
     ready: boolean;
     process: ChildClient | WorkerClient | null;
@@ -34,10 +42,10 @@ export class ClusterClient extends EventEmitter {
          * Mode the Cluster was spawned with
          */
         this.mode = this.info.CLUSTER_MANAGER_MODE;
-        let mode = this.mode;
+        const mode = this.mode;
 
         /**
-         * If the Cluster is spawned automatically or with a own controller
+         * If the Cluster is spawned automatically or with an own controller
          */
         this.queue = {
             mode: this.info.CLUSTER_QUEUE_MODE,
@@ -89,7 +97,7 @@ export class ClusterClient extends EventEmitter {
         return this.info.CLUSTER_COUNT;
     }
     /**
-     * Gets several Info like Cluster_Count, Number, Total shards...
+     * Gets some Info like Cluster_Count, Number, Total shards...
      */
     public get info() {
         return getInfo();
@@ -127,11 +135,10 @@ export class ClusterClient extends EventEmitter {
     public evalOnManager<T>(fn: (manager: Manager) => T, options?: evalOptions): Promise<T>;
     public evalOnManager<T>(fn: (manager: Manager) => T, options?: evalOptions): Promise<any[]>;
     public async evalOnManager<T>(script: string | ((manager: Manager) => T), options?: evalOptions) {
-        const evalOptions = options || {_type: undefined};
+        const evalOptions = options || { _type: undefined };
         evalOptions._type = messageType.CLIENT_MANAGER_EVAL_REQUEST;
 
-        // @ts-ignore
-        return await this.broadcastEval(script, evalOptions);
+        return await this.broadcastEval(script as string, evalOptions);
     }
 
     /**
@@ -158,9 +165,10 @@ export class ClusterClient extends EventEmitter {
         options?: evalOptions<P>,
     ): Promise<Serialized<T>>;
     public async broadcastEval<T, P>(
-        script: string | 
-        ((client: ClusterClient['client'], context?: Serialized<P>) => (Awaitable<T> | Promise<Serialized<T>>))
-        , options?: evalOptions | evalOptions<P>
+        script:
+            | string
+            | ((client: ClusterClient['client'], context?: Serialized<P>) => Awaitable<T> | Promise<Serialized<T>>),
+        options?: evalOptions | evalOptions<P>,
     ) {
         if (!script || (typeof script !== 'string' && typeof script !== 'function'))
             throw new TypeError(
@@ -168,9 +176,15 @@ export class ClusterClient extends EventEmitter {
             );
 
         const broadcastOptions = options || { context: undefined, _type: undefined, timeout: undefined };
-        script = typeof script === 'function' ? `(${script})(this, ${JSON.stringify(broadcastOptions.context)})` : script;
+        script =
+            typeof script === 'function' ? `(${script})(this, ${JSON.stringify(broadcastOptions.context)})` : script;
         const nonce = generateNonce();
-        const message = { nonce, _eval: script, options, _type: broadcastOptions._type || messageType.CLIENT_BROADCAST_REQUEST };
+        const message = {
+            nonce,
+            _eval: script,
+            options,
+            _type: broadcastOptions._type || messageType.CLIENT_BROADCAST_REQUEST,
+        };
         await this.send(message);
 
         return await this.promise.create(message, broadcastOptions);
@@ -184,7 +198,7 @@ export class ClusterClient extends EventEmitter {
      * @see {@link IPCMessage#reply}
      */
     public request(message: RawMessage) {
-        const rawMessage = message || {_type: undefined};
+        const rawMessage = message || { _type: undefined };
         rawMessage._type = messageType.CUSTOM_REQUEST;
         this.send(rawMessage);
         return this.promise.create(rawMessage, {});
@@ -218,16 +232,12 @@ export class ClusterClient extends EventEmitter {
     }
 
     public async _eval(script: string) {
-        // @ts-expect-error
         if (this.client._eval) {
-            // @ts-expect-error
             return await this.client._eval(script);
         }
-        // @ts-expect-error
         this.client._eval = function (_: string) {
             return eval(_);
         }.bind(this.client);
-        // @ts-expect-error
         return await this.client._eval(script);
     }
 
@@ -236,7 +246,7 @@ export class ClusterClient extends EventEmitter {
      */
     public _respond(type: string, message: Serializable) {
         this.send(message)?.catch(err => {
-            let error = { err, message: ''};
+            const error = { err, message: '' };
 
             error.message = `Error when sending ${type} response to master process: ${err.message}`;
             /**
@@ -292,18 +302,33 @@ export class ClusterClient extends EventEmitter {
 
 // Credits for EventEmitter typings: https://github.com/discordjs/discord.js/blob/main/packages/rest/src/lib/RequestManager.ts#L159 | See attached license
 export interface ClusterClient {
-	emit: (<K extends keyof ClusterClientEvents>(event: K, ...args: ClusterClientEvents[K]) => boolean) &
-		(<S extends string | symbol>(event: Exclude<S, keyof ClusterClientEvents>, ...args: any[]) => boolean);
+    emit: (<K extends keyof ClusterClientEvents>(event: K, ...args: ClusterClientEvents[K]) => boolean) &
+        (<S extends string | symbol>(event: Exclude<S, keyof ClusterClientEvents>, ...args: any[]) => boolean);
 
-	off: (<K extends keyof ClusterClientEvents>(event: K, listener: (...args: ClusterClientEvents[K]) => void) => this) &
-		(<S extends string | symbol>(event: Exclude<S, keyof ClusterClientEvents>, listener: (...args: any[]) => void) => this);
+    off: (<K extends keyof ClusterClientEvents>(
+        event: K,
+        listener: (...args: ClusterClientEvents[K]) => void,
+    ) => this) &
+        (<S extends string | symbol>(
+            event: Exclude<S, keyof ClusterClientEvents>,
+            listener: (...args: any[]) => void,
+        ) => this);
 
-	on: (<K extends keyof ClusterClientEvents>(event: K, listener: (...args: ClusterClientEvents[K]) => void) => this) &
-		(<S extends string | symbol>(event: Exclude<S, keyof ClusterClientEvents>, listener: (...args: any[]) => void) => this);
+    on: (<K extends keyof ClusterClientEvents>(event: K, listener: (...args: ClusterClientEvents[K]) => void) => this) &
+        (<S extends string | symbol>(
+            event: Exclude<S, keyof ClusterClientEvents>,
+            listener: (...args: any[]) => void,
+        ) => this);
 
-	once: (<K extends keyof ClusterClientEvents>(event: K, listener: (...args: ClusterClientEvents[K]) => void) => this) &
-		(<S extends string | symbol>(event: Exclude<S, keyof ClusterClientEvents>, listener: (...args: any[]) => void) => this);
+    once: (<K extends keyof ClusterClientEvents>(
+        event: K,
+        listener: (...args: ClusterClientEvents[K]) => void,
+    ) => this) &
+        (<S extends string | symbol>(
+            event: Exclude<S, keyof ClusterClientEvents>,
+            listener: (...args: any[]) => void,
+        ) => this);
 
-	removeAllListeners: (<K extends keyof ClusterClientEvents>(event?: K) => this) &
-		(<S extends string | symbol>(event?: Exclude<S, keyof ClusterClientEvents>) => this);
+    removeAllListeners: (<K extends keyof ClusterClientEvents>(event?: K) => this) &
+        (<S extends string | symbol>(event?: Exclude<S, keyof ClusterClientEvents>) => this);
 }

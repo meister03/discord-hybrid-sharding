@@ -8,7 +8,7 @@ export interface RawMessage {
 export declare class BaseMessage {
     [x: string]: any;
     nonce: string;
-    private _raw;
+    private readonly _raw;
     constructor(message: RawMessage);
     private destructMessage;
     toJSON(): RawMessage;

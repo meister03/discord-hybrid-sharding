@@ -1,18 +1,18 @@
-import {generateNonce} from '../Util/Util';
-import {messageType} from '../types/shared';
+import { generateNonce } from '../Util/Util';
+import { messageType } from '../types/shared';
 import { ClusterClient } from '../Core/ClusterClient';
-import { Cluster} from '../Core/Cluster';
+import { Cluster } from '../Core/Cluster';
 
 export interface RawMessage {
-    nonce?: string,
-    _type?: number,
-    [x: string]: any
+    nonce?: string;
+    _type?: number;
+    [x: string]: any;
 }
 
 export class BaseMessage {
     [x: string]: any;
     nonce: string;
-    private _raw: RawMessage;
+    private readonly _raw: RawMessage;
     constructor(message: RawMessage) {
         /**
          * Creates a Message ID for identifying it for further Usage such as on replies
@@ -30,10 +30,10 @@ export class BaseMessage {
      * Destructs the Message Object and initializes it on the Constructor
      */
     private destructMessage(message: RawMessage) {
-        for (let [key, value] of Object.entries(message)) {
+        for (const [key, value] of Object.entries(message)) {
             this[key] = value;
         }
-        if(message.nonce) this.nonce = message.nonce;
+        if (message.nonce) this.nonce = message.nonce;
         this._type = message._type || messageType.CUSTOM_MESSAGE;
         return message;
     }
@@ -65,7 +65,7 @@ export class IPCMessage extends BaseMessage {
      */
     public async send(message: object) {
         if (typeof message !== 'object') throw new TypeError('The Message has to be a object');
-        const baseMessage = new BaseMessage({...message, _type: messageType.CUSTOM_MESSAGE});
+        const baseMessage = new BaseMessage({ ...message, _type: messageType.CUSTOM_MESSAGE });
         return this.instance.send(baseMessage.toJSON());
     }
 
@@ -74,7 +74,7 @@ export class IPCMessage extends BaseMessage {
      */
     public async request(message: object) {
         if (typeof message !== 'object') throw new TypeError('The Message has to be a object');
-        const baseMessage = new BaseMessage({...message, _type: messageType.CUSTOM_REQUEST, nonce: this.nonce});
+        const baseMessage = new BaseMessage({ ...message, _type: messageType.CUSTOM_REQUEST, nonce: this.nonce });
         return this.instance.request(baseMessage.toJSON());
     }
 
@@ -83,7 +83,12 @@ export class IPCMessage extends BaseMessage {
      */
     public async reply(message: object) {
         if (typeof message !== 'object') throw new TypeError('The Message has to be a object');
-        const baseMessage = new BaseMessage({...message, _type: messageType.CUSTOM_REPLY, nonce: this.nonce, _result: message});
+        const baseMessage = new BaseMessage({
+            ...message,
+            _type: messageType.CUSTOM_REPLY,
+            nonce: this.nonce,
+            _result: message,
+        });
         return this.instance.send(baseMessage.toJSON());
     }
 }

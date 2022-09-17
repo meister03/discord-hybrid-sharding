@@ -1,14 +1,13 @@
-import { workerData } from "worker_threads";
+import { workerData } from 'worker_threads';
 export function getInfo() {
-    let clusterMode = process.env.CLUSTER_MANAGER_MODE;
+    const clusterMode = process.env.CLUSTER_MANAGER_MODE;
     if (clusterMode !== 'worker' && clusterMode !== 'process')
         throw new Error('NO CHILD/MASTER EXISTS OR SUPPLIED CLUSTER_MANAGER_MODE IS INCORRECT');
 
-    
     let data: ClusterClientData = {} as ClusterClientData;
     if (clusterMode === 'process') {
         const shardList: number[] = [];
-        let parseShardList = process.env?.SHARD_LIST?.split(',') || [];
+        const parseShardList = process.env?.SHARD_LIST?.split(',') || [];
         parseShardList.forEach(c => shardList.push(Number(c)));
         data = {
             SHARD_LIST: shardList,

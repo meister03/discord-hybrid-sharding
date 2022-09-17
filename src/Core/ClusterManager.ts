@@ -7,7 +7,15 @@ import { chunkArray, delayFor, fetchRecommendedShards, makePlainError, shardIdFo
 import { Queue } from '../Structures/Queue';
 import { Cluster } from './Cluster';
 import { PromiseHandler } from '../Structures/PromiseHandler';
-import { ClusterManagerEvents, ClusterManagerOptions, ClusterManagerSpawnOptions, ClusterRestartOptions, evalOptions, Plugin, QueueOptions } from '../types/shared';
+import {
+    ClusterManagerEvents,
+    ClusterManagerOptions,
+    ClusterManagerSpawnOptions,
+    ClusterRestartOptions,
+    evalOptions,
+    Plugin,
+    QueueOptions,
+} from '../types/shared';
 import { ChildProcessOptions } from '../Structures/Child';
 import { WorkerThreadOptions } from '../Structures/Worker';
 import { BaseMessage } from '../Structures/IPCMessage';
@@ -15,25 +23,24 @@ import { HeartbeatManager } from '../Plugins/HeartbeatSystem';
 import { ReClusterManager } from '../Plugins/ReCluster';
 
 export class ClusterManager extends EventEmitter {
-
     /**
      * Whether clusters should automatically respawn upon exiting
      */
     respawn: boolean;
 
     /**
-    * How many times a cluster can maximally restart in the given interval
-    */
+     * How many times a cluster can maximally restart in the given interval
+     */
     restarts: ClusterRestartOptions;
 
     /**
-    * Data, which is passed to the workerData or the processEnv
-    */
+     * Data, which is passed to the workerData or the processEnv
+     */
     clusterData: object;
 
     /**
-    * Options, which is passed when forking a child or creating a thread
-    */
+     * Options, which is passed when forking a child or creating a thread
+     */
     clusterOptions: ChildProcessOptions | WorkerThreadOptions | {};
 
     /**
@@ -41,8 +48,8 @@ export class ClusterManager extends EventEmitter {
      */
     file: string;
     /**
-    * Amount of internal shards in total
-    */
+     * Amount of internal shards in total
+     */
     totalShards: number | -1;
 
     /**
@@ -51,42 +58,42 @@ export class ClusterManager extends EventEmitter {
     totalClusters: number | -1;
 
     /**
-    * Amount of Shards per Clusters
-    */
+     * Amount of Shards per Clusters
+     */
     shardsPerClusters: number | undefined;
 
     /** Mode for Clusters to spawn with */
     mode: 'worker' | 'process';
 
     /**
-    * An array of arguments to pass to clusters (only when {@link ClusterManager#mode} is `process`)         
-    */
+     * An array of arguments to pass to clusters (only when {@link ClusterManager#mode} is `process`)
+     */
     shardArgs: string[];
 
     /**
-    * An array of arguments to pass to the executable (only when {@link ClusterManager#mode} is `process`)
-    */
+     * An array of arguments to pass to the executable (only when {@link ClusterManager#mode} is `process`)
+     */
     execArgv: string[];
 
     /**
-    * List of internal shard ids this cluster manager spawns
-    */
+     * List of internal shard ids this cluster manager spawns
+     */
     shardList: number[];
 
     /**
-    * Token to use for obtaining the automatic internal shards count, and passing to bot script
-    */
+     * Token to use for obtaining the automatic internal shards count, and passing to bot script
+     */
     token: string | null;
 
     /**
-    * A collection of all clusters the manager spawned
-    */
-    clusters: Map<number,Cluster>;
+     * A collection of all clusters the manager spawned
+     */
+    clusters: Map<number, Cluster>;
     shardClusterList: number[][];
 
     /**
-    * A Array of IDS[Number], which should be assigned to the spawned Clusters
-    */
+     * An Array of IDS[Number], which should be assigned to the spawned Clusters
+     */
     clusterList: number[];
     spawnOptions: ClusterManagerSpawnOptions;
     queue: Queue;
@@ -100,7 +107,6 @@ export class ClusterManager extends EventEmitter {
         super();
         if (!options) options = {};
 
-        // @ts-expect-error
         if (options.keepAlive)
             throw new Error(
                 'keepAlive is not supported anymore on and above v1.6.0. Import it as plugin ("HeartbeatManager"), therefore check the libs readme',
@@ -110,9 +116,7 @@ export class ClusterManager extends EventEmitter {
 
         this.restarts = options.restarts || { max: 3, interval: 60000 * 60, current: 0 };
 
-
         this.clusterData = options.clusterData || {};
-
 
         this.clusterOptions = options.clusterOptions || {};
 
@@ -122,8 +126,7 @@ export class ClusterManager extends EventEmitter {
         const stats = fs.statSync(this.file);
         if (!stats.isFile()) throw new Error('CLIENT_INVALID_OPTION | Provided is file is not type of file');
 
-
-        this.totalShards = options.totalShards === 'auto' ? -1 : (options.totalShards ?? -1);
+        this.totalShards = options.totalShards === 'auto' ? -1 : options.totalShards ?? -1;
         if (this.totalShards !== -1) {
             if (typeof this.totalShards !== 'number' || isNaN(this.totalShards)) {
                 throw new TypeError('CLIENT_INVALID_OPTION | Amount of internal shards must be a number.');
@@ -135,7 +138,7 @@ export class ClusterManager extends EventEmitter {
             }
         }
 
-        this.totalClusters = options.totalClusters === 'auto' ? -1 : (options.totalClusters ?? -1);;
+        this.totalClusters = options.totalClusters === 'auto' ? -1 : options.totalClusters ?? -1;
         if (this.totalClusters !== -1) {
             if (typeof this.totalClusters !== 'number' || isNaN(this.totalClusters)) {
                 throw new TypeError('CLIENT_INVALID_OPTION | Amount of Clusters must be a number.');
@@ -186,9 +189,8 @@ export class ClusterManager extends EventEmitter {
             }
         }
 
-
         if (!options.token) options.token = process.env.DISCORD_TOKEN;
-      
+
         this.token = options.token ? options.token.replace(/^Bot\s*/i, '') : null;
 
         this.clusters = new Map();
@@ -217,7 +219,6 @@ export class ClusterManager extends EventEmitter {
         this._debug(`[START] Cluster Manager has been initialized`);
 
         this.promise = new PromiseHandler();
-
     }
 
     /**
@@ -234,7 +235,7 @@ export class ClusterManager extends EventEmitter {
         }
 
         if (amount === -1 || amount === 'auto') {
-            if (!this.token) throw new Error('A Token must be provided, when totalShards is set on auto.')
+            if (!this.token) throw new Error('A Token must be provided, when totalShards is set on auto.');
             amount = await fetchRecommendedShards(this.token, 1000);
             this.totalShards = amount as number;
             this._debug(`Discord recommended a total shard count of ${amount}`);
@@ -268,7 +269,10 @@ export class ClusterManager extends EventEmitter {
         //Calculate Shards per Cluster:
         if (this.shardsPerClusters) this.totalClusters = Math.ceil(this.shardList.length / this.shardsPerClusters);
 
-        this.shardClusterList = chunkArray(this.shardList, Math.ceil(this.shardList.length / (this.totalClusters as number)));
+        this.shardClusterList = chunkArray(
+            this.shardList,
+            Math.ceil(this.shardList.length / (this.totalClusters as number)),
+        );
 
         if (this.shardClusterList.length !== this.totalClusters) {
             this.totalClusters = this.shardClusterList.length;
@@ -288,7 +292,11 @@ export class ClusterManager extends EventEmitter {
                 const spawnDelay = delay * length;
                 this.queue.add({
                     run: (...a) => {
-                        const cluster = this.createCluster(clusterId, this.shardClusterList[i] as number[], this.totalShards);
+                        const cluster = this.createCluster(
+                            clusterId,
+                            this.shardClusterList[i] as number[],
+                            this.totalShards,
+                        );
                         return cluster.spawn(...a);
                     },
                     args: [readyTimeout],
@@ -356,7 +364,9 @@ export class ClusterManager extends EventEmitter {
                 // @todo Support Array of Shards
                 if (options.shard.length === 0) throw new RangeError('ARRAY_MUST_CONTAIN_ONE SHARD_ID');
             }
-            options.cluster = Array.from(this.clusters.values()).find(c => c.shardList.includes(options.shard as number))?.id;
+            options.cluster = Array.from(this.clusters.values()).find(c =>
+                c.shardList.includes(options.shard as number),
+            )?.id;
         }
         return this._performOnClusters('eval', [script], options.cluster, options.timeout);
     }
@@ -378,7 +388,7 @@ export class ClusterManager extends EventEmitter {
      * @param method Method name to run on each cluster
      * @param args Arguments to pass through to the method call
      * @param cluster cluster to run on, all if undefined
-     * @param timeout the amount of of time to wait until the promise will be rejected
+     * @param timeout the amount of time to wait until the promise will be rejected
      * @returns Results of the method execution
      * @private
      */
@@ -387,11 +397,13 @@ export class ClusterManager extends EventEmitter {
 
         if (typeof cluster === 'number') {
             if (this.clusters.has(cluster))
-                return this.clusters
-                    .get(cluster)?.
-                    // @ts-expect-error
-                [method](...args, undefined, timeout)
-                    .then((e: any) => [e]);
+                return (
+                    this.clusters
+                        .get(cluster)
+                        // @ts-expect-error
+                        ?.[method](...args, undefined, timeout)
+                        .then((e: any) => [e])
+                );
             return Promise.reject(new Error('CLUSTERING_CLUSTER_NOT_FOUND FOR ClusterId: ' + cluster));
         }
         let clusters = Array.from(this.clusters.values());
@@ -401,7 +413,7 @@ export class ClusterManager extends EventEmitter {
         /* if (this.clusters.size !== this.totalClusters && !cluster) return Promise.reject(new Error('CLUSTERING_IN_PROCESS')); */
 
         const promises = [];
-        
+
         // @ts-expect-error
         for (const cl of clusters) promises.push(cl[method](...args, undefined, timeout));
         return Promise.all(promises);
@@ -418,8 +430,7 @@ export class ClusterManager extends EventEmitter {
         for (const cluster of Array.from(this.clusters.values())) {
             const promises: any[] = [cluster.respawn({ delay: respawnDelay, timeout })];
             const length = this.shardClusterList[i]?.length || this.totalShards / this.totalClusters;
-            if (++s < this.clusters.size && clusterDelay > 0)
-                promises.push(delayFor(length * clusterDelay));
+            if (++s < this.clusters.size && clusterDelay > 0) promises.push(delayFor(length * clusterDelay));
             i++;
             await Promise.all(promises); // eslint-disable-line no-await-in-loop
         }
@@ -456,7 +467,7 @@ export class ClusterManager extends EventEmitter {
     /**
      * Adds a plugin to the cluster manager
      */
-    public extend(...plugins: Plugin[] ) {
+    public extend(...plugins: Plugin[]) {
         if (!plugins) throw new Error('NO_PLUGINS_PROVIDED');
         if (!Array.isArray(plugins)) plugins = [plugins];
         for (const plugin of plugins) {
@@ -496,18 +507,36 @@ export class ClusterManager extends EventEmitter {
 
 // Credits for EventEmitter typings: https://github.com/discordjs/discord.js/blob/main/packages/rest/src/lib/RequestManager.ts#L159 | See attached license
 export interface ClusterManager {
-	emit: (<K extends keyof ClusterManagerEvents>(event: K, ...args: ClusterManagerEvents[K]) => boolean) &
-		(<S extends string | symbol>(event: Exclude<S, keyof ClusterManagerEvents>, ...args: any[]) => boolean);
+    emit: (<K extends keyof ClusterManagerEvents>(event: K, ...args: ClusterManagerEvents[K]) => boolean) &
+        (<S extends string | symbol>(event: Exclude<S, keyof ClusterManagerEvents>, ...args: any[]) => boolean);
 
-	off: (<K extends keyof ClusterManagerEvents>(event: K, listener: (...args: ClusterManagerEvents[K]) => void) => this) &
-		(<S extends string | symbol>(event: Exclude<S, keyof ClusterManagerEvents>, listener: (...args: any[]) => void) => this);
+    off: (<K extends keyof ClusterManagerEvents>(
+        event: K,
+        listener: (...args: ClusterManagerEvents[K]) => void,
+    ) => this) &
+        (<S extends string | symbol>(
+            event: Exclude<S, keyof ClusterManagerEvents>,
+            listener: (...args: any[]) => void,
+        ) => this);
 
-	on: (<K extends keyof ClusterManagerEvents>(event: K, listener: (...args: ClusterManagerEvents[K]) => void) => this) &
-		(<S extends string | symbol>(event: Exclude<S, keyof ClusterManagerEvents>, listener: (...args: any[]) => void) => this);
+    on: (<K extends keyof ClusterManagerEvents>(
+        event: K,
+        listener: (...args: ClusterManagerEvents[K]) => void,
+    ) => this) &
+        (<S extends string | symbol>(
+            event: Exclude<S, keyof ClusterManagerEvents>,
+            listener: (...args: any[]) => void,
+        ) => this);
 
-	once: (<K extends keyof ClusterManagerEvents>(event: K, listener: (...args: ClusterManagerEvents[K]) => void) => this) &
-		(<S extends string | symbol>(event: Exclude<S, keyof ClusterManagerEvents>, listener: (...args: any[]) => void) => this);
+    once: (<K extends keyof ClusterManagerEvents>(
+        event: K,
+        listener: (...args: ClusterManagerEvents[K]) => void,
+    ) => this) &
+        (<S extends string | symbol>(
+            event: Exclude<S, keyof ClusterManagerEvents>,
+            listener: (...args: any[]) => void,
+        ) => this);
 
-	removeAllListeners: (<K extends keyof ClusterManagerEvents>(event?: K) => this) &
-		(<S extends string | symbol>(event?: Exclude<S, keyof ClusterManagerEvents>) => this);
+    removeAllListeners: (<K extends keyof ClusterManagerEvents>(event?: K) => this) &
+        (<S extends string | symbol>(event?: Exclude<S, keyof ClusterManagerEvents>) => this);
 }
