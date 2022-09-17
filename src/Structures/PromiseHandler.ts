@@ -1,5 +1,6 @@
 import { generateNonce } from '../Util/Util';
 import { RawMessage } from './IPCMessage';
+
 export interface StoredPromise {
     resolve(value: any): void;
     reject(error: Error): void;
@@ -8,7 +9,7 @@ export interface StoredPromise {
 }
 
 export interface ResolveMessage {
-    _error: { message: string, stack: string, name: string };
+    _error: { message: string; stack: string; name: string };
     _result: any;
     _eval?: string;
     _type?: number;
@@ -40,10 +41,13 @@ export class PromiseHandler {
         }
     }
 
-    public async create(message: RawMessage & { options?: PromiseCreateOptions, stack?: string }, options: PromiseCreateOptions) {
+    public async create(
+        message: RawMessage & { options?: PromiseCreateOptions; stack?: string },
+        options: PromiseCreateOptions,
+    ) {
         if (Object.keys(options).length === 0 && message.options) options = message.options;
         if (!message.nonce) message.nonce = generateNonce();
-        const promise = await new Promise((resolve, reject) => {
+        return await new Promise((resolve, reject) => {
             if (options.timeout) {
                 const timeout = setTimeout(() => {
                     this.nonce.delete(message.nonce as string);
@@ -54,6 +58,5 @@ export class PromiseHandler {
                 this.nonce.set(message.nonce as string, { resolve, reject, options, timeout });
             } else this.nonce.set(message.nonce as string, { resolve, reject, options });
         });
-        return promise;
     }
 }

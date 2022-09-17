@@ -1,4 +1,4 @@
-import { ClusterManager } from "./ClusterManager";
+import { ClusterManager } from './ClusterManager';
 
 import EventEmitter from 'events';
 import path from 'path';
@@ -10,7 +10,7 @@ import { ClusterHandler } from '../Structures/IPCHandler.js';
 
 import { Worker } from '../Structures/Worker.js';
 import { Child } from '../Structures/Child.js';
-import { Serializable } from "child_process";
+import { Serializable } from 'child_process';
 
 /**
  * A self-contained cluster created by the {@link ClusterManager}. Each one has a {@link Child} that contains
@@ -22,68 +22,75 @@ export class Cluster extends EventEmitter {
     THREAD: typeof Worker | typeof Child;
 
     /**
-    * Manager that created the cluster
-    */
+     * Manager that created the cluster
+     */
     manager: ClusterManager;
- 
+
     /**
-    * ID of the cluster in the manager
-    */
+     * ID of the cluster in the manager
+     */
     id: number;
-    
+
     /**
-    * Arguments for the shard's process (only when {@link ShardingManager#mode} is `process`)
-    */
+     * Arguments for the shard's process (only when {@link ShardingManager#mode} is `process`)
+     */
     args: string[];
-  
+
     /**
-    * Arguments for the shard's process executable (only when {@link ShardingManager#mode} is `process`)
-    */
+     * Arguments for the shard's process executable (only when {@link ShardingManager#mode} is `process`)
+     */
     execArgv: string[];
-   
+
     /**
-    * Internal Shards which will get spawned in the cluster
-    */
+     * Internal Shards which will get spawned in the cluster
+     */
     shardList: number[];
-   
+
     /**
-    * the amount of real shards
-    */
+     * the amount of real shards
+     */
     totalShards: number;
-   
+
     /**
-    * Environment variables for the cluster's process, or workerData for the cluster's worker
-    */
-    env: NodeJS.ProcessEnv & { SHARD_LIST: number[]; TOTAL_SHARDS: number; CLUSTER_MANAGER: boolean; CLUSTER: number; CLUSTER_COUNT: number; DISCORD_TOKEN: string; };
-   
-    /**
-    * Process of the cluster (if {@link ClusterManager#mode} is `process`)
-    */
-    thread: null | Worker | Child;
-   
-    restarts: { 
-        current: number; 
-        max: number; 
-        interval: number;
-        reset?: NodeJS.Timer; 
-        resetRestarts: () => void; 
-        cleanup: () => void; 
-        append: () => void; 
+     * Environment variables for the cluster's process, or workerData for the cluster's worker
+     */
+    env: NodeJS.ProcessEnv & {
+        SHARD_LIST: number[];
+        TOTAL_SHARDS: number;
+        CLUSTER_MANAGER: boolean;
+        CLUSTER: number;
+        CLUSTER_COUNT: number;
+        DISCORD_TOKEN: string;
     };
-   
+
+    /**
+     * Process of the cluster (if {@link ClusterManager#mode} is `process`)
+     */
+    thread: null | Worker | Child;
+
+    restarts: {
+        current: number;
+        max: number;
+        interval: number;
+        reset?: NodeJS.Timer;
+        resetRestarts: () => void;
+        cleanup: () => void;
+        append: () => void;
+    };
+
     messageHandler: any;
-    
+
     /**
-    * Whether the cluster's {@link Client} is ready
-    */
+     * Whether the cluster's {@link Client} is ready
+     */
     ready: boolean;
-    
+
     /**
-    * @param manager Manager that is creating this cluster
-    * @param id ID of this cluster
-    * @param shardList
-    * @param totalShards
-    */
+     * @param manager Manager that is creating this cluster
+     * @param id ID of this cluster
+     * @param shardList
+     * @param totalShards
+     */
     constructor(manager: ClusterManager, id: number, shardList: number[], totalShards: number) {
         super();
 
@@ -96,11 +103,11 @@ export class Cluster extends EventEmitter {
         this.args = manager.shardArgs || [];
 
         this.execArgv = manager.execArgv;
- 
+
         this.shardList = shardList;
-      
+
         this.totalShards = totalShards;
-       
+
         this.env = Object.assign({}, process.env, {
             SHARD_LIST: this.shardList,
             TOTAL_SHARDS: this.totalShards,
@@ -125,7 +132,7 @@ export class Cluster extends EventEmitter {
                 }, this.manager.restarts.interval);
             },
             cleanup: () => {
-                if(this.restarts.reset) clearInterval(this.restarts.reset);
+                if (this.restarts.reset) clearInterval(this.restarts.reset);
             },
             append: () => {
                 this.restarts.current++;
@@ -196,7 +203,7 @@ export class Cluster extends EventEmitter {
         return this.thread.process;
     }
     /**
-     * Immediately kills the clusters's process/worker and does not restart it.
+     * Immediately kills the clusters process/worker and does not restart it.
      * @param options Some Options for managing the Kill
      * @param options.force Whether the Cluster should be force kill and be ever respawned...
      */
@@ -243,6 +250,8 @@ export class Cluster extends EventEmitter {
     /**
      * Evaluates a script or function on the cluster, in the context of the {@link Client}.
      * @param script JavaScript to run on the cluster
+     * @param context
+     * @param timeout
      * @returns Result of the script execution
      */
     public async eval(script: string, context: any, timeout: number) {
@@ -291,6 +300,7 @@ export class Cluster extends EventEmitter {
     /**
      * Handles the cluster's process/worker exiting.
      * @param respawn=this.manager.respawn Whether to spawn the cluster again
+     * @param {handleExitOptions} options
      * @private
      */
     private _handleExit(respawn = this.manager.respawn, options?: handleExitOptions) {
@@ -299,7 +309,7 @@ export class Cluster extends EventEmitter {
          * @event Cluster#death
          * @param {Child|Worker} process Child process/worker that exited
          */
-        if(!options) options = {};
+        if (!options) options = {};
         if (options?.reason !== 'reclustering') this.emit('death', this, this.thread?.process);
         if (respawn) {
             this.manager._debug(
@@ -343,18 +353,27 @@ export class Cluster extends EventEmitter {
 
 // Credits for EventEmitter typings: https://github.com/discordjs/discord.js/blob/main/packages/rest/src/lib/RequestManager.ts#L159 | See attached license
 export interface Cluster {
-	emit: (<K extends keyof ClusterEvents>(event: K, ...args: ClusterEvents[K]) => boolean) &
-		(<S extends string | symbol>(event: Exclude<S, keyof ClusterEvents>, ...args: any[]) => boolean);
+    emit: (<K extends keyof ClusterEvents>(event: K, ...args: ClusterEvents[K]) => boolean) &
+        (<S extends string | symbol>(event: Exclude<S, keyof ClusterEvents>, ...args: any[]) => boolean);
 
-	off: (<K extends keyof ClusterEvents>(event: K, listener: (...args: ClusterEvents[K]) => void) => this) &
-		(<S extends string | symbol>(event: Exclude<S, keyof ClusterEvents>, listener: (...args: any[]) => void) => this);
+    off: (<K extends keyof ClusterEvents>(event: K, listener: (...args: ClusterEvents[K]) => void) => this) &
+        (<S extends string | symbol>(
+            event: Exclude<S, keyof ClusterEvents>,
+            listener: (...args: any[]) => void,
+        ) => this);
 
-	on: (<K extends keyof ClusterEvents>(event: K, listener: (...args: ClusterEvents[K]) => void) => this) &
-		(<S extends string | symbol>(event: Exclude<S, keyof ClusterEvents>, listener: (...args: any[]) => void) => this);
+    on: (<K extends keyof ClusterEvents>(event: K, listener: (...args: ClusterEvents[K]) => void) => this) &
+        (<S extends string | symbol>(
+            event: Exclude<S, keyof ClusterEvents>,
+            listener: (...args: any[]) => void,
+        ) => this);
 
-	once: (<K extends keyof ClusterEvents>(event: K, listener: (...args: ClusterEvents[K]) => void) => this) &
-		(<S extends string | symbol>(event: Exclude<S, keyof ClusterEvents>, listener: (...args: any[]) => void) => this);
+    once: (<K extends keyof ClusterEvents>(event: K, listener: (...args: ClusterEvents[K]) => void) => this) &
+        (<S extends string | symbol>(
+            event: Exclude<S, keyof ClusterEvents>,
+            listener: (...args: any[]) => void,
+        ) => this);
 
-	removeAllListeners: (<K extends keyof ClusterEvents>(event?: K) => this) &
-		(<S extends string | symbol>(event?: Exclude<S, keyof ClusterEvents>) => this);
+    removeAllListeners: (<K extends keyof ClusterEvents>(event?: K) => this) &
+        (<S extends string | symbol>(event?: Exclude<S, keyof ClusterEvents>) => this);
 }

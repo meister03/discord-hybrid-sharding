@@ -1,6 +1,6 @@
-import {ChildProcess, fork, ForkOptions, Serializable} from 'child_process';
+import { ChildProcess, fork, ForkOptions, Serializable } from 'child_process';
 
-export interface ChildProcessOptions extends ForkOptions{
+export interface ChildProcessOptions extends ForkOptions {
     clusterData: NodeJS.ProcessEnv | undefined;
     args?: string[] | undefined;
 }
@@ -19,7 +19,7 @@ export class Child {
         // Custom options
         if (options.clusterData) this.processOptions.env = options.clusterData;
 
-        if(options.args) this.args = options.args;
+        if (options.args) this.args = options.args;
 
         if (options.cwd) this.processOptions.cwd = options.cwd;
         if (options.detached) this.processOptions.detached = options.detached;

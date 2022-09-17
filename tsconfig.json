@@ -1,37 +1,39 @@
-{   
+{
     "include": ["src/**/*.ts"],
     "compilerOptions": {
-      "outDir": "dist",
-      "rootDir": "src",
-      "lib": ["esnext"],
-      "target": "ES5",
-      "declaration": true,
-      "declarationMap": true,
-      "composite": false,
-      "esModuleInterop": true,
-      "moduleResolution": "Node",
-      "skipLibCheck": true,
-      "forceConsistentCasingInFileNames": true,
-  
-      "removeComments": true,
-  
-      "allowUnreachableCode": false,
-      "allowUnusedLabels": false,
-  
-      "noUnusedLocals": true,
-      "noImplicitAny": true,
-      "noImplicitOverride": true,
-      "noImplicitThis": true,
-      "noPropertyAccessFromIndexSignature": false,
-      "noFallthroughCasesInSwitch": true,
-      "noUncheckedIndexedAccess": true,
-      "resolveJsonModule": true,
-  
-      "useUnknownInCatchVariables": false,
-  
-      "strict": true,
-      "strictFunctionTypes": true,
-      "strictNullChecks": true,
-      "strictBindCallApply": true,
-      "strictPropertyInitialization": true    },
+        "outDir": "dist",
+        "rootDir": "src",
+        "lib": ["esnext"],
+        "target": "ESNext",
+        "declaration": true,
+        "declarationMap": true,
+        "composite": false,
+        "esModuleInterop": true,
+        "moduleResolution": "Node",
+        "skipLibCheck": true,
+        "forceConsistentCasingInFileNames": true,
+
+        "removeComments": true,
+
+        "allowSyntheticDefaultImports": true,
+        "allowUnreachableCode": false,
+        "allowUnusedLabels": false,
+
+        "noUnusedLocals": true,
+        "noImplicitAny": true,
+        "noImplicitOverride": true,
+        "noImplicitThis": true,
+        "noPropertyAccessFromIndexSignature": false,
+        "noFallthroughCasesInSwitch": true,
+        "noUncheckedIndexedAccess": true,
+        "resolveJsonModule": true,
+
+        "useUnknownInCatchVariables": false,
+
+        "strict": true,
+        "strictFunctionTypes": true,
+        "strictNullChecks": true,
+        "strictBindCallApply": true,
+        "strictPropertyInitialization": true
+    }
 }

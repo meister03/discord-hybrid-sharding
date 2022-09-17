@@ -27,7 +27,7 @@ export class Queue {
                 const interval = setInterval(() => {
                     if (this.queue.length === 0) {
                         clearInterval(interval);
-                        resolve("Queue finished");
+                        resolve('Queue finished');
                     }
                 }, 200);
             });

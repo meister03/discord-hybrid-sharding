@@ -1,5 +1,5 @@
 import { Serializable } from 'child_process';
-import {Worker as Worker_Thread, WorkerOptions, parentPort, workerData} from 'worker_threads';
+import { Worker as Worker_Thread, WorkerOptions, parentPort, workerData } from 'worker_threads';
 
 export interface WorkerThreadOptions extends WorkerOptions {
     clusterData: any;
@@ -57,6 +57,7 @@ export class WorkerClient {
     constructor() {
         this.ipc = parentPort;
     }
+
     public send(message: Serializable) {
         return new Promise<void>(resolve => {
             this.ipc?.postMessage(message);

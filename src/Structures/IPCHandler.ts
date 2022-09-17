@@ -1,12 +1,12 @@
-import { Cluster } from "../Core/Cluster";
-import { ClusterClient } from "../Core/ClusterClient";
-import { ClusterManager } from "../Core/ClusterManager";
-import { messageType } from "../types/shared";
-import { makePlainError } from "../Util/Util";
-import { Child, ChildClient } from "./Child";
-import { RawMessage } from "./IPCMessage";
-import { ResolveMessage } from "./PromiseHandler";
-import { Worker, WorkerClient } from "./Worker";
+import { Cluster } from '../Core/Cluster';
+import { ClusterClient } from '../Core/ClusterClient';
+import { ClusterManager } from '../Core/ClusterManager';
+import { messageType } from '../types/shared';
+import { makePlainError } from '../Util/Util';
+import { Child, ChildClient } from './Child';
+import { RawMessage } from './IPCMessage';
+import { ResolveMessage } from './PromiseHandler';
+import { Worker, WorkerClient } from './Worker';
 
 export class ClusterHandler {
     manager: ClusterManager;
@@ -108,10 +108,10 @@ export class ClusterClientHandler {
         this.ipc = ipc;
     }
 
-    public async handleMessage(message: ResolveMessage & { date?: number, maintenance?: string }) {
+    public async handleMessage(message: ResolveMessage & { date?: number; maintenance?: string }) {
         if (message._type === messageType.CLIENT_EVAL_REQUEST) {
             try {
-                if (!message._eval) throw new Error("Eval Script not provided")
+                if (!message._eval) throw new Error('Eval Script not provided');
                 this.client._respond('eval', {
                     _eval: message._eval,
                     _result: await this.client._eval(message._eval),

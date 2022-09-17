@@ -1,6 +1,6 @@
-import { Cluster } from "../Core/Cluster";
-import { ClusterManager } from "../Core/ClusterManager";
-import { chunkArray, fetchRecommendedShards } from "../Util/Util";
+import { Cluster } from '../Core/Cluster';
+import { ClusterManager } from '../Core/ClusterManager';
+import { chunkArray, fetchRecommendedShards } from '../Util/Util';
 
 export type ReClusterRestartMode = 'gracefulSwitch' | 'rolling';
 
@@ -41,16 +41,16 @@ export class ReClusterManager {
     }
 
     /**
-     * Execute a Zero Downtime Restart on all Clusters with a updated totalShards (count) or a scheduled restart.
+     * Execute a Zero Downtime Restart on all Clusters with an updated totalShards (count) or a scheduled restart.
      * @param options
-     * @param options.delay 
+     * @param options.delay
      * @param options.timeout
-     * @param options.totalShards 
-     * @param options.totalClusters 
-     * @param options.shardsPerClusters 
-     * @param options.shardClusterList 
+     * @param options.totalShards
+     * @param options.totalClusters
+     * @param options.shardsPerClusters
+     * @param options.shardClusterList
      * @param options.shardList
-     * @param options.restartMode 
+     * @param options.restartMode
      */
     public async start(options?: ReClusterOptions) {
         let {
@@ -64,9 +64,10 @@ export class ReClusterManager {
             restartMode = 'gracefulSwitch',
         } = options || { restartMode: 'gracefulSwitch' };
         if (this.onProgress) throw new Error('Zero Downtime Reclustering is already in progress');
-        if (!this.manager) throw new Error('Manager is missing on ReClusterManager')
+        if (!this.manager) throw new Error('Manager is missing on ReClusterManager');
         if (totalShards) {
-            if (!this.manager?.token) throw new Error('Token must be defined on manager, when totalShards is set on auto')
+            if (!this.manager?.token)
+                throw new Error('Token must be defined on manager, when totalShards is set on auto');
             if (totalShards === 'auto') totalShards = await fetchRecommendedShards(this.manager.token);
             this.manager.totalShards = totalShards;
         }
@@ -124,7 +125,8 @@ export class ReClusterManager {
             oldClusters.set(cluster.id, cluster);
         });
         for (let i = 0; i < this.manager.totalClusters; i++) {
-            const length = this.manager.shardClusterList[i]?.length || this.manager.totalShards/this.manager.totalClusters;
+            const length =
+                this.manager.shardClusterList[i]?.length || this.manager.totalShards / this.manager.totalClusters;
             const clusterId = this.manager.clusterList[i] || i;
             const readyTimeout = timeout !== -1 ? timeout + delay * length : timeout;
             const spawnDelay = delay * length;
@@ -164,7 +166,7 @@ export class ReClusterManager {
         await this.manager.queue.start();
         if (oldClusters.size) {
             this.manager._debug('[↻][ReClustering] Killing old clusters');
-            for (let [id, cluster] of Array.from(oldClusters)) {
+            for (const [id, cluster] of Array.from(oldClusters)) {
                 cluster.kill({ force: true, reason: 'reclustering' });
                 this.manager._debug(`[↻][ReClustering][${id}] Killed OldCluster`);
                 this.manager.clusters.delete(id);
@@ -179,7 +181,7 @@ export class ReClusterManager {
                 const clusterId = this.manager.clusterList[i] || i;
                 const cluster = newClusters.get(clusterId);
                 const oldCluster = this.manager.clusters.get(clusterId);
-                if(!cluster) continue;
+                if (!cluster) continue;
                 if (oldCluster) {
                     oldCluster.kill({ force: true, reason: 'reclustering' });
                     oldClusters.delete(clusterId);
