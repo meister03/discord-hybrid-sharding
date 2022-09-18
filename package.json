@@ -8,8 +8,8 @@
         "node-fetch": "^2.6.7"
     },
     "scripts": {
-        "lint": "eslint . --ext .js",
-        "lint:fix": "eslint . --fix --ext .js",
+        "lint": "eslint src/**/**.ts",
+        "lint:fix": "eslint src/**/**.ts --fix",
         "format": "prettier --check .",
         "format:fix": "prettier --write .",
         "generate-docs": "jsdoc -c ./.jsdoc.conf.json"
