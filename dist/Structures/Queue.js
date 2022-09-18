@@ -1,5 +1,8 @@
-import { delayFor } from '../Util/Util';
-export class Queue {
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.Queue = void 0;
+const Util_1 = require("../Util/Util");
+class Queue {
     queue;
     options;
     paused;
@@ -25,7 +28,7 @@ export class Queue {
                 continue;
             const timeout = this.queue[0].timeout;
             await this.next();
-            await delayFor(timeout);
+            await (0, Util_1.delayFor)(timeout);
         }
         return this;
     }
@@ -55,3 +58,4 @@ export class Queue {
         return this;
     }
 }
+exports.Queue = Queue;

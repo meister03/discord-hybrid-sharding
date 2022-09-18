@@ -1,5 +1,8 @@
-import { generateNonce } from '../Util/Util';
-export class PromiseHandler {
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.PromiseHandler = void 0;
+const Util_1 = require("../Util/Util");
+class PromiseHandler {
     nonce;
     constructor() {
         this.nonce = new Map();
@@ -25,7 +28,7 @@ export class PromiseHandler {
         if (Object.keys(options).length === 0 && message.options)
             options = message.options;
         if (!message.nonce)
-            message.nonce = generateNonce();
+            message.nonce = (0, Util_1.generateNonce)();
         return await new Promise((resolve, reject) => {
             if (options.timeout) {
                 const timeout = setTimeout(() => {
@@ -41,3 +44,4 @@ export class PromiseHandler {
         });
     }
 }
+exports.PromiseHandler = PromiseHandler;

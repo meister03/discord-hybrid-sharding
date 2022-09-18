@@ -3,13 +3,14 @@
     "compilerOptions": {
         "outDir": "dist",
         "rootDir": "src",
-        "lib": ["esnext"],
+        "lib": ["ESNext"],
         "target": "ESNext",
+        "module": "CommonJS",
+        "moduleResolution": "Node",
         "declaration": true,
         "declarationMap": true,
         "composite": false,
         "esModuleInterop": true,
-        "moduleResolution": "Node",
         "skipLibCheck": true,
         "forceConsistentCasingInFileNames": true,
 

@@ -1,10 +1,13 @@
-import { generateNonce } from '../Util/Util';
-import { messageType } from '../types/shared';
-export class BaseMessage {
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.IPCMessage = exports.BaseMessage = void 0;
+const Util_1 = require("../Util/Util");
+const shared_1 = require("../types/shared");
+class BaseMessage {
     nonce;
     _raw;
     constructor(message) {
-        this.nonce = message.nonce || generateNonce();
+        this.nonce = message.nonce || (0, Util_1.generateNonce)();
         message.nonce = this.nonce;
         this._raw = this.destructMessage(message);
     }
@@ -14,14 +17,15 @@ export class BaseMessage {
         }
         if (message.nonce)
             this.nonce = message.nonce;
-        this._type = message._type || messageType.CUSTOM_MESSAGE;
+        this._type = message._type || shared_1.messageType.CUSTOM_MESSAGE;
         return message;
     }
     toJSON() {
         return this._raw;
     }
 }
-export class IPCMessage extends BaseMessage {
+exports.BaseMessage = BaseMessage;
+class IPCMessage extends BaseMessage {
     raw;
     instance;
     constructor(instance, message) {
@@ -32,13 +36,13 @@ export class IPCMessage extends BaseMessage {
     async send(message) {
         if (typeof message !== 'object')
             throw new TypeError('The Message has to be a object');
-        const baseMessage = new BaseMessage({ ...message, _type: messageType.CUSTOM_MESSAGE });
+        const baseMessage = new BaseMessage({ ...message, _type: shared_1.messageType.CUSTOM_MESSAGE });
         return this.instance.send(baseMessage.toJSON());
     }
     async request(message) {
         if (typeof message !== 'object')
             throw new TypeError('The Message has to be a object');
-        const baseMessage = new BaseMessage({ ...message, _type: messageType.CUSTOM_REQUEST, nonce: this.nonce });
+        const baseMessage = new BaseMessage({ ...message, _type: shared_1.messageType.CUSTOM_REQUEST, nonce: this.nonce });
         return this.instance.request(baseMessage.toJSON());
     }
     async reply(message) {
@@ -46,10 +50,11 @@ export class IPCMessage extends BaseMessage {
             throw new TypeError('The Message has to be a object');
         const baseMessage = new BaseMessage({
             ...message,
-            _type: messageType.CUSTOM_REPLY,
+            _type: shared_1.messageType.CUSTOM_REPLY,
             nonce: this.nonce,
             _result: message,
         });
         return this.instance.send(baseMessage.toJSON());
     }
 }
+exports.IPCMessage = IPCMessage;

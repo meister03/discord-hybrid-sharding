@@ -1,13 +1,19 @@
-import { IPCMessage, BaseMessage } from '../Structures/IPCMessage';
-import { Events, messageType, } from '../types/shared';
-import { getInfo } from '../Structures/Data';
-import { WorkerClient } from '../Structures/Worker';
-import { ChildClient } from '../Structures/Child';
-import { ClusterClientHandler } from '../Structures/IPCHandler';
-import { PromiseHandler } from '../Structures/PromiseHandler';
-import EventEmitter from 'events';
-import { generateNonce } from '../Util/Util';
-export class ClusterClient extends EventEmitter {
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.ClusterClient = void 0;
+const IPCMessage_1 = require("../Structures/IPCMessage");
+const shared_1 = require("../types/shared");
+const Data_1 = require("../Structures/Data");
+const Worker_1 = require("../Structures/Worker");
+const Child_1 = require("../Structures/Child");
+const IPCHandler_1 = require("../Structures/IPCHandler");
+const PromiseHandler_1 = require("../Structures/PromiseHandler");
+const events_1 = __importDefault(require("events"));
+const Util_1 = require("../Util/Util");
+class ClusterClient extends events_1.default {
     client;
     mode;
     queue;
@@ -33,11 +39,11 @@ export class ClusterClient extends EventEmitter {
         this.ready = false;
         this.process = null;
         if (mode === 'process')
-            this.process = new ChildClient();
+            this.process = new Child_1.ChildClient();
         else if (mode === 'worker')
-            this.process = new WorkerClient();
-        this.messageHandler = new ClusterClientHandler(this, this.process);
-        this.promise = new PromiseHandler();
+            this.process = new Worker_1.WorkerClient();
+        this.messageHandler = new IPCHandler_1.ClusterClientHandler(this, this.process);
+        this.promise = new PromiseHandler_1.PromiseHandler();
         this.process?.ipc?.on('message', this._handleMessage.bind(this));
         client.on?.('ready', () => {
             this.triggerReady();
@@ -55,11 +61,11 @@ export class ClusterClient extends EventEmitter {
         return this.info.CLUSTER_COUNT;
     }
     get info() {
-        return getInfo();
+        return (0, Data_1.getInfo)();
     }
     send(message) {
         if (typeof message === 'object')
-            message = new BaseMessage(message).toJSON();
+            message = new IPCMessage_1.BaseMessage(message).toJSON();
         return this.process?.send(message);
     }
     fetchClientValues(prop, cluster) {
@@ -67,7 +73,7 @@ export class ClusterClient extends EventEmitter {
     }
     async evalOnManager(script, options) {
         const evalOptions = options || { _type: undefined };
-        evalOptions._type = messageType.CLIENT_MANAGER_EVAL_REQUEST;
+        evalOptions._type = shared_1.messageType.CLIENT_MANAGER_EVAL_REQUEST;
         return await this.broadcastEval(script, evalOptions);
     }
     async broadcastEval(script, options) {
@@ -76,24 +82,24 @@ export class ClusterClient extends EventEmitter {
         const broadcastOptions = options || { context: undefined, _type: undefined, timeout: undefined };
         script =
             typeof script === 'function' ? `(${script})(this, ${JSON.stringify(broadcastOptions.context)})` : script;
-        const nonce = generateNonce();
+        const nonce = (0, Util_1.generateNonce)();
         const message = {
             nonce,
             _eval: script,
             options,
-            _type: broadcastOptions._type || messageType.CLIENT_BROADCAST_REQUEST,
+            _type: broadcastOptions._type || shared_1.messageType.CLIENT_BROADCAST_REQUEST,
         };
         await this.send(message);
         return await this.promise.create(message, broadcastOptions);
     }
     request(message) {
         const rawMessage = message || { _type: undefined };
-        rawMessage._type = messageType.CUSTOM_REQUEST;
+        rawMessage._type = shared_1.messageType.CUSTOM_REQUEST;
         this.send(rawMessage);
         return this.promise.create(rawMessage, {});
     }
     respawnAll({ clusterDelay = 5000, respawnDelay = 7000, timeout = 30000 } = {}) {
-        return this.send({ _type: messageType.CLIENT_RESPAWN_ALL, options: { clusterDelay, respawnDelay, timeout } });
+        return this.send({ _type: shared_1.messageType.CLIENT_RESPAWN_ALL, options: { clusterDelay, respawnDelay, timeout } });
     }
     async _handleMessage(message) {
         if (!message)
@@ -103,7 +109,7 @@ export class ClusterClient extends EventEmitter {
             return;
         let emitMessage;
         if (typeof message === 'object')
-            emitMessage = new IPCMessage(this, message);
+            emitMessage = new IPCMessage_1.IPCMessage(this, message);
         else
             emitMessage = message;
         this.emit('message', emitMessage);
@@ -121,11 +127,11 @@ export class ClusterClient extends EventEmitter {
         this.send(message)?.catch(err => {
             const error = { err, message: '' };
             error.message = `Error when sending ${type} response to master process: ${err.message}`;
-            this.client.emit?.(Events.ERROR, error);
+            this.client.emit?.(shared_1.Events.ERROR, error);
         });
     }
     triggerReady() {
-        this.process?.send({ _type: messageType.CLIENT_READY });
+        this.process?.send({ _type: shared_1.messageType.CLIENT_READY });
         this.ready = true;
         return this.ready;
     }
@@ -133,9 +139,9 @@ export class ClusterClient extends EventEmitter {
         return this.emit('ready', this);
     }
     triggerMaintenance(maintenance, all = false) {
-        let _type = messageType.CLIENT_MAINTENANCE;
+        let _type = shared_1.messageType.CLIENT_MAINTENANCE;
         if (all)
-            _type = messageType.CLIENT_MAINTENANCE_ALL;
+            _type = shared_1.messageType.CLIENT_MAINTENANCE_ALL;
         this.process?.send({ _type, maintenance });
         this.maintenance = maintenance;
         return this.maintenance;
@@ -143,9 +149,10 @@ export class ClusterClient extends EventEmitter {
     spawnNextCluster() {
         if (this.queue.mode === 'auto')
             throw new Error('Next Cluster can just be spawned when the queue is not on auto mode.');
-        return this.process?.send({ _type: messageType.CLIENT_SPAWN_NEXT_CLUSTER });
+        return this.process?.send({ _type: shared_1.messageType.CLIENT_SPAWN_NEXT_CLUSTER });
     }
     static getInfo() {
-        return getInfo();
+        return (0, Data_1.getInfo)();
     }
 }
+exports.ClusterClient = ClusterClient;

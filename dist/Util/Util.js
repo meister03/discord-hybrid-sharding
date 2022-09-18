@@ -1,37 +1,48 @@
-import fetch from 'node-fetch';
-import { DefaultOptions, Endpoints } from '../types/shared';
-export function generateNonce() {
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.fetchRecommendedShards = exports.shardIdForGuildId = exports.makePlainError = exports.delayFor = exports.chunkArray = exports.generateNonce = void 0;
+const node_fetch_1 = __importDefault(require("node-fetch"));
+const shared_1 = require("../types/shared");
+function generateNonce() {
     return Date.now().toString(36) + Math.random().toString(36);
 }
-export function chunkArray(array, chunkSize) {
+exports.generateNonce = generateNonce;
+function chunkArray(array, chunkSize) {
     const R = [];
     for (let i = 0; i < array.length; i += chunkSize)
         R.push(array.slice(i, i + chunkSize));
     return R;
 }
-export function delayFor(ms) {
+exports.chunkArray = chunkArray;
+function delayFor(ms) {
     return new Promise(resolve => {
         setTimeout(resolve, ms);
     });
 }
-export function makePlainError(err) {
+exports.delayFor = delayFor;
+function makePlainError(err) {
     return {
         name: err['name'],
         message: err['message'],
         stack: err['stack'],
     };
 }
-export function shardIdForGuildId(guildId, totalShards = 1) {
+exports.makePlainError = makePlainError;
+function shardIdForGuildId(guildId, totalShards = 1) {
     const shard = Number(BigInt(guildId) >> BigInt(22)) % totalShards;
     if (shard < 0)
         throw new Error('SHARD_MISCALCULATION_SHARDID_SMALLER_THAN_0 ' +
             `Calculated Shard: ${shard}, guildId: ${guildId}, totalShards: ${totalShards}`);
     return shard;
 }
-export async function fetchRecommendedShards(token, guildsPerShard = 1000) {
+exports.shardIdForGuildId = shardIdForGuildId;
+async function fetchRecommendedShards(token, guildsPerShard = 1000) {
     if (!token)
         throw new Error('DISCORD_TOKEN_MISSING');
-    return fetch(`${DefaultOptions.http.api}/v${DefaultOptions.http.version}${Endpoints.botGateway}`, {
+    return (0, node_fetch_1.default)(`${shared_1.DefaultOptions.http.api}/v${shared_1.DefaultOptions.http.version}${shared_1.Endpoints.botGateway}`, {
         method: 'GET',
         headers: { Authorization: `Bot ${token.replace(/^Bot\s*/i, '')}` },
     })
@@ -44,3 +55,4 @@ export async function fetchRecommendedShards(token, guildsPerShard = 1000) {
     })
         .then(data => data.shards * (1000 / guildsPerShard));
 }
+exports.fetchRecommendedShards = fetchRecommendedShards;

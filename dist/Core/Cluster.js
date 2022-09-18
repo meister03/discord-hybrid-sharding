@@ -1,12 +1,18 @@
-import EventEmitter from 'events';
-import path from 'path';
-import { delayFor, generateNonce } from '../Util/Util';
-import { messageType } from '../types/shared';
-import { IPCMessage, BaseMessage } from '../Structures/IPCMessage.js';
-import { ClusterHandler } from '../Structures/IPCHandler.js';
-import { Worker } from '../Structures/Worker.js';
-import { Child } from '../Structures/Child.js';
-export class Cluster extends EventEmitter {
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.Cluster = void 0;
+const events_1 = __importDefault(require("events"));
+const path_1 = __importDefault(require("path"));
+const Util_1 = require("../Util/Util");
+const shared_1 = require("../types/shared");
+const IPCMessage_js_1 = require("../Structures/IPCMessage.js");
+const IPCHandler_js_1 = require("../Structures/IPCHandler.js");
+const Worker_js_1 = require("../Structures/Worker.js");
+const Child_js_1 = require("../Structures/Child.js");
+class Cluster extends events_1.default {
     THREAD;
     manager;
     id;
@@ -21,7 +27,7 @@ export class Cluster extends EventEmitter {
     ready;
     constructor(manager, id, shardList, totalShards) {
         super();
-        this.THREAD = manager.mode === 'worker' ? Worker : Child;
+        this.THREAD = manager.mode === 'worker' ? Worker_js_1.Worker : Child_js_1.Child;
         this.manager = manager;
         this.id = id;
         this.args = manager.shardArgs || [];
@@ -60,14 +66,14 @@ export class Cluster extends EventEmitter {
     async spawn(spawnTimeout = 30000) {
         if (this.thread)
             throw new Error('CLUSTER ALREADY SPAWNED | ClusterId: ' + this.id);
-        this.thread = new this.THREAD(path.resolve(this.manager.file), {
+        this.thread = new this.THREAD(path_1.default.resolve(this.manager.file), {
             ...this.manager.clusterOptions,
             execArgv: this.execArgv,
             env: this.env,
             args: this.args,
             clusterData: { ...this.env, ...this.manager.clusterData },
         });
-        this.messageHandler = new ClusterHandler(this.manager, this, this.thread);
+        this.messageHandler = new IPCHandler_js_1.ClusterHandler(this.manager, this, this.thread);
         this.thread
             .spawn()
             .on('message', this._handleMessage.bind(this))
@@ -113,18 +119,18 @@ export class Cluster extends EventEmitter {
         if (this.thread)
             this.kill({ force: true });
         if (delay > 0)
-            await delayFor(delay);
+            await (0, Util_1.delayFor)(delay);
         this.manager.heartbeat?.clusters.get(this.id)?.stop();
         return this.spawn(timeout);
     }
     send(message) {
         if (typeof message === 'object')
-            this.thread?.send(new BaseMessage(message).toJSON());
+            this.thread?.send(new IPCMessage_js_1.BaseMessage(message).toJSON());
         else
             return this.thread?.send(message);
     }
     request(message) {
-        message._type = messageType.CUSTOM_REQUEST;
+        message._type = shared_1.messageType.CUSTOM_REQUEST;
         this.send(message);
         return this.manager.promise.create(message, message.options);
     }
@@ -132,13 +138,13 @@ export class Cluster extends EventEmitter {
         const _eval = typeof script === 'function' ? `(${script})(this, ${JSON.stringify(context)})` : script;
         if (!this.thread)
             return Promise.reject(new Error('CLUSTERING_NO_CHILD_EXISTS | ClusterId: ' + this.id));
-        const nonce = generateNonce();
-        const message = { nonce, _eval, options: { timeout }, _type: messageType.CLIENT_EVAL_REQUEST };
+        const nonce = (0, Util_1.generateNonce)();
+        const message = { nonce, _eval, options: { timeout }, _type: shared_1.messageType.CLIENT_EVAL_REQUEST };
         await this.send(message);
         return await this.manager.promise.create(message, message.options);
     }
     triggerMaintenance(reason) {
-        const _type = reason ? messageType.CLIENT_MAINTENANCE_ENABLE : messageType.CLIENT_MAINTENANCE_DISABLE;
+        const _type = reason ? shared_1.messageType.CLIENT_MAINTENANCE_ENABLE : shared_1.messageType.CLIENT_MAINTENANCE_DISABLE;
         return this.send({ _type, maintenance: reason });
     }
     _handleMessage(message) {
@@ -149,8 +155,8 @@ export class Cluster extends EventEmitter {
             return;
         let emitMessage;
         if (typeof message === 'object') {
-            emitMessage = new IPCMessage(this, message);
-            if (emitMessage._type === messageType.CUSTOM_REQUEST)
+            emitMessage = new IPCMessage_js_1.IPCMessage(this, message);
+            if (emitMessage._type === shared_1.messageType.CUSTOM_REQUEST)
                 this.manager.emit('clientRequest', emitMessage);
         }
         else
@@ -183,3 +189,4 @@ export class Cluster extends EventEmitter {
         this.manager.emit('error', error);
     }
 }
+exports.Cluster = Cluster;

@@ -1,5 +1,8 @@
-import { chunkArray, fetchRecommendedShards } from '../Util/Util';
-export class ReClusterManager {
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.ReClusterManager = void 0;
+const Util_1 = require("../Util/Util");
+class ReClusterManager {
     options;
     name;
     onProgress;
@@ -26,7 +29,7 @@ export class ReClusterManager {
             if (!this.manager?.token)
                 throw new Error('Token must be defined on manager, when totalShards is set on auto');
             if (totalShards === 'auto' || totalShards === -1)
-                totalShards = await fetchRecommendedShards(this.manager.token);
+                totalShards = await (0, Util_1.fetchRecommendedShards)(this.manager.token);
             this.manager.totalShards = totalShards;
         }
         if (totalClusters)
@@ -42,7 +45,7 @@ export class ReClusterManager {
         if (shardClusterList)
             this.manager.shardClusterList = shardClusterList;
         else
-            this.manager.shardClusterList = chunkArray(this.manager.shardList, Math.ceil(this.manager.shardList.length / this.manager.totalClusters));
+            this.manager.shardClusterList = (0, Util_1.chunkArray)(this.manager.shardList, Math.ceil(this.manager.shardList.length / this.manager.totalClusters));
         if (this.manager.shardClusterList.length !== this.manager.totalClusters) {
             this.manager.totalClusters = this.manager.shardClusterList.length;
         }
@@ -137,3 +140,4 @@ export class ReClusterManager {
         return { success: true };
     }
 }
+exports.ReClusterManager = ReClusterManager;

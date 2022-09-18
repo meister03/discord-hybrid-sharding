@@ -1,9 +1,12 @@
-import { workerData } from 'worker_threads';
-export function getInfo() {
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.getInfo = void 0;
+const worker_threads_1 = require("worker_threads");
+function getInfo() {
     const clusterMode = process.env.CLUSTER_MANAGER_MODE;
     if (clusterMode !== 'worker' && clusterMode !== 'process')
         throw new Error('NO CHILD/MASTER EXISTS OR SUPPLIED CLUSTER_MANAGER_MODE IS INCORRECT');
-    let data = {};
+    let data;
     if (clusterMode === 'process') {
         const shardList = [];
         const parseShardList = process.env?.SHARD_LIST?.split(',') || [];
@@ -19,12 +22,12 @@ export function getInfo() {
             FIRST_SHARD_ID: shardList[0],
             LAST_SHARD_ID: shardList[shardList.length - 1],
         };
-        return data;
     }
     else {
-        data = workerData;
+        data = worker_threads_1.workerData;
         data.FIRST_SHARD_ID = data.SHARD_LIST[0];
         data.LAST_SHARD_ID = data.SHARD_LIST[data.SHARD_LIST.length - 1];
-        return data;
     }
+    return data;
 }
+exports.getInfo = getInfo;

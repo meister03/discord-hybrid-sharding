@@ -1,17 +1,20 @@
-export const Events = {
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.messageType = exports.Endpoints = exports.DefaultOptions = exports.Events = void 0;
+exports.Events = {
     ERROR: 'warn',
     WARN: 'error',
 };
-export const DefaultOptions = {
+exports.DefaultOptions = {
     http: {
         api: 'https://discord.com/api',
         version: '10',
     },
 };
-export const Endpoints = {
+exports.Endpoints = {
     botGateway: '/gateway/bot',
 };
-export var messageType;
+var messageType;
 (function (messageType) {
     messageType[messageType["CUSTOM_REQUEST"] = 0] = "CUSTOM_REQUEST";
     messageType[messageType["CUSTOM_MESSAGE"] = 1] = "CUSTOM_MESSAGE";
@@ -34,4 +37,4 @@ export var messageType;
     messageType[messageType["CLIENT_MANAGER_EVAL_RESPONSE"] = 18] = "CLIENT_MANAGER_EVAL_RESPONSE";
     messageType[messageType["MANAGER_BROADCAST_REQUEST"] = 19] = "MANAGER_BROADCAST_REQUEST";
     messageType[messageType["MANAGER_BROADCAST_RESPONSE"] = 20] = "MANAGER_BROADCAST_RESPONSE";
-})(messageType || (messageType = {}));
+})(messageType = exports.messageType || (exports.messageType = {}));
