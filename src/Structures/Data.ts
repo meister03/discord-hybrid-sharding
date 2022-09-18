@@ -4,7 +4,8 @@ export function getInfo() {
     if (clusterMode !== 'worker' && clusterMode !== 'process')
         throw new Error('NO CHILD/MASTER EXISTS OR SUPPLIED CLUSTER_MANAGER_MODE IS INCORRECT');
 
-    let data: ClusterClientData = {} as ClusterClientData;
+    let data: ClusterClientData;
+
     if (clusterMode === 'process') {
         const shardList: number[] = [];
         const parseShardList = process.env?.SHARD_LIST?.split(',') || [];
@@ -20,13 +21,12 @@ export function getInfo() {
             FIRST_SHARD_ID: shardList[0] as number,
             LAST_SHARD_ID: shardList[shardList.length - 1] as number,
         };
-        return data;
     } else {
         data = workerData;
         data.FIRST_SHARD_ID = data.SHARD_LIST[0] as number;
         data.LAST_SHARD_ID = data.SHARD_LIST[data.SHARD_LIST.length - 1] as number;
-        return data;
     }
+    return data;
 }
 
 export interface ClusterClientData {

@@ -1,5 +1,8 @@
-import { Worker as Worker_Thread, parentPort, workerData } from 'worker_threads';
-export class Worker {
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.WorkerClient = exports.Worker = void 0;
+const worker_threads_1 = require("worker_threads");
+class Worker {
     file;
     process;
     workerOptions;
@@ -31,7 +34,7 @@ export class Worker {
             this.workerOptions.resourceLimits = options.resourceLimits;
     }
     spawn() {
-        return (this.process = new Worker_Thread(this.file, this.workerOptions));
+        return (this.process = new worker_threads_1.Worker(this.file, this.workerOptions));
     }
     respawn() {
         this.kill();
@@ -48,10 +51,11 @@ export class Worker {
         });
     }
 }
-export class WorkerClient {
+exports.Worker = Worker;
+class WorkerClient {
     ipc;
     constructor() {
-        this.ipc = parentPort;
+        this.ipc = worker_threads_1.parentPort;
     }
     send(message) {
         return new Promise(resolve => {
@@ -60,6 +64,7 @@ export class WorkerClient {
         });
     }
     getData() {
-        return workerData;
+        return worker_threads_1.workerData;
     }
 }
+exports.WorkerClient = WorkerClient;

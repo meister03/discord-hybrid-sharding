@@ -1,12 +1,18 @@
-import fs from 'fs';
-import path from 'path';
-import os from 'os';
-import EventEmitter from 'events';
-import { chunkArray, delayFor, fetchRecommendedShards, makePlainError, shardIdForGuildId } from '../Util/Util';
-import { Queue } from '../Structures/Queue';
-import { Cluster } from './Cluster';
-import { PromiseHandler } from '../Structures/PromiseHandler';
-export class ClusterManager extends EventEmitter {
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.ClusterManager = void 0;
+const fs_1 = __importDefault(require("fs"));
+const path_1 = __importDefault(require("path"));
+const os_1 = __importDefault(require("os"));
+const events_1 = __importDefault(require("events"));
+const Util_1 = require("../Util/Util");
+const Queue_1 = require("../Structures/Queue");
+const Cluster_1 = require("./Cluster");
+const PromiseHandler_1 = require("../Structures/PromiseHandler");
+class ClusterManager extends events_1.default {
     respawn;
     restarts;
     clusterData;
@@ -41,9 +47,9 @@ export class ClusterManager extends EventEmitter {
         this.file = file;
         if (!file)
             throw new Error('CLIENT_INVALID_OPTION | No File specified.');
-        if (!path.isAbsolute(file))
-            this.file = path.resolve(process.cwd(), file);
-        const stats = fs.statSync(this.file);
+        if (!path_1.default.isAbsolute(file))
+            this.file = path_1.default.resolve(process.cwd(), file);
+        const stats = fs_1.default.statSync(this.file);
         if (!stats.isFile())
             throw new Error('CLIENT_INVALID_OPTION | Provided is file is not type of file');
         this.totalShards = options.totalShards === 'auto' ? -1 : options.totalShards ?? -1;
@@ -122,9 +128,9 @@ export class ClusterManager extends EventEmitter {
             options.queue = { auto: true };
         if (!options.queue.timeout)
             options.queue.timeout = this.spawnOptions.delay;
-        this.queue = new Queue(options.queue);
+        this.queue = new Queue_1.Queue(options.queue);
         this._debug(`[START] Cluster Manager has been initialized`);
-        this.promise = new PromiseHandler();
+        this.promise = new PromiseHandler_1.PromiseHandler();
     }
     async spawn({ amount = this.totalShards, delay, timeout } = this.spawnOptions) {
         if (delay < 7000) {
@@ -135,7 +141,7 @@ export class ClusterManager extends EventEmitter {
         if (amount === -1 || amount === 'auto') {
             if (!this.token)
                 throw new Error('A Token must be provided, when totalShards is set on auto.');
-            amount = await fetchRecommendedShards(this.token, 1000);
+            amount = await (0, Util_1.fetchRecommendedShards)(this.token, 1000);
             this.totalShards = amount;
             this._debug(`Discord recommended a total shard count of ${amount}`);
         }
@@ -151,7 +157,7 @@ export class ClusterManager extends EventEmitter {
         }
         let clusterAmount = this.totalClusters;
         if (clusterAmount === -1) {
-            clusterAmount = os.cpus().length;
+            clusterAmount = os_1.default.cpus().length;
             this.totalClusters = clusterAmount;
         }
         else {
@@ -168,7 +174,7 @@ export class ClusterManager extends EventEmitter {
             this.shardList = Array.from(Array(amount).keys());
         if (this.shardsPerClusters)
             this.totalClusters = Math.ceil(this.shardList.length / this.shardsPerClusters);
-        this.shardClusterList = chunkArray(this.shardList, Math.ceil(this.shardList.length / this.totalClusters));
+        this.shardClusterList = (0, Util_1.chunkArray)(this.shardList, Math.ceil(this.shardList.length / this.totalClusters));
         if (this.shardClusterList.length !== this.totalClusters) {
             this.totalClusters = this.shardClusterList.length;
         }
@@ -204,7 +210,7 @@ export class ClusterManager extends EventEmitter {
         return Promise.all(promises);
     }
     createCluster(id, shardsToSpawn, totalShards, recluster = false) {
-        const cluster = new Cluster(this, id, shardsToSpawn, totalShards);
+        const cluster = new Cluster_1.Cluster(this, id, shardsToSpawn, totalShards);
         if (!recluster)
             this.clusters.set(id, cluster);
         this.emit('clusterCreate', cluster);
@@ -227,7 +233,7 @@ export class ClusterManager extends EventEmitter {
             }
         }
         if (options.guildId) {
-            options.shard = shardIdForGuildId(options.guildId, this.totalShards);
+            options.shard = (0, Util_1.shardIdForGuildId)(options.guildId, this.totalShards);
         }
         if (options.shard) {
             if (typeof options.shard === 'number') {
@@ -273,7 +279,7 @@ export class ClusterManager extends EventEmitter {
             const promises = [cluster.respawn({ delay: respawnDelay, timeout })];
             const length = this.shardClusterList[i]?.length || this.totalShards / this.totalClusters;
             if (++s < this.clusters.size && clusterDelay > 0)
-                promises.push(delayFor(length * clusterDelay));
+                promises.push((0, Util_1.delayFor)(length * clusterDelay));
             i++;
             await Promise.all(promises);
         }
@@ -290,7 +296,7 @@ export class ClusterManager extends EventEmitter {
         catch (err) {
             error = err;
         }
-        return { _result: result, _error: error ? makePlainError(error) : null };
+        return { _result: result, _error: error ? (0, Util_1.makePlainError)(error) : null };
     }
     evalOnCluster(script, options) {
         return this.broadcastEval(script, options)?.then((r) => r[0]);
@@ -323,3 +329,4 @@ export class ClusterManager extends EventEmitter {
         return log;
     }
 }
+exports.ClusterManager = ClusterManager;

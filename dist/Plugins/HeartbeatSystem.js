@@ -1,5 +1,8 @@
-import { messageType } from '../types/shared';
-export class HeartbeatManager {
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.Heartbeat = exports.HeartbeatManager = void 0;
+const shared_1 = require("../types/shared");
+class HeartbeatManager {
     options;
     clusters;
     manager;
@@ -47,7 +50,8 @@ export class HeartbeatManager {
         this.clusters.get(id)?.ack(date);
     }
 }
-export class Heartbeat {
+exports.HeartbeatManager = HeartbeatManager;
+class Heartbeat {
     manager;
     options;
     interval;
@@ -68,7 +72,7 @@ export class Heartbeat {
         return (this.interval = setInterval(() => {
             const start = Date.now();
             this.heartbeats.set(start, true);
-            this.instance.send({ _type: messageType.HEARTBEAT, date: start })?.catch(() => null);
+            this.instance.send({ _type: shared_1.messageType.HEARTBEAT, date: start })?.catch(() => null);
             if (this.heartbeats.size > this.options.maxMissedHeartbeats) {
                 this.manager.stop(this.instance, `Missed ${this.heartbeats.size} Heartbeat Acks | Attempting Respawn`);
             }
@@ -82,3 +86,4 @@ export class Heartbeat {
         this.start();
     }
 }
+exports.Heartbeat = Heartbeat;

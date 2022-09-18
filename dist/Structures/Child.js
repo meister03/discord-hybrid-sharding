@@ -1,5 +1,8 @@
-import { fork } from 'child_process';
-export class Child {
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.ChildClient = exports.Child = void 0;
+const child_process_1 = require("child_process");
+class Child {
     file;
     process;
     processOptions;
@@ -42,7 +45,7 @@ export class Child {
             this.processOptions.timeout = options.timeout;
     }
     spawn() {
-        return (this.process = fork(this.file, this.args, this.processOptions));
+        return (this.process = (0, child_process_1.fork)(this.file, this.args, this.processOptions));
     }
     respawn() {
         this.kill();
@@ -63,7 +66,8 @@ export class Child {
         });
     }
 }
-export class ChildClient {
+exports.Child = Child;
+class ChildClient {
     ipc;
     constructor() {
         this.ipc = process;
@@ -83,3 +87,4 @@ export class ChildClient {
         return process.env;
     }
 }
+exports.ChildClient = ChildClient;
