@@ -15,6 +15,10 @@ class ClusterHandler {
     handleMessage(message) {
         if (message._type === shared_1.messageType.CLIENT_READY) {
             this.cluster.ready = true;
+            /**
+             * Emitted upon the cluster's {@link Client#ready} event.
+             * @event Cluster#ready
+             */
             this.cluster.emit('ready');
             this.cluster.manager._debug('Ready', this.cluster.id);
             return;

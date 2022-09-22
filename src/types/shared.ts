@@ -109,6 +109,7 @@ export interface ClusterManagerOptions {
     spawnOptions?: ClusterManagerSpawnOptions;
     /** Data, which is passed to the Cluster */
     clusterData?: object;
+    /** @deprecated keepAlive is not supported anymore on and above v1.6.0. Import it as plugin ("HeartbeatManager") */
     keepAlive?: boolean;
     /** Options, which is passed when forking a child or creating a thread */
     clusterOptions?: ChildProcessOptions | WorkerThreadOptions;

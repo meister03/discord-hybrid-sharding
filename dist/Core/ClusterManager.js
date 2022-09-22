@@ -13,26 +13,71 @@ const Queue_1 = require("../Structures/Queue");
 const Cluster_1 = require("./Cluster");
 const PromiseHandler_1 = require("../Structures/PromiseHandler");
 class ClusterManager extends events_1.default {
+    /**
+     * Whether clusters should automatically respawn upon exiting
+     */
     respawn;
+    /**
+     * How many times a cluster can maximally restart in the given interval
+     */
     restarts;
+    /**
+     * Data, which is passed to the workerData or the processEnv
+     */
     clusterData;
+    /**
+     * Options, which is passed when forking a child or creating a thread
+     */
     clusterOptions;
+    /**
+     * Path to the bot script file
+     */
     file;
+    /**
+     * Amount of internal shards in total
+     */
     totalShards;
+    /**
+     * Amount of total clusters to spawn
+     */
     totalClusters;
+    /**
+     * Amount of Shards per Clusters
+     */
     shardsPerClusters;
+    /** Mode for Clusters to spawn with */
     mode;
+    /**
+     * An array of arguments to pass to clusters (only when {@link ClusterManager#mode} is `process`)
+     */
     shardArgs;
+    /**
+     * An array of arguments to pass to the executable (only when {@link ClusterManager#mode} is `process`)
+     */
     execArgv;
+    /**
+     * List of internal shard ids this cluster manager spawns
+     */
     shardList;
+    /**
+     * Token to use for obtaining the automatic internal shards count, and passing to bot script
+     */
     token;
+    /**
+     * A collection of all clusters the manager spawned
+     */
     clusters;
     shardClusterList;
+    /**
+     * An Array of IDS[Number], which should be assigned to the spawned Clusters
+     */
     clusterList;
     spawnOptions;
     queue;
     promise;
+    /** HeartbeatManager Plugin */
     heartbeat;
+    /** Reclustering Plugin */
     recluster;
     constructor(file, options) {
         super();
@@ -132,6 +177,9 @@ class ClusterManager extends events_1.default {
         this._debug(`[START] Cluster Manager has been initialized`);
         this.promise = new PromiseHandler_1.PromiseHandler();
     }
+    /**
+     * Spawns multiple internal shards.
+     */
     async spawn({ amount = this.totalShards, delay, timeout } = this.spawnOptions) {
         if (delay < 7000) {
             process.emitWarning(`Spawn Delay (delay: ${delay}) is smaller than 7s, this can cause global rate limits on /gateway/bot`, {
@@ -172,6 +220,7 @@ class ClusterManager extends events_1.default {
         }
         if (!this.shardList.length)
             this.shardList = Array.from(Array(amount).keys());
+        //Calculate Shards per Cluster:
         if (this.shardsPerClusters)
             this.totalClusters = Math.ceil(this.shardList.length / this.shardsPerClusters);
         this.shardClusterList = (0, Util_1.chunkArray)(this.shardList, Math.ceil(this.shardList.length / this.totalClusters));
@@ -203,20 +252,39 @@ class ClusterManager extends events_1.default {
         }
         return this.queue.start();
     }
+    /**
+     * Sends a message to all clusters.
+     */
     broadcast(message) {
         const promises = [];
         for (const cluster of Array.from(this.clusters.values()))
             promises.push(cluster.send(message));
         return Promise.all(promises);
     }
+    /**
+     * Creates a single cluster.
+     * <warn>Using this method is usually not necessary if you use the spawn method.</warn>
+     * <info>This is usually not necessary to manually specify.</info>
+     * @returns Note that the created cluster needs to be explicitly spawned using its spawn method.
+     */
     createCluster(id, shardsToSpawn, totalShards, recluster = false) {
         const cluster = new Cluster_1.Cluster(this, id, shardsToSpawn, totalShards);
         if (!recluster)
             this.clusters.set(id, cluster);
+        /**
+         * Emitted upon creating a cluster.
+         * @event ClusterManager#clusterCreate
+         * @param {Cluster} cluster Cluster that was created
+         */
+        // @todo clusterReady event
         this.emit('clusterCreate', cluster);
         this._debug(`[CREATE] Created Cluster ${cluster.id}`);
         return cluster;
     }
+    /**
+     * Evaluates a script on all clusters, or a given cluster, in the context of the {@link Client}s.
+     * @returns Results of the script execution
+     */
     broadcastEval(script, evalOptions) {
         const options = evalOptions ?? {};
         if (!script || (typeof script !== 'string' && typeof script !== 'function'))
@@ -241,6 +309,7 @@ class ClusterManager extends events_1.default {
                     throw new RangeError('SHARD_ID_OUT_OF_RANGE');
             }
             if (Array.isArray(options.shard)) {
+                // @todo Support Array of Shards
                 if (options.shard.length === 0)
                     throw new RangeError('ARRAY_MUST_CONTAIN_ONE SHARD_ID');
             }
@@ -248,16 +317,38 @@ class ClusterManager extends events_1.default {
         }
         return this._performOnClusters('eval', [script], options.cluster, options.timeout);
     }
+    /**
+     * Fetches a client property value of each cluster, or a given cluster.
+     * @param prop Name of the client property to get, using periods for nesting
+     * @param cluster Cluster to fetch property from, all if undefined
+     * @example
+     * manager.fetchClientValues('guilds.cache.size')
+     *   .then(results => console.log(`${results.reduce((prev, val) => prev + val, 0)} total guilds`))
+     *   .catch(console.error);
+     */
     fetchClientValues(prop, cluster) {
         return this.broadcastEval(`this.${prop}`, { cluster });
     }
+    /**
+     * Runs a method with given arguments on all clusters, or a given cluster.
+     * @param method Method name to run on each cluster
+     * @param args Arguments to pass through to the method call
+     * @param cluster cluster to run on, all if undefined
+     * @param timeout the amount of time to wait until the promise will be rejected
+     * @returns Results of the method execution
+     * @private
+     */
     _performOnClusters(method, args, cluster, timeout) {
         if (this.clusters.size === 0)
             return Promise.reject(new Error('CLUSTERING_NO_CLUSTERS'));
         if (typeof cluster === 'number') {
             if (this.clusters.has(cluster))
                 return (this.clusters
-                    .get(cluster)?.[method](...args, undefined, timeout)
+                    .get(cluster)
+                // @ts-expect-error
+                ?.
+                // @ts-expect-error
+                [method](...args, undefined, timeout)
                     .then((e) => [e]));
             return Promise.reject(new Error('CLUSTERING_CLUSTER_NOT_FOUND FOR ClusterId: ' + cluster));
         }
@@ -266,11 +357,17 @@ class ClusterManager extends events_1.default {
             clusters = clusters.filter(c => cluster.includes(c.id));
         if (clusters.length === 0)
             return Promise.reject(new Error('CLUSTERING_NO_CLUSTERS_FOUND'));
+        /* if (this.clusters.size !== this.totalClusters && !cluster) return Promise.reject(new Error('CLUSTERING_IN_PROCESS')); */
         const promises = [];
+        // @ts-expect-error
         for (const cl of clusters)
             promises.push(cl[method](...args, undefined, timeout));
         return Promise.all(promises);
     }
+    /**
+     * Kills all running clusters and respawns them.
+     * @param options Options for respawning shards
+     */
     async respawnAll({ clusterDelay = 5500, respawnDelay = 500, timeout = -1 } = {}) {
         this.promise.nonce.clear();
         let s = 0;
@@ -281,11 +378,15 @@ class ClusterManager extends events_1.default {
             if (++s < this.clusters.size && clusterDelay > 0)
                 promises.push((0, Util_1.delayFor)(length * clusterDelay));
             i++;
-            await Promise.all(promises);
+            await Promise.all(promises); // eslint-disable-line no-await-in-loop
         }
         this._debug('Respawning all Clusters');
         return this.clusters;
     }
+    //Custom Functions:
+    /**
+     * Runs a method with given arguments on the Manager itself
+     */
     async evalOnManager(script) {
         script = typeof script === 'function' ? `(${script})(this)` : script;
         let result;
@@ -298,9 +399,17 @@ class ClusterManager extends events_1.default {
         }
         return { _result: result, _error: error ? (0, Util_1.makePlainError)(error) : null };
     }
+    /**
+     * Runs a method with given arguments on the provided Cluster Client
+     * @returns Results of the script execution
+     * @private
+     */
     evalOnCluster(script, options) {
         return this.broadcastEval(script, options)?.then((r) => r[0]);
     }
+    /**
+     * Adds a plugin to the cluster manager
+     */
     extend(...plugins) {
         if (!plugins)
             throw new Error('NO_PLUGINS_PROVIDED');
@@ -314,9 +423,17 @@ class ClusterManager extends events_1.default {
             plugin.build(this);
         }
     }
+    /**
+     * @param reason If maintenance should be enabled on all clusters with a given reason or disabled when nonce provided
+     */
     triggerMaintenance(reason) {
         return Array.from(this.clusters.values()).forEach(cluster => cluster.triggerMaintenance(reason));
     }
+    /**
+     * Logs out the Debug Messages
+     * <warn>Using this method just emits the Debug Event.</warn>
+     * <info>This is usually not necessary to manually specify.</info>
+     */
     _debug(message, cluster) {
         let log;
         if (cluster === undefined) {
@@ -325,6 +442,11 @@ class ClusterManager extends events_1.default {
         else {
             log = `[CM => Cluster ${cluster}] ` + message;
         }
+        /**
+         * Emitted upon receiving a message
+         * @event ClusterManager#debug
+         * @param {string} Message, which was received
+         */
         this.emit('debug', log);
         return log;
     }

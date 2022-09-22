@@ -11,6 +11,9 @@ class Queue {
         this.queue = [];
         this.paused = false;
     }
+    /**
+     * Starts the queue and run's the item functions
+     */
     async start() {
         if (!this.options.auto) {
             return new Promise(resolve => {
@@ -32,6 +35,9 @@ class Queue {
         }
         return this;
     }
+    /**
+     * Goes to the next item in the queue
+     */
     async next() {
         if (this.paused)
             return;
@@ -40,14 +46,23 @@ class Queue {
             return true;
         return item.run(...item.args);
     }
+    /**
+     * Stop's the queue and blocks the next item from running
+     */
     stop() {
         this.paused = true;
         return this;
     }
+    /**
+     * Resume's the queue
+     */
     resume() {
         this.paused = false;
         return this;
     }
+    /**
+     * Adds an item to the queue
+     */
     add(item) {
         this.queue.push({
             run: item.run,

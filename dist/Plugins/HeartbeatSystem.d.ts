@@ -2,7 +2,9 @@
 import { Cluster } from '../Core/Cluster';
 import { ClusterManager } from '../Core/ClusterManager';
 export declare type keepAliveOptions = {
+    /** Default interval is 20000 */
     interval?: number;
+    /** Default maxMissedHeartbeats is 5 */
     maxMissedHeartbeats?: number;
 };
 export declare class HeartbeatManager {

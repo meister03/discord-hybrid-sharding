@@ -67,30 +67,51 @@ export interface ClusterManagerSpawnOptions extends ClusterSpawnOptions {
     amount?: number | 'auto';
 }
 export interface ClusterManagerOptions {
+    /** The token of the discord bot */
     token?: string;
+    /** Number of total internal shards or "auto" */
     totalShards?: number | 'auto';
+    /** Number of total Clusters\Process to spawn*/
     totalClusters?: number | 'auto';
+    /** Number of shards per cluster*/
     shardsPerClusters?: number;
+    /** Arguments to pass to the clustered script when spawning (only available when using the `process` mode)*/
     shardArgs?: string[];
+    /** Arguments to pass to the clustered script executable when spawning*/
     execArgv?: string[];
+    /** Whether clusters should automatically respawn upon exiting */
     respawn?: boolean;
+    /** Which mode to use for clustering */
     mode?: 'worker' | 'process';
+    /** An Array of Internal Shards Ids, which should get spawned */
     shardList?: number[];
+    /** An Array of Ids to assign to the spawned Clusters, when the default id scheme is not wanted */
     clusterList?: number[];
+    /** Restart options */
     restarts?: ClusterRestartOptions;
+    /** Control the Spawn Queue */
     queue?: QueueOptions;
+    /** Options to pass to the spawn,respawn method */
     spawnOptions?: ClusterManagerSpawnOptions;
+    /** Data, which is passed to the Cluster */
     clusterData?: object;
+    /** @deprecated keepAlive is not supported anymore on and above v1.6.0. Import it as plugin ("HeartbeatManager") */
     keepAlive?: boolean;
+    /** Options, which is passed when forking a child or creating a thread */
     clusterOptions?: ChildProcessOptions | WorkerThreadOptions;
 }
 export interface ClusterRestartOptions {
+    /** Maximum amount of restarts a cluster can have in the interval */
     max: number;
+    /** Interval in milliseconds on which the current restarts amount of a cluster will be resetted */
     interval: number;
+    /** Current Amount of restarts */
     current?: number;
 }
 export interface QueueOptions {
+    /** Whether the spawn queue be automatically managed */
     auto: boolean;
+    /** Time to wait until next item */
     timeout?: number;
 }
 export interface ClusterKillOptions {
