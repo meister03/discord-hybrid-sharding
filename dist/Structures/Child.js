@@ -11,6 +11,7 @@ class Child {
         this.file = file;
         this.process = null;
         this.processOptions = {};
+        // Custom options
         if (options.clusterData)
             this.processOptions.env = options.clusterData;
         if (options.args)

@@ -10,6 +10,7 @@ class Worker {
         this.file = file;
         this.process = null;
         this.workerOptions = {};
+        // Custom options
         if (options.clusterData)
             this.workerOptions.workerData = options.clusterData;
         if (options.argv)

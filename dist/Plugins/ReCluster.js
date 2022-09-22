@@ -19,6 +19,18 @@ class ReClusterManager {
         this.manager = manager;
         return this;
     }
+    /**
+     * Execute a Zero Downtime Restart on all Clusters with an updated totalShards (count) or a scheduled restart.
+     * @param options
+     * @param options.delay
+     * @param options.timeout
+     * @param options.totalShards
+     * @param options.totalClusters
+     * @param options.shardsPerClusters
+     * @param options.shardClusterList
+     * @param options.shardList
+     * @param options.restartMode
+     */
     async start(options) {
         let { delay, timeout, totalShards, totalClusters, shardsPerClusters, shardClusterList, shardList = this.manager?.shardList, restartMode = 'gracefulSwitch', } = options || { restartMode: 'gracefulSwitch' };
         if (this.onProgress)
@@ -60,6 +72,12 @@ class ReClusterManager {
         ].join('\n'));
         return this._start({ restartMode, timeout, delay });
     }
+    /**
+     * @param options
+     * @param options.delay The delay to wait between each cluster spawn
+     * @param options.timeout The readyTimeout to wait until the cluster spawn promise is rejected
+     * @param options.restartMode The restartMode of the clusterManager, gracefulSwitch = waits until all new clusters have spawned with maintenance mode, rolling = Once the Cluster is Ready, the old cluster will be killed
+     */
     async _start({ restartMode = 'gracefulSwitch', timeout = 30000 * 6, delay = 7000 }) {
         if (!this.manager)
             throw new Error('Manager is missing on ReClusterManager');
@@ -67,7 +85,8 @@ class ReClusterManager {
         this.manager.triggerMaintenance('recluster');
         this.manager._debug('[↻][ReClustering] Enabling Maintenance Mode on all clusters');
         let switchClusterAfterReady = false;
-        switchClusterAfterReady = restartMode === 'rolling';
+        // when no shard settings have been updated
+        switchClusterAfterReady = restartMode === 'rolling'; //gracefulSwitch, spawn all clusters and kill all old clusters, when new clusters are ready
         const newClusters = new Map();
         const oldClusters = new Map();
         Array.from(this.manager.clusters.values()).forEach(cluster => {
