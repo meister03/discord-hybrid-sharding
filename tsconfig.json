@@ -26,7 +26,6 @@
         "noFallthroughCasesInSwitch": true,
         "noUncheckedIndexedAccess": true,
         "resolveJsonModule": true,
-
         "useUnknownInCatchVariables": false,
 
         "strict": true,
