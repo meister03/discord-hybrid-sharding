@@ -26,7 +26,7 @@ export declare class ClusterClient extends EventEmitter {
     /**
      * Array of shard IDs of this client
      */
-    get ids(): number[] | import("discord.js").Collection<number, import("discord.js").WebSocketShard>;
+    get ids(): number[] | import("@discordjs/collection").Collection<number, import("discord.js").WebSocketShard>;
     /**
      * Total number of clusters
      */

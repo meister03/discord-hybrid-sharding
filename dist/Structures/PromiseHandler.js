@@ -25,6 +25,8 @@ class PromiseHandler {
         }
     }
     async create(message, options) {
+        if (!options)
+            options = {};
         if (Object.keys(options).length === 0 && message.options)
             options = message.options;
         if (!message.nonce)

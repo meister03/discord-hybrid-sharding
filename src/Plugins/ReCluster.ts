@@ -70,7 +70,7 @@ export class ReClusterManager {
                 throw new Error('Token must be defined on manager, when totalShards is set on auto');
             if (totalShards === 'auto' || totalShards === -1)
                 totalShards = await fetchRecommendedShards(this.manager.token);
-            this.manager.totalShards = totalShards;
+            this.manager.totalShards = totalShards as number;
         }
         if (totalClusters) this.manager.totalClusters = totalClusters;
         if (shardsPerClusters) {

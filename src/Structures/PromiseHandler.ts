@@ -45,6 +45,7 @@ export class PromiseHandler {
         message: RawMessage & { options?: PromiseCreateOptions; stack?: string },
         options: PromiseCreateOptions,
     ) {
+        if(!options) options = {};
         if (Object.keys(options).length === 0 && message.options) options = message.options;
         if (!message.nonce) message.nonce = generateNonce();
         return await new Promise((resolve, reject) => {
