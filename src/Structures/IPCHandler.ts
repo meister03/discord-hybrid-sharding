@@ -26,6 +26,7 @@ export class ClusterHandler {
              * @event Cluster#ready
              */
             this.cluster.emit('ready');
+            this.cluster.manager.emit('clusterReady', this.cluster);
             this.cluster.manager._debug('Ready', this.cluster.id);
             return;
         }
