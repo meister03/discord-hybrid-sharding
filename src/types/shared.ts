@@ -137,10 +137,6 @@ export interface ClusterKillOptions {
     force: boolean;
 }
 
-export interface handleExitOptions {
-    reason?: string;
-}
-
 export interface Plugin {
     build(manager: ClusterManager): void;
 }

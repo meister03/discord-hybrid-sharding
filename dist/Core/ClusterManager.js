@@ -180,7 +180,7 @@ class ClusterManager extends events_1.default {
     /**
      * Spawns multiple internal shards.
      */
-    async spawn({ amount = this.totalShards, delay, timeout } = this.spawnOptions) {
+    async spawn({ amount = this.totalShards, delay, timeout = 30000 } = this.spawnOptions) {
         if (delay < 7000) {
             process.emitWarning(`Spawn Delay (delay: ${delay}) is smaller than 7s, this can cause global rate limits on /gateway/bot`, {
                 code: 'CLUSTER_MANAGER',

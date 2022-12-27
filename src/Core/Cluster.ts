@@ -4,7 +4,7 @@ import EventEmitter from 'events';
 import path from 'path';
 import { delayFor, generateNonce } from '../Util/Util';
 
-import { ClusterEvents, ClusterKillOptions, handleExitOptions, messageType } from '../types/shared';
+import { ClusterEvents, ClusterKillOptions, messageType } from '../types/shared';
 import { IPCMessage, BaseMessage, RawMessage } from '../Structures/IPCMessage.js';
 import { ClusterHandler } from '../Structures/IPCHandler.js';
 
@@ -211,7 +211,7 @@ export class Cluster extends EventEmitter {
         this.thread?.kill();
         this.manager.heartbeat?.clusters.get(this.id)?.stop();
         this.restarts.cleanup();
-        this._handleExit(false, options);
+        this.manager._debug('[KILL] Cluster killed with reason: ' + (options?.reason || 'not given'), this.id);
     }
     /**
      * Kills and restarts the cluster's process/worker.
@@ -303,25 +303,29 @@ export class Cluster extends EventEmitter {
      * @param {handleExitOptions} options
      * @private
      */
-    private _handleExit(respawn = this.manager.respawn, options?: handleExitOptions) {
+    private _handleExit(exitCode: number) {
         /**
          * Emitted upon the cluster's child process/worker exiting.
          * @event Cluster#death
          * @param {Child|Worker} process Child process/worker that exited
          */
-        if (!options) options = {};
-        if (options?.reason !== 'reclustering') this.emit('death', this, this.thread?.process);
-        if (respawn) {
-            this.manager._debug(
-                '[DEATH] Cluster died, attempting respawn | Restarts Left: ' +
-                    (this.restarts.max - this.restarts.current),
-                this.id,
-            );
-        } else {
-            this.manager._debug('[KILL] Cluster killed with reason: ' + (options?.reason || 'not given'), this.id);
-        }
+
+        const respawn = this.manager.respawn;
+
+        // Cleanup functions
+        this.manager.heartbeat?.clusters.get(this.id)?.stop();
+        this.restarts.cleanup();
+
+        this.emit('death', this, this.thread?.process);
+
+        this.manager._debug(
+            '[DEATH] Cluster died, attempting respawn | Restarts Left: ' +
+            (this.restarts.max - this.restarts.current),
+            this.id,
+        );
 
         this.ready = false;
+
         this.thread = null;
 
         if (!respawn) return;
@@ -354,26 +358,26 @@ export class Cluster extends EventEmitter {
 // Credits for EventEmitter typings: https://github.com/discordjs/discord.js/blob/main/packages/rest/src/lib/RequestManager.ts#L159 | See attached license
 export interface Cluster {
     emit: (<K extends keyof ClusterEvents>(event: K, ...args: ClusterEvents[K]) => boolean) &
-        (<S extends string | symbol>(event: Exclude<S, keyof ClusterEvents>, ...args: any[]) => boolean);
+    (<S extends string | symbol>(event: Exclude<S, keyof ClusterEvents>, ...args: any[]) => boolean);
 
     off: (<K extends keyof ClusterEvents>(event: K, listener: (...args: ClusterEvents[K]) => void) => this) &
-        (<S extends string | symbol>(
-            event: Exclude<S, keyof ClusterEvents>,
-            listener: (...args: any[]) => void,
-        ) => this);
+    (<S extends string | symbol>(
+        event: Exclude<S, keyof ClusterEvents>,
+        listener: (...args: any[]) => void,
+    ) => this);
 
     on: (<K extends keyof ClusterEvents>(event: K, listener: (...args: ClusterEvents[K]) => void) => this) &
-        (<S extends string | symbol>(
-            event: Exclude<S, keyof ClusterEvents>,
-            listener: (...args: any[]) => void,
-        ) => this);
+    (<S extends string | symbol>(
+        event: Exclude<S, keyof ClusterEvents>,
+        listener: (...args: any[]) => void,
+    ) => this);
 
     once: (<K extends keyof ClusterEvents>(event: K, listener: (...args: ClusterEvents[K]) => void) => this) &
-        (<S extends string | symbol>(
-            event: Exclude<S, keyof ClusterEvents>,
-            listener: (...args: any[]) => void,
-        ) => this);
+    (<S extends string | symbol>(
+        event: Exclude<S, keyof ClusterEvents>,
+        listener: (...args: any[]) => void,
+    ) => this);
 
     removeAllListeners: (<K extends keyof ClusterEvents>(event?: K) => this) &
-        (<S extends string | symbol>(event?: Exclude<S, keyof ClusterEvents>) => this);
+    (<S extends string | symbol>(event?: Exclude<S, keyof ClusterEvents>) => this);
 }

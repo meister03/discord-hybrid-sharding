@@ -168,7 +168,7 @@ class Cluster extends events_1.default {
         this.thread?.kill();
         this.manager.heartbeat?.clusters.get(this.id)?.stop();
         this.restarts.cleanup();
-        this._handleExit(false, options);
+        this.manager._debug('[KILL] Cluster killed with reason: ' + (options?.reason || 'not given'), this.id);
     }
     /**
      * Kills and restarts the cluster's process/worker.
@@ -264,23 +264,19 @@ class Cluster extends events_1.default {
      * @param {handleExitOptions} options
      * @private
      */
-    _handleExit(respawn = this.manager.respawn, options) {
+    _handleExit(exitCode) {
         /**
          * Emitted upon the cluster's child process/worker exiting.
          * @event Cluster#death
          * @param {Child|Worker} process Child process/worker that exited
          */
-        if (!options)
-            options = {};
-        if (options?.reason !== 'reclustering')
-            this.emit('death', this, this.thread?.process);
-        if (respawn) {
-            this.manager._debug('[DEATH] Cluster died, attempting respawn | Restarts Left: ' +
-                (this.restarts.max - this.restarts.current), this.id);
-        }
-        else {
-            this.manager._debug('[KILL] Cluster killed with reason: ' + (options?.reason || 'not given'), this.id);
-        }
+        const respawn = this.manager.respawn;
+        // Cleanup functions
+        this.manager.heartbeat?.clusters.get(this.id)?.stop();
+        this.restarts.cleanup();
+        this.emit('death', this, this.thread?.process);
+        this.manager._debug('[DEATH] Cluster died, attempting respawn | Restarts Left: ' +
+            (this.restarts.max - this.restarts.current), this.id);
         this.ready = false;
         this.thread = null;
         if (!respawn)
