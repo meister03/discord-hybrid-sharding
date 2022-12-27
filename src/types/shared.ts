@@ -25,6 +25,7 @@ export const Endpoints = {
 };
 
 export enum messageType {
+    'MISSING_TYPE',
     'CUSTOM_REQUEST',
     'CUSTOM_MESSAGE',
     'CUSTOM_REPLY',
