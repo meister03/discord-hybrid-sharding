@@ -260,9 +260,8 @@ class Cluster extends events_1.default {
     }
     /**
      * Handles the cluster's process/worker exiting.
-     * @param respawn=this.manager.respawn Whether to spawn the cluster again
-     * @param {handleExitOptions} options
      * @private
+     * @param {Number} exitCode
      */
     _handleExit(exitCode) {
         /**
@@ -275,8 +274,7 @@ class Cluster extends events_1.default {
         this.manager.heartbeat?.clusters.get(this.id)?.stop();
         this.restarts.cleanup();
         this.emit('death', this, this.thread?.process);
-        this.manager._debug('[DEATH] Cluster died, attempting respawn | Restarts Left: ' +
-            (this.restarts.max - this.restarts.current), this.id);
+        this.manager._debug('[DEATH] Cluster died, attempting respawn | Restarts Left: ' + (this.restarts.max - this.restarts.current), this.id);
         this.ready = false;
         this.thread = null;
         if (!respawn)

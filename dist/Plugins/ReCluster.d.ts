@@ -1,5 +1,5 @@
 import { ClusterManager } from '../Core/ClusterManager';
-export declare type ReClusterRestartMode = 'gracefulSwitch' | 'rolling';
+export type ReClusterRestartMode = 'gracefulSwitch' | 'rolling';
 export interface ReClusterOptions {
     /** The delay to wait between each cluster spawn */
     delay?: number;
@@ -23,7 +23,7 @@ export declare class ReClusterManager {
     name: 'recluster';
     onProgress: Boolean;
     manager?: ClusterManager;
-    constructor(options: ReClusterOptions);
+    constructor(options?: ReClusterOptions);
     build(manager: ClusterManager): this;
     /**
      * Execute a Zero Downtime Restart on all Clusters with an updated totalShards (count) or a scheduled restart.

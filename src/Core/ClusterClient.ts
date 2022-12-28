@@ -118,7 +118,7 @@ export class ClusterClient extends EventEmitter {
      *   .catch(console.error);
      * @see {@link ClusterManager#fetchClientValues}
      */
-    public fetchClientValues(prop: string, cluster: number) {
+    public fetchClientValues(prop: string, cluster?: number) {
         return this.broadcastEval(`this.${prop}`, { cluster });
     }
 
@@ -154,7 +154,7 @@ export class ClusterClient extends EventEmitter {
     public broadcastEval<T>(fn: (client: ClusterClient['client']) => Awaitable<T>): Promise<Serialized<T>[]>;
     public broadcastEval<T>(
         fn: (client: ClusterClient['client']) => Awaitable<T>,
-        options?: evalOptions,
+        options?: { cluster?: number; timeout?: number },
     ): Promise<Serialized<T>>;
     public broadcastEval<T, P>(
         fn: (client: ClusterClient['client'], context: Serialized<P>) => Awaitable<T>,

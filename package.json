@@ -1,6 +1,6 @@
 {
     "name": "discord-hybrid-sharding",
-    "version": "2.0.1",
+    "version": "2.0.4",
     "description": "The first package which combines sharding manager & internal sharding to save a lot of resources, which allows clustering!",
     "main": "./dist/index.js",
     "types": "./dist/index.d.ts",
@@ -42,18 +42,18 @@
     },
     "homepage": "https://github.com/meister03/discord-hybrid-sharding#readme",
     "devDependencies": {
-        "@types/node": "^18.7.18",
+        "@types/node": "^18.11.18",
         "@types/node-fetch": "^2.6.2",
-        "@typescript-eslint/eslint-plugin": "^5.38.0",
-        "@typescript-eslint/parser": "^5.38.0",
-        "clean-jsdoc-theme": "^4.1.8",
-        "discord.js": "^14.4.0",
-        "eslint": "^8.23.1",
+        "@typescript-eslint/eslint-plugin": "^5.47.1",
+        "@typescript-eslint/parser": "^5.47.1",
+        "clean-jsdoc-theme": "^4.2.1",
+        "discord.js": "^14.7.1",
+        "eslint": "^8.30.0",
         "eslint-config-prettier": "^8.5.0",
-        "eslint-plugin-jsdoc": "^39.3.6",
+        "eslint-plugin-jsdoc": "^39.6.4",
         "eslint-plugin-prettier": "^4.2.1",
-        "jsdoc": "^3.6.11",
-        "prettier": "^2.7.1",
-        "typescript": "^4.8.3"
+        "jsdoc": "^4.0.0",
+        "prettier": "^2.8.1",
+        "typescript": "^4.9.4"
     }
 }

@@ -48,7 +48,7 @@ export declare class ClusterClient extends EventEmitter {
      *   .catch(console.error);
      * @see {@link ClusterManager#fetchClientValues}
      */
-    fetchClientValues(prop: string, cluster: number): Promise<any>;
+    fetchClientValues(prop: string, cluster?: number): Promise<any>;
     /**
      * Evaluates a script or function on the Cluster Manager
      * @example
@@ -72,7 +72,10 @@ export declare class ClusterClient extends EventEmitter {
     broadcastEval(script: string): Promise<any[]>;
     broadcastEval(script: string, options?: evalOptions): Promise<any>;
     broadcastEval<T>(fn: (client: ClusterClient['client']) => Awaitable<T>): Promise<Serialized<T>[]>;
-    broadcastEval<T>(fn: (client: ClusterClient['client']) => Awaitable<T>, options?: evalOptions): Promise<Serialized<T>>;
+    broadcastEval<T>(fn: (client: ClusterClient['client']) => Awaitable<T>, options?: {
+        cluster?: number;
+        timeout?: number;
+    }): Promise<Serialized<T>>;
     broadcastEval<T, P>(fn: (client: ClusterClient['client'], context: Serialized<P>) => Awaitable<T>, options?: evalOptions<P>): Promise<Serialized<T>[]>;
     broadcastEval<T, P>(fn: (client: ClusterClient['client'], context: Serialized<P>) => Awaitable<T>, options?: evalOptions<P>): Promise<Serialized<T>>;
     /**

@@ -180,7 +180,7 @@ class ClusterManager extends events_1.default {
     /**
      * Spawns multiple internal shards.
      */
-    async spawn({ amount = this.totalShards, delay, timeout = 30000 } = this.spawnOptions) {
+    async spawn({ amount = this.totalShards, delay = 7000, timeout = -1 } = this.spawnOptions) {
         if (delay < 7000) {
             process.emitWarning(`Spawn Delay (delay: ${delay}) is smaller than 7s, this can cause global rate limits on /gateway/bot`, {
                 code: 'CLUSTER_MANAGER',
@@ -281,11 +281,7 @@ class ClusterManager extends events_1.default {
         this._debug(`[CREATE] Created Cluster ${cluster.id}`);
         return cluster;
     }
-    /**
-     * Evaluates a script on all clusters, or a given cluster, in the context of the {@link Client}s.
-     * @returns Results of the script execution
-     */
-    broadcastEval(script, evalOptions) {
+    async broadcastEval(script, evalOptions) {
         const options = evalOptions ?? {};
         if (!script || (typeof script !== 'string' && typeof script !== 'function'))
             return Promise.reject(new TypeError('ClUSTERING_INVALID_EVAL_BROADCAST'));

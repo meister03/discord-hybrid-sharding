@@ -130,9 +130,8 @@ export declare class Cluster extends EventEmitter {
     private _handleMessage;
     /**
      * Handles the cluster's process/worker exiting.
-     * @param respawn=this.manager.respawn Whether to spawn the cluster again
-     * @param {handleExitOptions} options
      * @private
+     * @param {Number} exitCode
      */
     private _handleExit;
     /**

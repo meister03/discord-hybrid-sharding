@@ -1,7 +1,7 @@
 /// <reference types="node" />
 import { Cluster } from '../Core/Cluster';
 import { ClusterManager } from '../Core/ClusterManager';
-export declare type keepAliveOptions = {
+export type keepAliveOptions = {
     /** Default interval is 20000 */
     interval?: number;
     /** Default maxMissedHeartbeats is 5 */
@@ -12,7 +12,7 @@ export declare class HeartbeatManager {
     clusters: Map<number, Heartbeat>;
     manager: null | ClusterManager;
     name: 'heartbeat';
-    constructor(options: keepAliveOptions);
+    constructor(options?: keepAliveOptions);
     build(manager: ClusterManager): void;
     start(): void;
     stop(cluster: Cluster, reason: string): void;
