@@ -14,7 +14,7 @@ export class HeartbeatManager {
     clusters: Map<number, Heartbeat>;
     manager: null | ClusterManager;
     name: 'heartbeat';
-    constructor(options: keepAliveOptions) {
+    constructor(options?: keepAliveOptions) {
         if (!options) options = {};
         this.options = options;
 

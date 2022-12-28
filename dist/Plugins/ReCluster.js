@@ -10,7 +10,8 @@ class ReClusterManager {
     constructor(options) {
         if (!options)
             this.options = {};
-        this.options = options;
+        else
+            this.options = options;
         this.name = 'recluster';
         this.onProgress = false;
     }
@@ -32,7 +33,7 @@ class ReClusterManager {
      * @param options.restartMode
      */
     async start(options) {
-        let { delay, timeout, totalShards, totalClusters, shardsPerClusters, shardClusterList, shardList = this.manager?.shardList, restartMode = 'gracefulSwitch', } = options || { restartMode: 'gracefulSwitch' };
+        let { delay, timeout, totalClusters, totalShards, shardsPerClusters, shardClusterList, shardList = this.manager?.shardList, restartMode = 'gracefulSwitch', } = options || { restartMode: 'gracefulSwitch' };
         if (this.onProgress)
             throw new Error('Zero Downtime Reclustering is already in progress');
         if (!this.manager)

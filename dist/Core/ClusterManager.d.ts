@@ -2,12 +2,13 @@ import EventEmitter from 'events';
 import { Queue } from '../Structures/Queue';
 import { Cluster } from './Cluster';
 import { PromiseHandler } from '../Structures/PromiseHandler';
-import { ClusterManagerEvents, ClusterManagerOptions, ClusterManagerSpawnOptions, ClusterRestartOptions, evalOptions, Plugin } from '../types/shared';
+import { Awaitable, ClusterManagerEvents, ClusterManagerOptions, ClusterManagerSpawnOptions, ClusterRestartOptions, evalOptions, Plugin, Serialized } from '../types/shared';
 import { ChildProcessOptions } from '../Structures/Child';
 import { WorkerThreadOptions } from '../Structures/Worker';
 import { BaseMessage } from '../Structures/IPCMessage';
 import { HeartbeatManager } from '../Plugins/HeartbeatSystem';
 import { ReClusterManager } from '../Plugins/ReCluster';
+import { ClusterClient } from './ClusterClient';
 export declare class ClusterManager extends EventEmitter {
     /**
      * Whether clusters should automatically respawn upon exiting
@@ -95,7 +96,15 @@ export declare class ClusterManager extends EventEmitter {
      * Evaluates a script on all clusters, or a given cluster, in the context of the {@link Client}s.
      * @returns Results of the script execution
      */
-    broadcastEval(script: string, evalOptions?: evalOptions): Promise<any[]> | undefined;
+    broadcastEval(script: string): Promise<any[]>;
+    broadcastEval(script: string, options?: evalOptions): Promise<any>;
+    broadcastEval<T>(fn: (client: ClusterClient['client']) => Awaitable<T>): Promise<Serialized<T>[]>;
+    broadcastEval<T>(fn: (client: ClusterClient['client']) => Awaitable<T>, options?: {
+        cluster?: number;
+        timeout?: number;
+    }): Promise<Serialized<T>>;
+    broadcastEval<T, P>(fn: (client: ClusterClient['client'], context: Serialized<P>) => Awaitable<T>, options?: evalOptions<P>): Promise<Serialized<T>[]>;
+    broadcastEval<T, P>(fn: (client: ClusterClient['client'], context: Serialized<P>) => Awaitable<T>, options?: evalOptions<P>): Promise<Serialized<T>>;
     /**
      * Fetches a client property value of each cluster, or a given cluster.
      * @param prop Name of the client property to get, using periods for nesting
@@ -105,7 +114,7 @@ export declare class ClusterManager extends EventEmitter {
      *   .then(results => console.log(`${results.reduce((prev, val) => prev + val, 0)} total guilds`))
      *   .catch(console.error);
      */
-    fetchClientValues(prop: string, cluster?: number): Promise<any[]> | undefined;
+    fetchClientValues(prop: string, cluster?: number): Promise<any>;
     /**
      * Runs a method with given arguments on all clusters, or a given cluster.
      * @param method Method name to run on each cluster
@@ -141,7 +150,7 @@ export declare class ClusterManager extends EventEmitter {
      * @returns Results of the script execution
      * @private
      */
-    evalOnCluster(script: string, options: evalOptions): Promise<any> | undefined;
+    evalOnCluster(script: string, options: evalOptions): Promise<any>;
     /**
      * Adds a plugin to the cluster manager
      */

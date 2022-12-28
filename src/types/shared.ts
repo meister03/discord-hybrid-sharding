@@ -73,8 +73,8 @@ export type Serialized<T> = T extends symbol | bigint | (() => any)
     : { [K in keyof T]: Serialized<T[K]> };
 
 export interface ClusterSpawnOptions {
-    delay: number;
-    timeout: number;
+    delay?: number;
+    timeout?: number;
 }
 
 export interface ClusterManagerSpawnOptions extends ClusterSpawnOptions {

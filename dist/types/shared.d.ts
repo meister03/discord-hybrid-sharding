@@ -54,15 +54,15 @@ export interface evalOptions<T = object> {
     timeout?: number;
     _type?: messageType;
 }
-export declare type Awaitable<T> = T | PromiseLike<T>;
-export declare type Serialized<T> = T extends symbol | bigint | (() => any) ? never : T extends number | string | boolean | undefined ? T : T extends {
+export type Awaitable<T> = T | PromiseLike<T>;
+export type Serialized<T> = T extends symbol | bigint | (() => any) ? never : T extends number | string | boolean | undefined ? T : T extends {
     toJSON(): infer R;
 } ? R : T extends ReadonlyArray<infer V> ? Serialized<V>[] : T extends ReadonlyMap<unknown, unknown> | ReadonlySet<unknown> ? {} : {
     [K in keyof T]: Serialized<T[K]>;
 };
 export interface ClusterSpawnOptions {
-    delay: number;
-    timeout: number;
+    delay?: number;
+    timeout?: number;
 }
 export interface ClusterManagerSpawnOptions extends ClusterSpawnOptions {
     amount?: number | 'auto';

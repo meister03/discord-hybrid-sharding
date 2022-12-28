@@ -10,5 +10,5 @@ export interface ClusterClientData {
     CLUSTER: number;
     CLUSTER_MANAGER_MODE: ClusterManagerMode;
 }
-export declare type ClusterManagerMode = 'process' | 'worker';
+export type ClusterManagerMode = 'process' | 'worker';
 //# sourceMappingURL=Data.d.ts.map

@@ -8,6 +8,7 @@ import { Queue } from '../Structures/Queue';
 import { Cluster } from './Cluster';
 import { PromiseHandler } from '../Structures/PromiseHandler';
 import {
+    Awaitable,
     ClusterManagerEvents,
     ClusterManagerOptions,
     ClusterManagerSpawnOptions,
@@ -15,12 +16,14 @@ import {
     evalOptions,
     Plugin,
     QueueOptions,
+    Serialized,
 } from '../types/shared';
 import { ChildProcessOptions } from '../Structures/Child';
 import { WorkerThreadOptions } from '../Structures/Worker';
 import { BaseMessage } from '../Structures/IPCMessage';
 import { HeartbeatManager } from '../Plugins/HeartbeatSystem';
 import { ReClusterManager } from '../Plugins/ReCluster';
+import { ClusterClient } from './ClusterClient';
 
 export class ClusterManager extends EventEmitter {
     /**
@@ -224,7 +227,7 @@ export class ClusterManager extends EventEmitter {
     /**
      * Spawns multiple internal shards.
      */
-    public async spawn({ amount = this.totalShards, delay, timeout = 30000 } = this.spawnOptions) {
+    public async spawn({ amount = this.totalShards, delay = 7000, timeout = -1 } = this.spawnOptions) {
         if (delay < 7000) {
             process.emitWarning(
                 `Spawn Delay (delay: ${delay}) is smaller than 7s, this can cause global rate limits on /gateway/bot`,
@@ -339,7 +342,27 @@ export class ClusterManager extends EventEmitter {
      * Evaluates a script on all clusters, or a given cluster, in the context of the {@link Client}s.
      * @returns Results of the script execution
      */
-    public broadcastEval(script: string, evalOptions?: evalOptions) {
+    public broadcastEval(script: string): Promise<any[]>;
+    public broadcastEval(script: string, options?: evalOptions): Promise<any>;
+    public broadcastEval<T>(fn: (client: ClusterClient['client']) => Awaitable<T>): Promise<Serialized<T>[]>;
+    public broadcastEval<T>(
+        fn: (client: ClusterClient['client']) => Awaitable<T>,
+        options?: { cluster?: number; timeout?: number },
+    ): Promise<Serialized<T>>;
+    public broadcastEval<T, P>(
+        fn: (client: ClusterClient['client'], context: Serialized<P>) => Awaitable<T>,
+        options?: evalOptions<P>,
+    ): Promise<Serialized<T>[]>;
+    public broadcastEval<T, P>(
+        fn: (client: ClusterClient['client'], context: Serialized<P>) => Awaitable<T>,
+        options?: evalOptions<P>,
+    ): Promise<Serialized<T>>;
+    public async broadcastEval<T, P>(
+        script:
+            | string
+            | ((client: ClusterClient['client'], context?: Serialized<P>) => Awaitable<T> | Promise<Serialized<T>>),
+        evalOptions?: evalOptions | evalOptions<P>,
+    ) {
         const options = evalOptions ?? {};
         if (!script || (typeof script !== 'string' && typeof script !== 'function'))
             return Promise.reject(new TypeError('ClUSTERING_INVALID_EVAL_BROADCAST'));

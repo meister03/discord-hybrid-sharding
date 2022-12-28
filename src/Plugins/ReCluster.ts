@@ -28,9 +28,9 @@ export class ReClusterManager {
     name: 'recluster';
     onProgress: Boolean;
     manager?: ClusterManager;
-    constructor(options: ReClusterOptions) {
+    constructor(options?: ReClusterOptions) {
         if (!options) this.options = {};
-        this.options = options;
+        else this.options = options;
         this.name = 'recluster';
         this.onProgress = false;
     }
@@ -56,8 +56,8 @@ export class ReClusterManager {
         let {
             delay,
             timeout,
-            totalShards,
             totalClusters,
+            totalShards,
             shardsPerClusters,
             shardClusterList,
             shardList = this.manager?.shardList,

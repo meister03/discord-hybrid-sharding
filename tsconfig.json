@@ -1,12 +1,12 @@
 {
-    "include": ["src/**/*.ts"],
+    "include": ["src"],
     "compilerOptions": {
         "outDir": "dist",
         "rootDir": "src",
         "lib": ["ESNext"],
         "target": "ESNext",
         "module": "CommonJS",
-        "moduleResolution": "Node",
+        "moduleResolution": "NodeNext",
         "declaration": true,
         "declarationMap": true,
         "composite": false,
@@ -32,6 +32,7 @@
         "strictFunctionTypes": true,
         "strictNullChecks": true,
         "strictBindCallApply": true,
-        "strictPropertyInitialization": true
+        "strictPropertyInitialization": true,
+        "typeRoots": ["src/types", "node_modules/@types"]
     }
 }
