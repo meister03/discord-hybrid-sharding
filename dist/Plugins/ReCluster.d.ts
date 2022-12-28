@@ -1,5 +1,5 @@
 import { ClusterManager } from '../Core/ClusterManager';
-export type ReClusterRestartMode = 'gracefulSwitch' | 'rolling';
+export declare type ReClusterRestartMode = 'gracefulSwitch' | 'rolling';
 export interface ReClusterOptions {
     /** The delay to wait between each cluster spawn */
     delay?: number;
