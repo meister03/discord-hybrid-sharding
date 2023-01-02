@@ -223,7 +223,7 @@ class ClusterManager extends events_1.default {
         //Calculate Shards per Cluster:
         if (this.shardsPerClusters)
             this.totalClusters = Math.ceil(this.shardList.length / this.shardsPerClusters);
-        this.shardClusterList = (0, Util_1.chunkArray)(this.shardList, Math.ceil(this.shardList.length / this.totalClusters));
+        this.shardClusterList = (0, Util_1.chunkArray)(this.shardList, (!isNaN(this.shardsPerClusters) ? this.shardsPerClusters : Math.ceil(this.shardList.length / this.totalClusters)));
         if (this.shardClusterList.length !== this.totalClusters) {
             this.totalClusters = this.shardClusterList.length;
         }

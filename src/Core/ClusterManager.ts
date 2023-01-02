@@ -274,7 +274,7 @@ export class ClusterManager extends EventEmitter {
 
         this.shardClusterList = chunkArray(
             this.shardList,
-            Math.ceil(this.shardList.length / (this.totalClusters as number)),
+            (!isNaN(this.shardsPerClusters as any) ? this.shardsPerClusters as number : Math.ceil(this.shardList.length / (this.totalClusters as number))),
         );
 
         if (this.shardClusterList.length !== this.totalClusters) {
@@ -531,35 +531,35 @@ export class ClusterManager extends EventEmitter {
 // Credits for EventEmitter typings: https://github.com/discordjs/discord.js/blob/main/packages/rest/src/lib/RequestManager.ts#L159 | See attached license
 export interface ClusterManager {
     emit: (<K extends keyof ClusterManagerEvents>(event: K, ...args: ClusterManagerEvents[K]) => boolean) &
-        (<S extends string | symbol>(event: Exclude<S, keyof ClusterManagerEvents>, ...args: any[]) => boolean);
+    (<S extends string | symbol>(event: Exclude<S, keyof ClusterManagerEvents>, ...args: any[]) => boolean);
 
     off: (<K extends keyof ClusterManagerEvents>(
         event: K,
         listener: (...args: ClusterManagerEvents[K]) => void,
     ) => this) &
-        (<S extends string | symbol>(
-            event: Exclude<S, keyof ClusterManagerEvents>,
-            listener: (...args: any[]) => void,
-        ) => this);
+    (<S extends string | symbol>(
+        event: Exclude<S, keyof ClusterManagerEvents>,
+        listener: (...args: any[]) => void,
+    ) => this);
 
     on: (<K extends keyof ClusterManagerEvents>(
         event: K,
         listener: (...args: ClusterManagerEvents[K]) => void,
     ) => this) &
-        (<S extends string | symbol>(
-            event: Exclude<S, keyof ClusterManagerEvents>,
-            listener: (...args: any[]) => void,
-        ) => this);
+    (<S extends string | symbol>(
+        event: Exclude<S, keyof ClusterManagerEvents>,
+        listener: (...args: any[]) => void,
+    ) => this);
 
     once: (<K extends keyof ClusterManagerEvents>(
         event: K,
         listener: (...args: ClusterManagerEvents[K]) => void,
     ) => this) &
-        (<S extends string | symbol>(
-            event: Exclude<S, keyof ClusterManagerEvents>,
-            listener: (...args: any[]) => void,
-        ) => this);
+    (<S extends string | symbol>(
+        event: Exclude<S, keyof ClusterManagerEvents>,
+        listener: (...args: any[]) => void,
+    ) => this);
 
     removeAllListeners: (<K extends keyof ClusterManagerEvents>(event?: K) => this) &
-        (<S extends string | symbol>(event?: Exclude<S, keyof ClusterManagerEvents>) => this);
+    (<S extends string | symbol>(event?: Exclude<S, keyof ClusterManagerEvents>) => this);
 }
