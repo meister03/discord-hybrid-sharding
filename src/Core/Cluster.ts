@@ -123,8 +123,8 @@ export class Cluster extends EventEmitter {
 
         this.restarts = {
             current: this.manager.restarts.current ?? 0,
-            max: this.manager.restarts.max,
-            interval: this.manager.restarts.interval,
+            max: this.manager.restarts.max ?? 3,
+            interval: this.manager.restarts.interval ?? 60000 * 60,
             reset: undefined,
             resetRestarts: () => {
                 this.restarts.reset = setInterval(() => {
@@ -160,6 +160,7 @@ export class Cluster extends EventEmitter {
             .spawn()
             .on('message', this._handleMessage.bind(this))
             .on('exit', this._handleExit.bind(this))
+            .on('disconnect', this._handleDisconnect.bind(this))
             .on('error', this._handleError.bind(this));
 
         /**
@@ -297,6 +298,14 @@ export class Cluster extends EventEmitter {
         this.emit('message', emitMessage);
     }
 
+    /**
+     * Handles the cluster's process/worker disconnecting.
+     * @private
+     */
+    private _handleDisconnect() {
+       this._handleExit(); // just force handle exit maybe add a this.respawn()? 
+    }
+    
     /**
      * Handles the cluster's process/worker exiting.
      * @private
