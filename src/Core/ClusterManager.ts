@@ -110,11 +110,8 @@ export class ClusterManager extends EventEmitter {
         super();
         if (!options) options = {};
 
-        if (options.keepAlive)
-            throw new Error(
-                'keepAlive is not supported anymore on and above v1.6.0. Import it as plugin ("HeartbeatManager"), therefore check the libs readme',
-            );
-
+        validateOptions(options);
+        
         this.respawn = options.respawn ?? true;
 
         this.restarts = options.restarts || { max: 3, interval: 60000 * 60, current: 0 };
@@ -562,4 +559,52 @@ export interface ClusterManager {
 
     removeAllListeners: (<K extends keyof ClusterManagerEvents>(event?: K) => this) &
     (<S extends string | symbol>(event?: Exclude<S, keyof ClusterManagerEvents>) => this);
+}
+
+
+
+function validateOptions(options: ClusterManagerOptions) {
+        if(options.restarts) {
+            if(typeof options.restarts !== "object") throw new Error(
+                'restarts Option has to be a object, e.g: restarts: { max: 3, interval: 60000 * 60, current: 0 }'
+            );
+            
+            if(typeof options.restarts.max !== "number" || isNaN(options.restarts.max)) throw new Error(
+                'restarts.max Option has to be a number, e.g: restarts: { max: 3, interval: 60000 * 60, current: 0 }'
+            );
+            
+            if(typeof options.restarts.current !== "number" || isNaN(options.restarts.current)) throw new Error(
+                'restarts.current Option has to be a number, e.g: restarts: { max: 3, interval: 60000 * 60, current: 0 }'
+            );
+            // that's an optional option
+            if(typeof options.restarts.interval !== "undefined" && (typeof options.restarts.interval !== "number" || isNaN(options.restarts.interval))) throw new Error(
+                'restarts.interval Option has to be a number, e.g: restarts: { max: 3, interval: 60000 * 60, current: 0 }'
+            );
+            
+            if(options.restarts.max < options.restarts.current) throw new Error(
+                'restarts.max Option has to be a bigger than restart.current, e.g: restarts: { max: 3, interval: 60000 * 60, current: 0 }'
+            );
+            
+            if(options.restarts.max < 1) throw new Error(
+                'restarts.max Option has to be a bigger than 1, else no auto-restarts are possible, e.g: restarts: { max: 3, interval: 60000 * 60, current: 0 }'
+            );
+            
+            if(options.restarts.current < 0) throw new Error(
+                'restarts.current Option has to be bigger than 0 or euqal to 0, e.g: restarts: { max: 3, interval: 60000 * 60, current: 0 }'
+            );
+            
+            if(typeof options.restarts.interval !== "undefined" && options.restarts.interval < 1) throw new Error(
+                'restarts.interval Option has to be bigger than 0, e.g: restarts: { max: 3, interval: 60000 * 60, current: 0 }'
+            );
+            
+            if(options.restart.max == options.restart.current && !options.restart.interval) throw new Error(
+                'restarts.max can\'t be equal to restarts.current, when no restarts.interval is set, e.g: restarts: { max: 3, interval: 60000 * 60, current: 0 }'
+            );
+        }
+    
+        if (options.keepAlive)
+            throw new Error(
+                'keepAlive is not supported anymore on and above v1.6.0. Import it as plugin ("HeartbeatManager"), therefore check the libs readme',
+            );
+    return true;
 }
