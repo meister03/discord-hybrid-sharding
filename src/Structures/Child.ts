@@ -68,6 +68,11 @@ export class Child {
 export class ChildClient {
     ipc: NodeJS.Process;
     constructor() {
+        process.on('SIGINT', () => process.exit());
+        process.on('SIGTERM', () => process.exit());
+        process.on('SIGUSR1', () => process.exit());
+        process.on('SIGUSR2', () => process.exit());
+        
         this.ipc = process;
     }
     public send(message: Serializable) {
