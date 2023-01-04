@@ -1,14 +1,14 @@
 /// <reference types="node" />
 import { RawMessage } from '../Structures/IPCMessage';
-import { Awaitable, ClusterClientEvents, DjsClient, evalOptions, Serialized } from '../types/shared';
+import { Awaitable, ClusterClientEvents, evalOptions, Serialized } from '../types/shared';
 import { ClusterManager as Manager } from '../Core/ClusterManager';
 import { WorkerClient } from '../Structures/Worker';
 import { ChildClient } from '../Structures/Child';
 import { PromiseHandler } from '../Structures/PromiseHandler';
 import EventEmitter from 'events';
 import { Serializable } from 'child_process';
-export declare class ClusterClient extends EventEmitter {
-    client: DjsClient;
+export declare class ClusterClient<DiscordClient> extends EventEmitter {
+    client: DiscordClient;
     mode: 'process' | 'worker';
     queue: {
         mode: 'auto' | string | undefined;
@@ -18,7 +18,7 @@ export declare class ClusterClient extends EventEmitter {
     process: ChildClient | WorkerClient | null;
     messageHandler: any;
     promise: PromiseHandler;
-    constructor(client: DjsClient);
+    constructor(client: DiscordClient);
     /**
      * cluster's id
      */
@@ -26,7 +26,7 @@ export declare class ClusterClient extends EventEmitter {
     /**
      * Array of shard IDs of this client
      */
-    get ids(): number[] | import("@discordjs/collection").Collection<number, import("discord.js").WebSocketShard>;
+    get ids(): any;
     /**
      * Total number of clusters
      */
@@ -71,13 +71,13 @@ export declare class ClusterClient extends EventEmitter {
      */
     broadcastEval(script: string): Promise<any[]>;
     broadcastEval(script: string, options?: evalOptions): Promise<any>;
-    broadcastEval<T>(fn: (client: ClusterClient['client']) => Awaitable<T>): Promise<Serialized<T>[]>;
-    broadcastEval<T>(fn: (client: ClusterClient['client']) => Awaitable<T>, options?: {
+    broadcastEval<T>(fn: (client: DiscordClient) => Awaitable<T>): Promise<Serialized<T>[]>;
+    broadcastEval<T>(fn: (client: DiscordClient) => Awaitable<T>, options?: {
         cluster?: number;
         timeout?: number;
     }): Promise<Serialized<T>>;
-    broadcastEval<T, P>(fn: (client: ClusterClient['client'], context: Serialized<P>) => Awaitable<T>, options?: evalOptions<P>): Promise<Serialized<T>[]>;
-    broadcastEval<T, P>(fn: (client: ClusterClient['client'], context: Serialized<P>) => Awaitable<T>, options?: evalOptions<P>): Promise<Serialized<T>>;
+    broadcastEval<T, P>(fn: (client: DiscordClient, context: Serialized<P>) => Awaitable<T>, options?: evalOptions<P>): Promise<Serialized<T>[]>;
+    broadcastEval<T, P>(fn: (client: DiscordClient, context: Serialized<P>) => Awaitable<T>, options?: evalOptions<P>): Promise<Serialized<T>>;
     /**
      * Sends a Request to the ParentCluster and returns the reply
      * @example
@@ -101,7 +101,7 @@ export declare class ClusterClient extends EventEmitter {
      * @private
      */
     private _handleMessage;
-    _eval(script: string): Promise<unknown>;
+    _eval(script: string): Promise<any>;
     /**
      * Sends a message to the master process, emitting an error from the client upon failure.
      */
@@ -124,11 +124,11 @@ export declare class ClusterClient extends EventEmitter {
      */
     static getInfo(): import("../Structures/Data").ClusterClientData;
 }
-export interface ClusterClient {
-    emit: (<K extends keyof ClusterClientEvents>(event: K, ...args: ClusterClientEvents[K]) => boolean) & (<S extends string | symbol>(event: Exclude<S, keyof ClusterClientEvents>, ...args: any[]) => boolean);
-    off: (<K extends keyof ClusterClientEvents>(event: K, listener: (...args: ClusterClientEvents[K]) => void) => this) & (<S extends string | symbol>(event: Exclude<S, keyof ClusterClientEvents>, listener: (...args: any[]) => void) => this);
-    on: (<K extends keyof ClusterClientEvents>(event: K, listener: (...args: ClusterClientEvents[K]) => void) => this) & (<S extends string | symbol>(event: Exclude<S, keyof ClusterClientEvents>, listener: (...args: any[]) => void) => this);
-    once: (<K extends keyof ClusterClientEvents>(event: K, listener: (...args: ClusterClientEvents[K]) => void) => this) & (<S extends string | symbol>(event: Exclude<S, keyof ClusterClientEvents>, listener: (...args: any[]) => void) => this);
-    removeAllListeners: (<K extends keyof ClusterClientEvents>(event?: K) => this) & (<S extends string | symbol>(event?: Exclude<S, keyof ClusterClientEvents>) => this);
+export interface ClusterClient<DiscordClient> {
+    emit: (<K extends keyof ClusterClientEvents<DiscordClient>>(event: K, ...args: ClusterClientEvents<DiscordClient>[K]) => boolean) & (<S extends string | symbol>(event: Exclude<S, keyof ClusterClientEvents<DiscordClient>>, ...args: any[]) => boolean);
+    off: (<K extends keyof ClusterClientEvents<DiscordClient>>(event: K, listener: (...args: ClusterClientEvents<DiscordClient>[K]) => void) => this) & (<S extends string | symbol>(event: Exclude<S, keyof ClusterClientEvents<DiscordClient>>, listener: (...args: any[]) => void) => this);
+    on: (<K extends keyof ClusterClientEvents<DiscordClient>>(event: K, listener: (...args: ClusterClientEvents<DiscordClient>[K]) => void) => this) & (<S extends string | symbol>(event: Exclude<S, keyof ClusterClientEvents<DiscordClient>>, listener: (...args: any[]) => void) => this);
+    once: (<K extends keyof ClusterClientEvents<DiscordClient>>(event: K, listener: (...args: ClusterClientEvents<DiscordClient>[K]) => void) => this) & (<S extends string | symbol>(event: Exclude<S, keyof ClusterClientEvents<DiscordClient>>, listener: (...args: any[]) => void) => this);
+    removeAllListeners: (<K extends keyof ClusterClientEvents<DiscordClient>>(event?: K) => this) & (<S extends string | symbol>(event?: Exclude<S, keyof ClusterClientEvents<DiscordClient>>) => this);
 }
 //# sourceMappingURL=ClusterClient.d.ts.map

@@ -81,7 +81,7 @@ Filename: `Cluster.js`
 // Typescript: import { ClusterManager } from 'discord-hybrid-sharding'
 const { ClusterManager } = require('discord-hybrid-sharding');
 
-const manager = new Cluster.Manager(`${__dirname}/bot.js`, {
+const manager = new ClusterManager(`${__dirname}/bot.js`, {
     totalShards: 7, // or 'auto'
     /// Check below for more options
     shardsPerClusters: 2,
@@ -125,7 +125,7 @@ client.cluster
     .then(results => console.log(`${results.reduce((prev, val) => prev + val, 0)} total guilds`));
 ```
 
-# Cluster.Manager
+# ClusterManager
 
 | Option            | Type                  | Default  | Description                                                                                                                       |
 | ----------------- | --------------------- | -------- | --------------------------------------------------------------------------------------------------------------------------------- |
@@ -133,7 +133,7 @@ client.cluster
 | totalClusters     | number or string      | "auto"   | Amount of processes/clusters which will be spawned                                                                                |
 | shardsPerClusters | number or string      | -        | Amount of shards which will be in one process/cluster                                                                             |
 | shardList         | Array[number]         | -        | OPTIONAL - On cross-hosting or spawning specific shards you can provide a shardList of internal Shard IDs, which will get spawned |
-| mode              | "worker" or "process" | "worker" | Cluster.Manager mode for the processes                                                                                            |
+| mode              | "worker" or "process" | "worker" | ClusterManager mode for the processes                                                                                            |
 | token             | string                | -        | OPTIONAL -Bot token is only required totalShards are set to "auto"                                                                |
 
 The Manager.spawn options are the same as for Sharding Manager

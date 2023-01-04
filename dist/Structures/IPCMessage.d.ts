@@ -18,8 +18,8 @@ export declare class BaseMessage {
 }
 export declare class IPCMessage extends BaseMessage {
     raw: RawMessage;
-    instance: ClusterClient | Cluster;
-    constructor(instance: ClusterClient | Cluster, message: RawMessage);
+    instance: ClusterClient<any> | Cluster;
+    constructor(instance: ClusterClient<any> | Cluster, message: RawMessage);
     /**
      * Sends a message to the cluster's process/worker or to the ParentCluster.
      */

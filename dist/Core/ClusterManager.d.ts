@@ -2,13 +2,12 @@ import EventEmitter from 'events';
 import { Queue } from '../Structures/Queue';
 import { Cluster } from './Cluster';
 import { PromiseHandler } from '../Structures/PromiseHandler';
-import { Awaitable, ClusterManagerEvents, ClusterManagerOptions, ClusterManagerSpawnOptions, ClusterRestartOptions, evalOptions, Plugin, Serialized } from '../types/shared';
+import { Awaitable, ClusterManagerEvents, ClusterManagerOptions, ClusterManagerSpawnOptions, ClusterRestartOptions, DjsDiscordClient, evalOptions, Plugin, Serialized } from '../types/shared';
 import { ChildProcessOptions } from '../Structures/Child';
 import { WorkerThreadOptions } from '../Structures/Worker';
 import { BaseMessage } from '../Structures/IPCMessage';
 import { HeartbeatManager } from '../Plugins/HeartbeatSystem';
 import { ReClusterManager } from '../Plugins/ReCluster';
-import { ClusterClient } from './ClusterClient';
 export declare class ClusterManager extends EventEmitter {
     /**
      * Whether clusters should automatically respawn upon exiting
@@ -98,13 +97,13 @@ export declare class ClusterManager extends EventEmitter {
      */
     broadcastEval(script: string): Promise<any[]>;
     broadcastEval(script: string, options?: evalOptions): Promise<any>;
-    broadcastEval<T>(fn: (client: ClusterClient['client']) => Awaitable<T>): Promise<Serialized<T>[]>;
-    broadcastEval<T>(fn: (client: ClusterClient['client']) => Awaitable<T>, options?: {
+    broadcastEval<T>(fn: (client: DjsDiscordClient) => Awaitable<T>): Promise<Serialized<T>[]>;
+    broadcastEval<T>(fn: (client: DjsDiscordClient) => Awaitable<T>, options?: {
         cluster?: number;
         timeout?: number;
     }): Promise<Serialized<T>>;
-    broadcastEval<T, P>(fn: (client: ClusterClient['client'], context: Serialized<P>) => Awaitable<T>, options?: evalOptions<P>): Promise<Serialized<T>[]>;
-    broadcastEval<T, P>(fn: (client: ClusterClient['client'], context: Serialized<P>) => Awaitable<T>, options?: evalOptions<P>): Promise<Serialized<T>>;
+    broadcastEval<T, P>(fn: (client: DjsDiscordClient, context: Serialized<P>) => Awaitable<T>, options?: evalOptions<P>): Promise<Serialized<T>[]>;
+    broadcastEval<T, P>(fn: (client: DjsDiscordClient, context: Serialized<P>) => Awaitable<T>, options?: evalOptions<P>): Promise<Serialized<T>>;
     /**
      * Fetches a client property value of each cluster, or a given cluster.
      * @param prop Name of the client property to get, using periods for nesting

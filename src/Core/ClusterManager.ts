@@ -13,6 +13,7 @@ import {
     ClusterManagerOptions,
     ClusterManagerSpawnOptions,
     ClusterRestartOptions,
+    DjsDiscordClient,
     evalOptions,
     Plugin,
     QueueOptions,
@@ -23,7 +24,6 @@ import { WorkerThreadOptions } from '../Structures/Worker';
 import { BaseMessage } from '../Structures/IPCMessage';
 import { HeartbeatManager } from '../Plugins/HeartbeatSystem';
 import { ReClusterManager } from '../Plugins/ReCluster';
-import { ClusterClient } from './ClusterClient';
 
 export class ClusterManager extends EventEmitter {
     /**
@@ -344,23 +344,23 @@ export class ClusterManager extends EventEmitter {
      */
     public broadcastEval(script: string): Promise<any[]>;
     public broadcastEval(script: string, options?: evalOptions): Promise<any>;
-    public broadcastEval<T>(fn: (client: ClusterClient['client']) => Awaitable<T>): Promise<Serialized<T>[]>;
+    public broadcastEval<T>(fn: (client: DjsDiscordClient) => Awaitable<T>): Promise<Serialized<T>[]>;
     public broadcastEval<T>(
-        fn: (client: ClusterClient['client']) => Awaitable<T>,
+        fn: (client: DjsDiscordClient) => Awaitable<T>,
         options?: { cluster?: number; timeout?: number },
     ): Promise<Serialized<T>>;
     public broadcastEval<T, P>(
-        fn: (client: ClusterClient['client'], context: Serialized<P>) => Awaitable<T>,
+        fn: (client: DjsDiscordClient, context: Serialized<P>) => Awaitable<T>,
         options?: evalOptions<P>,
     ): Promise<Serialized<T>[]>;
     public broadcastEval<T, P>(
-        fn: (client: ClusterClient['client'], context: Serialized<P>) => Awaitable<T>,
+        fn: (client: DjsDiscordClient, context: Serialized<P>) => Awaitable<T>,
         options?: evalOptions<P>,
     ): Promise<Serialized<T>>;
     public async broadcastEval<T, P>(
         script:
             | string
-            | ((client: ClusterClient['client'], context?: Serialized<P>) => Awaitable<T> | Promise<Serialized<T>>),
+            | ((client: DjsDiscordClient, context?: Serialized<P>) => Awaitable<T> | Promise<Serialized<T>>),
         evalOptions?: evalOptions | evalOptions<P>,
     ) {
         const options = evalOptions ?? {};

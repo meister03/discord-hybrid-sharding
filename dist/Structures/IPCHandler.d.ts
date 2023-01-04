@@ -12,10 +12,10 @@ export declare class ClusterHandler {
     constructor(manager: ClusterManager, cluster: Cluster, ipc: Worker | Child);
     handleMessage(message: RawMessage): true | undefined;
 }
-export declare class ClusterClientHandler {
-    client: ClusterClient;
+export declare class ClusterClientHandler<DiscordClient> {
+    client: ClusterClient<DiscordClient>;
     ipc: ChildClient | WorkerClient | null;
-    constructor(client: ClusterClient, ipc: ChildClient | WorkerClient | null);
+    constructor(client: ClusterClient<DiscordClient>, ipc: ChildClient | WorkerClient | null);
     handleMessage(message: ResolveMessage & {
         date?: number;
         maintenance?: string;

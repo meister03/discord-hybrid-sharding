@@ -59,6 +59,7 @@ class ClusterClient extends events_1.default {
         this.messageHandler = new IPCHandler_1.ClusterClientHandler(this, this.process);
         this.promise = new PromiseHandler_1.PromiseHandler();
         this.process?.ipc?.on('message', this._handleMessage.bind(this));
+        // @ts-ignore
         client.on?.('ready', () => {
             this.triggerReady();
         });
@@ -73,8 +74,10 @@ class ClusterClient extends events_1.default {
      * Array of shard IDs of this client
      */
     get ids() {
+        // @ts-ignore
         if (!this.client.ws)
             return this.info.SHARD_LIST;
+        // @ts-ignore
         return this.client.ws.shards;
     }
     /**
@@ -174,12 +177,16 @@ class ClusterClient extends events_1.default {
         this.emit('message', emitMessage);
     }
     async _eval(script) {
+        // @ts-ignore
         if (this.client._eval) {
+            // @ts-ignore
             return await this.client._eval(script);
         }
+        // @ts-ignore
         this.client._eval = function (_) {
             return eval(_);
         }.bind(this.client);
+        // @ts-ignore
         return await this.client._eval(script);
     }
     /**
@@ -194,6 +201,7 @@ class ClusterClient extends events_1.default {
              * @event Client#error
              * @param {Error} error The error encountered
              */
+            // @ts-ignore
             this.client.emit?.(shared_1.Events.ERROR, error);
         });
     }
@@ -204,7 +212,8 @@ class ClusterClient extends events_1.default {
         return this.ready;
     }
     triggerClusterReady() {
-        return this.emit('ready', this);
+        this.emit('ready', this);
+        return true;
     }
     /**
      *

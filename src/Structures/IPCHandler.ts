@@ -100,10 +100,10 @@ export class ClusterHandler {
     }
 }
 
-export class ClusterClientHandler {
-    client: ClusterClient;
+export class ClusterClientHandler<DiscordClient> {
+    client: ClusterClient<DiscordClient>;
     ipc: ChildClient | WorkerClient | null;
-    constructor(client: ClusterClient, ipc: ChildClient | WorkerClient | null) {
+    constructor(client: ClusterClient<DiscordClient>, ipc: ChildClient | WorkerClient | null) {
         this.client = client;
         this.ipc = ipc;
     }

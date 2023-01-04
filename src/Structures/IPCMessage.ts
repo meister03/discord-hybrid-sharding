@@ -45,8 +45,8 @@ export class BaseMessage {
 
 export class IPCMessage extends BaseMessage {
     raw: RawMessage;
-    instance: ClusterClient | Cluster;
-    constructor(instance: ClusterClient | Cluster, message: RawMessage) {
+    instance: ClusterClient<any> | Cluster;
+    constructor(instance: ClusterClient<any> | Cluster, message: RawMessage) {
         super(message);
 
         /**

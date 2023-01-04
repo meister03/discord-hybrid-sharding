@@ -134,11 +134,10 @@ export interface ClusterEvents {
     error: [error: Error];
     spawn: [thread: ChildProcess | Worker | undefined | null];
 }
-export interface ClusterClientEvents {
+export interface ClusterClientEvents<DiscordClient> {
     message: [message: BaseMessage | Serializable];
-    ready: [clusterClient: ClusterClient];
+    ready: [clusterClient: ClusterClient<DiscordClient>];
 }
-export interface DjsClient extends Client {
-    _eval: (_: string) => unknown;
+export interface DjsDiscordClient extends Client {
 }
 //# sourceMappingURL=shared.d.ts.map
