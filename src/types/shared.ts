@@ -4,8 +4,8 @@ import { Cluster } from '../Core/Cluster';
 import { ClusterClient } from '../Core/ClusterClient';
 import { ClusterManager } from '../Core/ClusterManager';
 import { ChildProcessOptions } from '../Structures/Child';
-import { BaseMessage } from '../Structures/IPCMessage';
 import { WorkerThreadOptions } from '../Structures/Worker';
+import { BaseMessage } from '../Structures/IPCMessage';
 import { Client } from 'discord.js';
 
 export const Events = {
@@ -161,7 +161,4 @@ export interface ClusterClientEvents<DiscordClient> {
     ready: [clusterClient: ClusterClient<DiscordClient>];
 }
 
-
-export interface DjsDiscordClient extends Client {
-
-}
+export type DjsDiscordClient = Client;

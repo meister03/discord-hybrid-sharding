@@ -16,6 +16,7 @@
         "no-unused-vars": "off",
         "prettier/prettier": "off",
         "sort-keys": 0,
+        "prefer-const": 0,
         "@typescript-eslint/ban-ts-comment": 0,
         "@typescript-eslint/ban-types": 0,
         "@typescript-eslint/no-explicit-any": 0,
