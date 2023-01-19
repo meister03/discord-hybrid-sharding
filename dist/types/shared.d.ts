@@ -6,8 +6,8 @@ import { Cluster } from '../Core/Cluster';
 import { ClusterClient } from '../Core/ClusterClient';
 import { ClusterManager } from '../Core/ClusterManager';
 import { ChildProcessOptions } from '../Structures/Child';
-import { BaseMessage } from '../Structures/IPCMessage';
 import { WorkerThreadOptions } from '../Structures/Worker';
+import { BaseMessage } from '../Structures/IPCMessage';
 import { Client } from 'discord.js';
 export declare const Events: {
     ERROR: string;
@@ -54,8 +54,8 @@ export interface evalOptions<T = object> {
     timeout?: number;
     _type?: messageType;
 }
-export declare type Awaitable<T> = T | PromiseLike<T>;
-export declare type Serialized<T> = T extends symbol | bigint | (() => any) ? never : T extends number | string | boolean | undefined ? T : T extends {
+export type Awaitable<T> = T | PromiseLike<T>;
+export type Serialized<T> = T extends symbol | bigint | (() => any) ? never : T extends number | string | boolean | undefined ? T : T extends {
     toJSON(): infer R;
 } ? R : T extends ReadonlyArray<infer V> ? Serialized<V>[] : T extends ReadonlyMap<unknown, unknown> | ReadonlySet<unknown> ? {} : {
     [K in keyof T]: Serialized<T[K]>;
@@ -138,6 +138,5 @@ export interface ClusterClientEvents<DiscordClient> {
     message: [message: BaseMessage | Serializable];
     ready: [clusterClient: ClusterClient<DiscordClient>];
 }
-export interface DjsDiscordClient extends Client {
-}
+export type DjsDiscordClient = Client;
 //# sourceMappingURL=shared.d.ts.map
