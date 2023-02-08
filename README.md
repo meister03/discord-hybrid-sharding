@@ -172,10 +172,10 @@ Small changes in naming conventions:
 
 ```diff
 - client.shard.respawnAll({ shardDelay = 5000, respawnDelay = 500, timeout = 30000 })
-+ client.cluster.respawnAll({ clusterDelay = 5000, respawnDelay = 5500, timeout = 30000 })
++ client.cluster.respawnAll({ clusterDelay: 5000, respawnDelay: 5500, timeout: 30000 })
 
 - manager.shard.respawnAll({ shardDelay = 5000, respawnDelay = 500, timeout = 30000 })
-+ manager.respawnAll({ clusterDelay = 5000, respawnDelay = 5500, timeout = 30000 })
++ manager.respawnAll({ clusterDelay: 5000, respawnDelay: 5500, timeout: 30000 })
 
 ```
 
