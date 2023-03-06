@@ -204,7 +204,7 @@ Get all ShardID's in the current cluster:
 
 ```diff
 - client.shard.id
-+ [...client.cluster.ids.keys()]
++ client.cluster.ids
 ```
 
 # New functions & events:
