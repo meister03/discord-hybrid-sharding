@@ -151,8 +151,8 @@ class ClusterClient extends events_1.default {
      * Requests a respawn of all clusters.
      * @see {@link ClusterManager#respawnAll}
      */
-    respawnAll({ clusterDelay = 5000, respawnDelay = 7000, timeout = 30000 } = {}) {
-        return this.send({ _type: shared_1.messageType.CLIENT_RESPAWN_ALL, options: { clusterDelay, respawnDelay, timeout } });
+    respawnAll(options = {}) {
+        return this.send({ _type: shared_1.messageType.CLIENT_RESPAWN_ALL, options });
     }
     /**
      * Handles an IPC message.

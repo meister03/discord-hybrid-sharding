@@ -211,8 +211,8 @@ export class ClusterClient<DiscordClient> extends EventEmitter {
      * Requests a respawn of all clusters.
      * @see {@link ClusterManager#respawnAll}
      */
-    public respawnAll({ clusterDelay = 5000, respawnDelay = 7000, timeout = 30000 } = {}) {
-        return this.send({ _type: messageType.CLIENT_RESPAWN_ALL, options: { clusterDelay, respawnDelay, timeout } });
+    public respawnAll(options: { clusterDelay?: number; respawnDelay?: number; timeout?: number } = {}) {
+        return this.send({ _type: messageType.CLIENT_RESPAWN_ALL, options });
     }
 
     /**

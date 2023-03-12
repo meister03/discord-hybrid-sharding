@@ -209,6 +209,9 @@ export class Cluster extends EventEmitter {
      */
     public kill(options: ClusterKillOptions) {
         this.thread?.kill();
+        if(this.thread){
+            this.thread = null;
+        }
         this.manager.heartbeat?.clusters.get(this.id)?.stop();
         this.restarts.cleanup();
         this.manager._debug('[KILL] Cluster killed with reason: ' + (options?.reason || 'not given'), this.id);

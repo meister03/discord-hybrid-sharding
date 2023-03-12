@@ -280,9 +280,15 @@ export class ClusterManager extends EventEmitter {
         if (this.shardClusterList.length !== this.totalClusters) {
             this.totalClusters = this.shardClusterList.length;
         }
-        if (this.shardList.some(shardID => shardID >= amount)) {
+        if (this.shardList.some(shardID => shardID >= Number(amount))) {
             throw new RangeError('CLIENT_INVALID_OPTION | Shard IDs must be smaller than the amount of shards.');
         }
+
+        // Update spawn options
+        this.spawnOptions = { delay, timeout };
+
+
+
         this._debug(`[Spawning Clusters]
     ClusterCount: ${this.totalClusters}
     ShardCount: ${amount}
@@ -446,10 +452,11 @@ export class ClusterManager extends EventEmitter {
      * Kills all running clusters and respawns them.
      * @param options Options for respawning shards
      */
-    public async respawnAll({ clusterDelay = 5500, respawnDelay = 500, timeout = -1 } = {}) {
+    public async respawnAll({ clusterDelay = this.spawnOptions.delay = 5500, respawnDelay = this.spawnOptions.delay = 5500, timeout = -1 } = {}) {
         this.promise.nonce.clear();
         let s = 0;
         let i = 0;
+        this._debug('Respawning all Clusters');
         for (const cluster of Array.from(this.clusters.values())) {
             const promises: any[] = [cluster.respawn({ delay: respawnDelay, timeout })];
             const length = this.shardClusterList[i]?.length || this.totalShards / this.totalClusters;
@@ -457,7 +464,6 @@ export class ClusterManager extends EventEmitter {
             i++;
             await Promise.all(promises); // eslint-disable-line no-await-in-loop
         }
-        this._debug('Respawning all Clusters');
         return this.clusters;
     }
 

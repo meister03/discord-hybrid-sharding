@@ -166,6 +166,9 @@ class Cluster extends events_1.default {
      */
     kill(options) {
         this.thread?.kill();
+        if (this.thread) {
+            this.thread = null;
+        }
         this.manager.heartbeat?.clusters.get(this.id)?.stop();
         this.restarts.cleanup();
         this.manager._debug('[KILL] Cluster killed with reason: ' + (options?.reason || 'not given'), this.id);

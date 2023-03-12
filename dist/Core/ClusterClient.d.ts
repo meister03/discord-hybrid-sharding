@@ -91,10 +91,10 @@ export declare class ClusterClient<DiscordClient> extends EventEmitter {
      * Requests a respawn of all clusters.
      * @see {@link ClusterManager#respawnAll}
      */
-    respawnAll({ clusterDelay, respawnDelay, timeout }?: {
-        clusterDelay?: number | undefined;
-        respawnDelay?: number | undefined;
-        timeout?: number | undefined;
+    respawnAll(options?: {
+        clusterDelay?: number;
+        respawnDelay?: number;
+        timeout?: number;
     }): Promise<void> | undefined;
     /**
      * Handles an IPC message.

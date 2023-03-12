@@ -1,7 +1,7 @@
 /// <reference types="node" />
 import { Cluster } from '../Core/Cluster';
 import { ClusterManager } from '../Core/ClusterManager';
-export declare type keepAliveOptions = {
+export type keepAliveOptions = {
     /** Default interval is 20000 */
     interval?: number;
     /** Default maxMissedHeartbeats is 5 */
