@@ -72,8 +72,6 @@ yarn add discord-hybrid-sharding
 
 # Setting up
 
-**[Click to open documentation](https://sharding.js.org)**
-
 First, add the module into your project (into your shard/cluster file).
 Filename: `Cluster.js`
 
