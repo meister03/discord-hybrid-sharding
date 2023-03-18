@@ -1,72 +1,12 @@
-"use strict";
-var __create = Object.create;
 var __defProp = Object.defineProperty;
-var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
-var __getOwnPropNames = Object.getOwnPropertyNames;
-var __getProtoOf = Object.getPrototypeOf;
-var __hasOwnProp = Object.prototype.hasOwnProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-var __export = (target, all) => {
-  for (var name in all)
-    __defProp(target, name, { get: all[name], enumerable: true });
-};
-var __copyProps = (to, from, except, desc) => {
-  if (from && typeof from === "object" || typeof from === "function") {
-    for (let key of __getOwnPropNames(from))
-      if (!__hasOwnProp.call(to, key) && key !== except)
-        __defProp(to, key, { get: () => from[key], enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable });
-  }
-  return to;
-};
-var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__getProtoOf(mod)) : {}, __copyProps(
-  // If the importer is in node compatibility mode or this is not an ESM
-  // file that has been converted to a CommonJS file using a Babel-
-  // compatible transform (i.e. "__esModule" has not been set), then set
-  // "default" to the CommonJS "module.exports" for node compatibility.
-  isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", { value: mod, enumerable: true }) : target,
-  mod
-));
-var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
-
-// src/index.ts
-var src_exports = {};
-__export(src_exports, {
-  BaseMessage: () => BaseMessage,
-  Child: () => Child,
-  ChildClient: () => ChildClient,
-  Cluster: () => Cluster,
-  ClusterClient: () => ClusterClient,
-  ClusterClientHandler: () => ClusterClientHandler,
-  ClusterHandler: () => ClusterHandler,
-  ClusterManager: () => ClusterManager,
-  DefaultOptions: () => DefaultOptions,
-  Endpoints: () => Endpoints,
-  Events: () => Events,
-  Heartbeat: () => Heartbeat,
-  HeartbeatManager: () => HeartbeatManager,
-  IPCMessage: () => IPCMessage,
-  PromiseHandler: () => PromiseHandler,
-  Queue: () => Queue,
-  ReClusterManager: () => ReClusterManager,
-  Worker: () => Worker,
-  WorkerClient: () => WorkerClient,
-  chunkArray: () => chunkArray,
-  delayFor: () => delayFor,
-  fetchRecommendedShards: () => fetchRecommendedShards,
-  generateNonce: () => generateNonce,
-  getInfo: () => getInfo,
-  makePlainError: () => makePlainError,
-  messageType: () => messageType,
-  shardIdForGuildId: () => shardIdForGuildId
-});
-module.exports = __toCommonJS(src_exports);
 
 // src/Core/Cluster.ts
-var import_events = __toESM(require("events"));
-var import_path = __toESM(require("path"));
+import EventEmitter from "events";
+import path from "path";
 
 // src/Util/Util.ts
-var import_node_fetch = __toESM(require("node-fetch"));
+import fetch from "node-fetch";
 
 // src/types/shared.ts
 var Events = {
@@ -146,7 +86,7 @@ __name(shardIdForGuildId, "shardIdForGuildId");
 async function fetchRecommendedShards(token, guildsPerShard = 1e3) {
   if (!token)
     throw new Error("DISCORD_TOKEN_MISSING");
-  return (0, import_node_fetch.default)(`${DefaultOptions.http.api}/v${DefaultOptions.http.version}${Endpoints.botGateway}`, {
+  return fetch(`${DefaultOptions.http.api}/v${DefaultOptions.http.version}${Endpoints.botGateway}`, {
     method: "GET",
     headers: { Authorization: `Bot ${token.replace(/^Bot\s*/i, "")}` }
   }).then((res) => {
@@ -372,7 +312,7 @@ var ClusterClientHandler = class {
 __name(ClusterClientHandler, "ClusterClientHandler");
 
 // src/Structures/Worker.ts
-var import_worker_threads = require("worker_threads");
+import { Worker as Worker_Thread, parentPort, workerData } from "worker_threads";
 var Worker = class {
   file;
   process;
@@ -405,7 +345,7 @@ var Worker = class {
       this.workerOptions.resourceLimits = options.resourceLimits;
   }
   spawn() {
-    return this.process = new import_worker_threads.Worker(this.file, this.workerOptions);
+    return this.process = new Worker_Thread(this.file, this.workerOptions);
   }
   respawn() {
     this.kill();
@@ -426,7 +366,7 @@ __name(Worker, "Worker");
 var WorkerClient = class {
   ipc;
   constructor() {
-    this.ipc = import_worker_threads.parentPort;
+    this.ipc = parentPort;
   }
   send(message) {
     return new Promise((resolve) => {
@@ -435,13 +375,13 @@ var WorkerClient = class {
     });
   }
   getData() {
-    return import_worker_threads.workerData;
+    return workerData;
   }
 };
 __name(WorkerClient, "WorkerClient");
 
 // src/Structures/Child.ts
-var import_child_process = require("child_process");
+import { fork } from "child_process";
 var Child = class {
   file;
   process;
@@ -485,7 +425,7 @@ var Child = class {
       this.processOptions.timeout = options.timeout;
   }
   spawn() {
-    return this.process = (0, import_child_process.fork)(this.file, this.args, this.processOptions);
+    return this.process = fork(this.file, this.args, this.processOptions);
   }
   respawn() {
     this.kill();
@@ -530,7 +470,7 @@ var ChildClient = class {
 __name(ChildClient, "ChildClient");
 
 // src/Core/Cluster.ts
-var Cluster = class extends import_events.default {
+var Cluster = class extends EventEmitter {
   THREAD;
   /**
    * Manager that created the cluster
@@ -623,7 +563,7 @@ var Cluster = class extends import_events.default {
   async spawn(spawnTimeout = 3e4) {
     if (this.thread)
       throw new Error("CLUSTER ALREADY SPAWNED | ClusterId: " + this.id);
-    this.thread = new this.THREAD(import_path.default.resolve(this.manager.file), {
+    this.thread = new this.THREAD(path.resolve(this.manager.file), {
       ...this.manager.clusterOptions,
       execArgv: this.execArgv,
       env: this.env,
@@ -795,7 +735,7 @@ var Cluster = class extends import_events.default {
 __name(Cluster, "Cluster");
 
 // src/Structures/Data.ts
-var import_worker_threads2 = require("worker_threads");
+import { workerData as workerData2 } from "worker_threads";
 function getInfo() {
   const clusterMode = process.env.CLUSTER_MANAGER_MODE;
   if (clusterMode !== "worker" && clusterMode !== "process")
@@ -817,7 +757,7 @@ function getInfo() {
       LAST_SHARD_ID: shardList[shardList.length - 1]
     };
   } else {
-    data = import_worker_threads2.workerData;
+    data = workerData2;
     data.FIRST_SHARD_ID = data.SHARD_LIST[0];
     data.LAST_SHARD_ID = data.SHARD_LIST[data.SHARD_LIST.length - 1];
   }
@@ -871,8 +811,8 @@ var PromiseHandler = class {
 __name(PromiseHandler, "PromiseHandler");
 
 // src/Core/ClusterClient.ts
-var import_events2 = __toESM(require("events"));
-var ClusterClient = class extends import_events2.default {
+import EventEmitter2 from "events";
+var ClusterClient = class extends EventEmitter2 {
   client;
   mode;
   queue;
@@ -1075,10 +1015,10 @@ var ClusterClient = class extends import_events2.default {
 __name(ClusterClient, "ClusterClient");
 
 // src/Core/ClusterManager.ts
-var import_fs = __toESM(require("fs"));
-var import_path2 = __toESM(require("path"));
-var import_os = __toESM(require("os"));
-var import_events3 = __toESM(require("events"));
+import fs from "fs";
+import path2 from "path";
+import os from "os";
+import EventEmitter3 from "events";
 
 // src/Structures/Queue.ts
 var Queue = class {
@@ -1155,7 +1095,7 @@ var Queue = class {
 __name(Queue, "Queue");
 
 // src/Core/ClusterManager.ts
-var ClusterManager = class extends import_events3.default {
+var ClusterManager = class extends EventEmitter3 {
   /**
    * Whether clusters should automatically respawn upon exiting
    */
@@ -1237,9 +1177,9 @@ var ClusterManager = class extends import_events3.default {
     this.file = file;
     if (!file)
       throw new Error("CLIENT_INVALID_OPTION | No File specified.");
-    if (!import_path2.default.isAbsolute(file))
-      this.file = import_path2.default.resolve(process.cwd(), file);
-    const stats = import_fs.default.statSync(this.file);
+    if (!path2.isAbsolute(file))
+      this.file = path2.resolve(process.cwd(), file);
+    const stats = fs.statSync(this.file);
     if (!stats.isFile())
       throw new Error("CLIENT_INVALID_OPTION | Provided is file is not type of file");
     this.totalShards = options.totalShards === "auto" ? -1 : options.totalShards ?? -1;
@@ -1354,7 +1294,7 @@ var ClusterManager = class extends import_events3.default {
     }
     let clusterAmount = this.totalClusters;
     if (clusterAmount === -1) {
-      clusterAmount = import_os.default.cpus().length;
+      clusterAmount = os.cpus().length;
       this.totalClusters = clusterAmount;
     } else {
       if (typeof clusterAmount !== "number" || isNaN(clusterAmount)) {
@@ -1854,8 +1794,7 @@ var ReClusterManager = class {
   }
 };
 __name(ReClusterManager, "ReClusterManager");
-// Annotate the CommonJS export names for ESM import in node:
-0 && (module.exports = {
+export {
   BaseMessage,
   Child,
   ChildClient,
@@ -1883,5 +1822,5 @@ __name(ReClusterManager, "ReClusterManager");
   makePlainError,
   messageType,
   shardIdForGuildId
-});
-//# sourceMappingURL=index.js.map
+};
+//# sourceMappingURL=index.mjs.map
