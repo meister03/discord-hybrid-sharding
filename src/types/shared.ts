@@ -4,7 +4,7 @@ import { Cluster } from '../Core/Cluster';
 import { ClusterClient } from '../Core/ClusterClient';
 import { ClusterManager } from '../Core/ClusterManager';
 import { ChildProcessOptions } from '../Structures/Child';
-import { BaseMessage } from '../Structures/IPCMessage';
+import { BaseMessage, IPCMessage } from '../Structures/IPCMessage';
 import { WorkerThreadOptions } from '../Structures/Worker';
 import { Client } from 'discord.js';
 
@@ -146,11 +146,11 @@ export interface ClusterManagerEvents {
     clusterCreate: [cluster: Cluster];
     clusterReady: [cluster: Cluster];
     debug: [debugMessage: string];
+    clientRequest: [message: IPCMessage];
 }
 
 export interface ClusterEvents {
     message: [message: BaseMessage | Serializable];
-    clientRequest: [message: BaseMessage | Serializable];
     death: [cluster: Cluster, thread: ChildProcess | Worker | undefined | null];
     error: [error: Error];
     spawn: [thread: ChildProcess | Worker | undefined | null];
