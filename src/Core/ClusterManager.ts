@@ -24,6 +24,7 @@ import { WorkerThreadOptions } from '../Structures/Worker';
 import { BaseMessage } from '../Structures/IPCMessage';
 import { HeartbeatManager } from '../Plugins/HeartbeatSystem';
 import { ReClusterManager } from '../Plugins/ReCluster';
+import { ClusterManagerHooks } from '../Structures/ManagerHooks';
 
 export class ClusterManager extends EventEmitter {
     /**
@@ -106,6 +107,9 @@ export class ClusterManager extends EventEmitter {
     heartbeat?: HeartbeatManager;
     /** Reclustering Plugin */
     recluster?: ReClusterManager;
+    
+    /** Containing some useful hook funtions */
+    hooks: ClusterManagerHooks;
     constructor(file: string, options: ClusterManagerOptions) {
         super();
         if (!options) options = {};
@@ -222,6 +226,8 @@ export class ClusterManager extends EventEmitter {
         this._debug(`[START] Cluster Manager has been initialized`);
 
         this.promise = new PromiseHandler();
+
+        this.hooks = new ClusterManagerHooks();
     }
 
     /**

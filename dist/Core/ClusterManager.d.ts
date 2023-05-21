@@ -8,6 +8,7 @@ import { WorkerThreadOptions } from '../Structures/Worker';
 import { BaseMessage } from '../Structures/IPCMessage';
 import { HeartbeatManager } from '../Plugins/HeartbeatSystem';
 import { ReClusterManager } from '../Plugins/ReCluster';
+import { ClusterManagerHooks } from '../Structures/ManagerHooks';
 export declare class ClusterManager extends EventEmitter {
     /**
      * Whether clusters should automatically respawn upon exiting
@@ -75,6 +76,8 @@ export declare class ClusterManager extends EventEmitter {
     heartbeat?: HeartbeatManager;
     /** Reclustering Plugin */
     recluster?: ReClusterManager;
+    /** Containing some useful hook funtions */
+    hooks: ClusterManagerHooks;
     constructor(file: string, options: ClusterManagerOptions);
     /**
      * Spawns multiple internal shards.

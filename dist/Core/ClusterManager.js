@@ -12,6 +12,7 @@ const Util_1 = require("../Util/Util");
 const Queue_1 = require("../Structures/Queue");
 const Cluster_1 = require("./Cluster");
 const PromiseHandler_1 = require("../Structures/PromiseHandler");
+const ManagerHooks_1 = require("../Structures/ManagerHooks");
 class ClusterManager extends events_1.default {
     /**
      * Whether clusters should automatically respawn upon exiting
@@ -79,6 +80,8 @@ class ClusterManager extends events_1.default {
     heartbeat;
     /** Reclustering Plugin */
     recluster;
+    /** Containing some useful hook funtions */
+    hooks;
     constructor(file, options) {
         super();
         if (!options)
@@ -176,6 +179,7 @@ class ClusterManager extends events_1.default {
         this.queue = new Queue_1.Queue(options.queue);
         this._debug(`[START] Cluster Manager has been initialized`);
         this.promise = new PromiseHandler_1.PromiseHandler();
+        this.hooks = new ManagerHooks_1.ClusterManagerHooks();
     }
     /**
      * Spawns multiple internal shards.

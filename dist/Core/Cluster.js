@@ -115,7 +115,8 @@ class Cluster extends events_1.default {
             ...this.manager.clusterOptions,
             execArgv: this.execArgv,
             env: this.env,
-            args: this.args,
+            /** Construct args with hooks, to provide parameters with in the context of a cluster */
+            args: this.manager.hooks.constructClusterArgs(this, this.args),
             clusterData: { ...this.env, ...this.manager.clusterData },
         });
         this.messageHandler = new IPCHandler_js_1.ClusterHandler(this.manager, this, this.thread);
