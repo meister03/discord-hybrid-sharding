@@ -6,6 +6,7 @@ import EventEmitter from 'events';
 import { chunkArray, delayFor, fetchRecommendedShards, makePlainError, shardIdForGuildId } from '../Util/Util';
 import { Queue } from '../Structures/Queue';
 import { Cluster } from './Cluster';
+import { Client as DjsDiscordClient } from 'discord.js';
 import { PromiseHandler } from '../Structures/PromiseHandler';
 import {
     Awaitable,
@@ -13,7 +14,6 @@ import {
     ClusterManagerOptions,
     ClusterManagerSpawnOptions,
     ClusterRestartOptions,
-    DjsDiscordClient,
     evalOptions,
     Plugin,
     QueueOptions,
@@ -108,7 +108,7 @@ export class ClusterManager extends EventEmitter {
     /** Reclustering Plugin */
     recluster?: ReClusterManager;
     
-    /** Containing some useful hook funtions */
+    /** Containing some useful hook function's */
     hooks: ClusterManagerHooks;
     constructor(file: string, options: ClusterManagerOptions) {
         super();
@@ -356,23 +356,23 @@ export class ClusterManager extends EventEmitter {
      */
     public broadcastEval(script: string): Promise<any[]>;
     public broadcastEval(script: string, options?: evalOptions): Promise<any>;
-    public broadcastEval<T>(fn: (client: DjsDiscordClient) => Awaitable<T>): Promise<Serialized<T>[]>;
-    public broadcastEval<T>(
-        fn: (client: DjsDiscordClient) => Awaitable<T>,
+    public broadcastEval<T, C extends DjsDiscordClient>(fn: (client: C) => Awaitable<T>): Promise<Serialized<T>[]>;
+    public broadcastEval<T, C extends DjsDiscordClient>(
+        fn: (client: C) => Awaitable<T>,
         options?: { cluster?: number; timeout?: number },
     ): Promise<Serialized<T>>;
-    public broadcastEval<T, P>(
-        fn: (client: DjsDiscordClient, context: Serialized<P>) => Awaitable<T>,
+    public broadcastEval<T, P, C extends DjsDiscordClient>(
+        fn: (client: C, context: Serialized<P>) => Awaitable<T>,
         options?: evalOptions<P>,
     ): Promise<Serialized<T>[]>;
-    public broadcastEval<T, P>(
-        fn: (client: DjsDiscordClient, context: Serialized<P>) => Awaitable<T>,
+    public broadcastEval<T, P, C extends DjsDiscordClient>(
+        fn: (client: C, context: Serialized<P>) => Awaitable<T>,
         options?: evalOptions<P>,
     ): Promise<Serialized<T>>;
-    public async broadcastEval<T, P>(
+    public async broadcastEval<T, P, C extends DjsDiscordClient>(
         script:
             | string
-            | ((client: DjsDiscordClient, context?: Serialized<P>) => Awaitable<T> | Promise<Serialized<T>>),
+            | ((client: C, context?: Serialized<P>) => Awaitable<T> | Promise<Serialized<T>>),
         evalOptions?: evalOptions | evalOptions<P>,
     ) {
         const options = evalOptions ?? {};

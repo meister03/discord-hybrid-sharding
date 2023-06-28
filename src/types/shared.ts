@@ -6,7 +6,6 @@ import { ClusterManager } from '../Core/ClusterManager';
 import { ChildProcessOptions } from '../Structures/Child';
 import { BaseMessage, IPCMessage } from '../Structures/IPCMessage';
 import { WorkerThreadOptions } from '../Structures/Worker';
-import { Client } from 'discord.js';
 
 export const Events = {
     ERROR: 'warn',
@@ -119,7 +118,7 @@ export interface ClusterManagerOptions {
 export interface ClusterRestartOptions {
     /** Maximum amount of restarts a cluster can have in the interval */
     max: number;
-    /** Interval in milliseconds on which the current restarts amount of a cluster will be resetted */
+    /** Interval in milliseconds on which the current restarts amount of a cluster will be reset */
     interval: number;
     /** Current Amount of restarts */
     current?: number;
@@ -159,9 +158,4 @@ export interface ClusterEvents {
 export interface ClusterClientEvents<DiscordClient> {
     message: [message: BaseMessage | Serializable];
     ready: [clusterClient: ClusterClient<DiscordClient>];
-}
-
-
-export interface DjsDiscordClient extends Client {
-
 }

@@ -119,7 +119,7 @@ class ClusterClient extends events_1.default {
     }
     async broadcastEval(script, options) {
         if (!script || (typeof script !== 'string' && typeof script !== 'function'))
-            throw new TypeError('Script for BroadcastEvaling has not been provided or must be a valid String/Function!');
+            throw new TypeError('Script for BroadcastEval has not been provided or must be a valid String/Function!');
         const broadcastOptions = options || { context: undefined, _type: undefined, timeout: undefined };
         script =
             typeof script === 'function' ? `(${script})(this, ${JSON.stringify(broadcastOptions.context)})` : script;

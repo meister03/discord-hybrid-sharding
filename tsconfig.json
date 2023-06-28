@@ -6,7 +6,7 @@
         "lib": ["ESNext"],
         "target": "ESNext",
         "module": "CommonJS",
-        "moduleResolution": "NodeNext",
+        "moduleResolution": "Node",
         "declaration": true,
         "declarationMap": true,
         "composite": false,

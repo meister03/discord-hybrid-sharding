@@ -71,13 +71,13 @@ export declare class ClusterClient<DiscordClient> extends EventEmitter {
      */
     broadcastEval(script: string): Promise<any[]>;
     broadcastEval(script: string, options?: evalOptions): Promise<any>;
-    broadcastEval<T>(fn: (client: DiscordClient) => Awaitable<T>): Promise<Serialized<T>[]>;
-    broadcastEval<T>(fn: (client: DiscordClient) => Awaitable<T>, options?: {
+    broadcastEval<T, C extends DiscordClient>(fn: (client: C) => Awaitable<T>): Promise<Serialized<T>[]>;
+    broadcastEval<T, C extends DiscordClient>(fn: (client: C) => Awaitable<T>, options?: {
         cluster?: number;
         timeout?: number;
     }): Promise<Serialized<T>>;
-    broadcastEval<T, P>(fn: (client: DiscordClient, context: Serialized<P>) => Awaitable<T>, options?: evalOptions<P>): Promise<Serialized<T>[]>;
-    broadcastEval<T, P>(fn: (client: DiscordClient, context: Serialized<P>) => Awaitable<T>, options?: evalOptions<P>): Promise<Serialized<T>>;
+    broadcastEval<T, P, C extends DiscordClient>(fn: (client: C, context: Serialized<P>) => Awaitable<T>, options?: evalOptions<P>): Promise<Serialized<T>[]>;
+    broadcastEval<T, P, C extends DiscordClient>(fn: (client: C, context: Serialized<P>) => Awaitable<T>, options?: evalOptions<P>): Promise<Serialized<T>>;
     /**
      * Sends a Request to the ParentCluster and returns the reply
      * @example

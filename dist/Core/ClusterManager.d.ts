@@ -1,8 +1,9 @@
 import EventEmitter from 'events';
 import { Queue } from '../Structures/Queue';
 import { Cluster } from './Cluster';
+import { Client as DjsDiscordClient } from 'discord.js';
 import { PromiseHandler } from '../Structures/PromiseHandler';
-import { Awaitable, ClusterManagerEvents, ClusterManagerOptions, ClusterManagerSpawnOptions, ClusterRestartOptions, DjsDiscordClient, evalOptions, Plugin, Serialized } from '../types/shared';
+import { Awaitable, ClusterManagerEvents, ClusterManagerOptions, ClusterManagerSpawnOptions, ClusterRestartOptions, evalOptions, Plugin, Serialized } from '../types/shared';
 import { ChildProcessOptions } from '../Structures/Child';
 import { WorkerThreadOptions } from '../Structures/Worker';
 import { BaseMessage } from '../Structures/IPCMessage';
@@ -76,7 +77,7 @@ export declare class ClusterManager extends EventEmitter {
     heartbeat?: HeartbeatManager;
     /** Reclustering Plugin */
     recluster?: ReClusterManager;
-    /** Containing some useful hook funtions */
+    /** Containing some useful hook function's */
     hooks: ClusterManagerHooks;
     constructor(file: string, options: ClusterManagerOptions);
     /**
@@ -100,13 +101,13 @@ export declare class ClusterManager extends EventEmitter {
      */
     broadcastEval(script: string): Promise<any[]>;
     broadcastEval(script: string, options?: evalOptions): Promise<any>;
-    broadcastEval<T>(fn: (client: DjsDiscordClient) => Awaitable<T>): Promise<Serialized<T>[]>;
-    broadcastEval<T>(fn: (client: DjsDiscordClient) => Awaitable<T>, options?: {
+    broadcastEval<T, C extends DjsDiscordClient>(fn: (client: C) => Awaitable<T>): Promise<Serialized<T>[]>;
+    broadcastEval<T, C extends DjsDiscordClient>(fn: (client: C) => Awaitable<T>, options?: {
         cluster?: number;
         timeout?: number;
     }): Promise<Serialized<T>>;
-    broadcastEval<T, P>(fn: (client: DjsDiscordClient, context: Serialized<P>) => Awaitable<T>, options?: evalOptions<P>): Promise<Serialized<T>[]>;
-    broadcastEval<T, P>(fn: (client: DjsDiscordClient, context: Serialized<P>) => Awaitable<T>, options?: evalOptions<P>): Promise<Serialized<T>>;
+    broadcastEval<T, P, C extends DjsDiscordClient>(fn: (client: C, context: Serialized<P>) => Awaitable<T>, options?: evalOptions<P>): Promise<Serialized<T>[]>;
+    broadcastEval<T, P, C extends DjsDiscordClient>(fn: (client: C, context: Serialized<P>) => Awaitable<T>, options?: evalOptions<P>): Promise<Serialized<T>>;
     /**
      * Fetches a client property value of each cluster, or a given cluster.
      * @param prop Name of the client property to get, using periods for nesting

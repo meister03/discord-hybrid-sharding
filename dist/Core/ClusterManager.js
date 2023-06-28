@@ -80,7 +80,7 @@ class ClusterManager extends events_1.default {
     heartbeat;
     /** Reclustering Plugin */
     recluster;
-    /** Containing some useful hook funtions */
+    /** Containing some useful hook function's */
     hooks;
     constructor(file, options) {
         super();

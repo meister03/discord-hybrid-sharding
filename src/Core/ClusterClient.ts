@@ -154,28 +154,28 @@ export class ClusterClient<DiscordClient> extends EventEmitter {
      */
     public broadcastEval(script: string): Promise<any[]>;
     public broadcastEval(script: string, options?: evalOptions): Promise<any>;
-    public broadcastEval<T>(fn: (client: DiscordClient) => Awaitable<T>): Promise<Serialized<T>[]>;
-    public broadcastEval<T>(
-        fn: (client: DiscordClient) => Awaitable<T>,
+    public broadcastEval<T, C extends DiscordClient>(fn: (client: C) => Awaitable<T>): Promise<Serialized<T>[]>;
+    public broadcastEval<T, C extends DiscordClient>(
+        fn: (client: C) => Awaitable<T>,
         options?: { cluster?: number; timeout?: number },
     ): Promise<Serialized<T>>;
-    public broadcastEval<T, P>(
-        fn: (client: DiscordClient, context: Serialized<P>) => Awaitable<T>,
+    public broadcastEval<T, P, C extends DiscordClient>(
+        fn: (client: C, context: Serialized<P>) => Awaitable<T>,
         options?: evalOptions<P>,
     ): Promise<Serialized<T>[]>;
-    public broadcastEval<T, P>(
-        fn: (client: DiscordClient, context: Serialized<P>) => Awaitable<T>,
+    public broadcastEval<T, P, C extends DiscordClient>(
+        fn: (client: C, context: Serialized<P>) => Awaitable<T>,
         options?: evalOptions<P>,
     ): Promise<Serialized<T>>;
-    public async broadcastEval<T, P>(
+    public async broadcastEval<T, P, C extends DiscordClient>(
         script:
             | string
-            | ((client: DiscordClient, context?: Serialized<P>) => Awaitable<T> | Promise<Serialized<T>>),
+            | ((client: C, context?: Serialized<P>) => Awaitable<T> | Promise<Serialized<T>>),
         options?: evalOptions | evalOptions<P>,
     ) {
         if (!script || (typeof script !== 'string' && typeof script !== 'function'))
             throw new TypeError(
-                'Script for BroadcastEvaling has not been provided or must be a valid String/Function!',
+                'Script for BroadcastEval has not been provided or must be a valid String/Function!',
             );
 
         const broadcastOptions = options || { context: undefined, _type: undefined, timeout: undefined };
