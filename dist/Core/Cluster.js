@@ -278,7 +278,7 @@ class Cluster extends events_1.default {
         this.manager.heartbeat?.clusters.get(this.id)?.stop();
         this.restarts.cleanup();
         this.emit('death', this, this.thread?.process);
-        this.manager._debug('[DEATH] Cluster died, attempting respawn | Restarts Left: ' + (this.restarts.max - this.restarts.current), this.id);
+        this.manager._debug('[DEATH] Cluster died with exit code:' + exitCode + ', attempting respawn | Restarts Left: ' + (this.restarts.max - this.restarts.current), this.id);
         this.ready = false;
         this.thread = null;
         if (!respawn)

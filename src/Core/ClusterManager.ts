@@ -105,10 +105,10 @@ export class ClusterManager extends EventEmitter {
 
     /** HeartbeatManager Plugin */
     heartbeat?: HeartbeatManager;
-    /** Reclustering Plugin */
-    recluster?: ReClusterManager;
+    /** ReClustering Plugin */
+    reCluster?: ReClusterManager;
     
-    /** Containing some useful hook function's */
+    /** Containing some useful hook functions */
     hooks: ClusterManagerHooks;
     constructor(file: string, options: ClusterManagerOptions) {
         super();
@@ -226,7 +226,6 @@ export class ClusterManager extends EventEmitter {
         this._debug(`[START] Cluster Manager has been initialized`);
 
         this.promise = new PromiseHandler();
-
         this.hooks = new ClusterManagerHooks();
     }
 

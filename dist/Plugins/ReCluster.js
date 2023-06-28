@@ -12,7 +12,7 @@ class ReClusterManager {
             this.options = {};
         else
             this.options = options;
-        this.name = 'recluster';
+        this.name = 'reCluster';
         this.onProgress = false;
     }
     build(manager) {
@@ -33,7 +33,8 @@ class ReClusterManager {
      * @param options.restartMode
      */
     async start(options) {
-        let { delay, timeout, totalClusters, totalShards, shardsPerClusters, shardClusterList, shardList = this.manager?.shardList, restartMode = 'gracefulSwitch', } = options || { restartMode: 'gracefulSwitch' };
+        const { delay, timeout, totalClusters, shardsPerClusters, shardClusterList, shardList = this.manager?.shardList, restartMode = 'gracefulSwitch' } = options || {};
+        let { totalShards } = options || { restartMode: 'gracefulSwitch' };
         if (this.onProgress)
             throw new Error('Zero Downtime Reclustering is already in progress');
         if (!this.manager)
@@ -63,7 +64,7 @@ class ReClusterManager {
             this.manager.totalClusters = this.manager.shardClusterList.length;
         }
         this.manager._debug([
-            '[↻][ReClustering] Starting... Zerodowntime Reclustering',
+            '[↻][ReClustering] Starting... Zero Downtime ReClustering',
             `├── Mode: ${restartMode}`,
             `├── Total Shards: ${this.manager.totalShards}`,
             `├── Total Clusters: ${this.manager.totalClusters}`,
@@ -82,8 +83,8 @@ class ReClusterManager {
     async _start({ restartMode = 'gracefulSwitch', timeout = 30000 * 6, delay = 7000 }) {
         if (!this.manager)
             throw new Error('Manager is missing on ReClusterManager');
-        process.env.MAINTENANCE = 'recluster';
-        this.manager.triggerMaintenance('recluster');
+        process.env.MAINTENANCE = 'reCluster';
+        this.manager.triggerMaintenance('reCluster');
         this.manager._debug('[↻][ReClustering] Enabling Maintenance Mode on all clusters');
         let switchClusterAfterReady = false;
         // when no shard settings have been updated
@@ -112,7 +113,7 @@ class ReClusterManager {
                         if (switchClusterAfterReady) {
                             const oldCluster = this.manager.clusters.get(clusterId);
                             if (oldCluster) {
-                                oldCluster.kill({ force: true, reason: 'reclustering' });
+                                oldCluster.kill({ force: true, reason: 'reClustering' });
                                 oldClusters.delete(clusterId);
                             }
                             this.manager.clusters.set(clusterId, cluster);
@@ -130,7 +131,7 @@ class ReClusterManager {
         if (oldClusters.size) {
             this.manager._debug('[↻][ReClustering] Killing old clusters');
             for (const [id, cluster] of Array.from(oldClusters)) {
-                cluster.kill({ force: true, reason: 'reclustering' });
+                cluster.kill({ force: true, reason: 'reClustering' });
                 this.manager._debug(`[↻][ReClustering][${id}] Killed OldCluster`);
                 this.manager.clusters.delete(id);
             }
@@ -145,7 +146,7 @@ class ReClusterManager {
                 if (!cluster)
                     continue;
                 if (oldCluster) {
-                    oldCluster.kill({ force: true, reason: 'reclustering' });
+                    oldCluster.kill({ force: true, reason: 'reClustering' });
                     oldClusters.delete(clusterId);
                 }
                 this.manager.clusters.set(clusterId, cluster);

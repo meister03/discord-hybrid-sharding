@@ -1,10 +1,7 @@
 import type { Cluster } from "../Core/Cluster";
 
 export class ClusterManagerHooks {
-    constructor() {
-    }
-
-    constructClusterArgs(cluster: Cluster,args: string[]) {
-        return args;
+    constructClusterArgs(cluster: Cluster, args: string[]) {
+        return [...args, '--clusterId ' + cluster.id, `--shards ${cluster.shardList.join(',')}`]
     }
 }

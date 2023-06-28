@@ -1,1 +1,1 @@
-{"version":3,"file":"ManagerHooks.d.ts","sourceRoot":"","sources":["../../src/Structures/ManagerHooks.ts"],"names":[],"mappings":"AAAA,OAAO,KAAK,EAAE,OAAO,EAAE,MAAM,iBAAiB,CAAC;AAE/C,qBAAa,mBAAmB;;IAI5B,oBAAoB,CAAC,OAAO,EAAE,OAAO,EAAC,IAAI,EAAE,MAAM,EAAE;CAGvD"}
+{"version":3,"file":"ManagerHooks.d.ts","sourceRoot":"","sources":["../../src/Structures/ManagerHooks.ts"],"names":[],"mappings":"AAAA,OAAO,KAAK,EAAE,OAAO,EAAE,MAAM,iBAAiB,CAAC;AAE/C,qBAAa,mBAAmB;IAC5B,oBAAoB,CAAC,OAAO,EAAE,OAAO,EAAE,IAAI,EAAE,MAAM,EAAE;CAGxD"}

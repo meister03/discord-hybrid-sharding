@@ -75,9 +75,9 @@ export declare class ClusterManager extends EventEmitter {
     promise: PromiseHandler;
     /** HeartbeatManager Plugin */
     heartbeat?: HeartbeatManager;
-    /** Reclustering Plugin */
-    recluster?: ReClusterManager;
-    /** Containing some useful hook function's */
+    /** ReClustering Plugin */
+    reCluster?: ReClusterManager;
+    /** Containing some useful hook functions */
     hooks: ClusterManagerHooks;
     constructor(file: string, options: ClusterManagerOptions);
     /**

@@ -20,7 +20,7 @@ export interface ReClusterOptions {
 }
 export declare class ReClusterManager {
     options: ReClusterOptions;
-    name: 'recluster';
+    name: 'reCluster';
     onProgress: Boolean;
     manager?: ClusterManager;
     constructor(options?: ReClusterOptions);

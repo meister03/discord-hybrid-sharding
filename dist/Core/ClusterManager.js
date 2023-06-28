@@ -78,9 +78,9 @@ class ClusterManager extends events_1.default {
     promise;
     /** HeartbeatManager Plugin */
     heartbeat;
-    /** Reclustering Plugin */
-    recluster;
-    /** Containing some useful hook function's */
+    /** ReClustering Plugin */
+    reCluster;
+    /** Containing some useful hook functions */
     hooks;
     constructor(file, options) {
         super();

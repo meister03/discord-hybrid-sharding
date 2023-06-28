@@ -322,7 +322,7 @@ export class Cluster extends EventEmitter {
         this.emit('death', this, this.thread?.process);
 
         this.manager._debug(
-            '[DEATH] Cluster died, attempting respawn | Restarts Left: ' + (this.restarts.max - this.restarts.current),
+            '[DEATH] Cluster died with exit code:' + exitCode + ', attempting respawn | Restarts Left: ' + (this.restarts.max - this.restarts.current),
             this.id,
         );
 
