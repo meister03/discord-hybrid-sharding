@@ -82,7 +82,7 @@ export declare class Cluster extends EventEmitter {
      * @param spawnTimeout The amount in milliseconds to wait until the {@link Client} has become ready
      * before resolving. (-1 or Infinity for no wait)
      */
-    spawn(spawnTimeout?: number): Promise<import("child_process").ChildProcess | import("worker_threads").Worker | null>;
+    spawn(spawnTimeout?: number): Promise<import("worker_threads").Worker | import("child_process").ChildProcess | null>;
     /**
      * Immediately kills the clusters process/worker and does not restart it.
      * @param options Some Options for managing the Kill
@@ -93,7 +93,7 @@ export declare class Cluster extends EventEmitter {
      * Kills and restarts the cluster's process/worker.
      * @param options Options for respawning the cluster
      */
-    respawn({ delay, timeout }?: import("../types/shared").ClusterManagerSpawnOptions): Promise<import("child_process").ChildProcess | import("worker_threads").Worker | null>;
+    respawn({ delay, timeout }?: import("../types/shared").ClusterManagerSpawnOptions): Promise<import("worker_threads").Worker | import("child_process").ChildProcess | null>;
     /**
      * Sends a message to the cluster's process/worker.
      * @param  message Message to send to the cluster
