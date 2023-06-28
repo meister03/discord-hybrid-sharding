@@ -53,7 +53,15 @@ export class ReClusterManager {
      * @param options.restartMode
      */
     public async start(options?: ReClusterOptions) {
-        const { delay, timeout, totalClusters, shardsPerClusters, shardClusterList  , shardList = this.manager?.shardList, restartMode = 'gracefulSwitch' } = options || {};
+        const {
+            delay,
+            timeout,
+            totalClusters,
+            shardsPerClusters,
+            shardClusterList,
+            shardList = this.manager?.shardList,
+            restartMode = 'gracefulSwitch',
+        } = options || {};
         let { totalShards } = options || { restartMode: 'gracefulSwitch' };
         if (this.onProgress) throw new Error('Zero Downtime Reclustering is already in progress');
         if (!this.manager) throw new Error('Manager is missing on ReClusterManager');

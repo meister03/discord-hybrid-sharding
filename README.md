@@ -131,7 +131,7 @@ client.cluster
 | totalClusters     | number or string      | "auto"   | Amount of processes/clusters which will be spawned                                                                                |
 | shardsPerClusters | number or string      | -        | Amount of shards which will be in one process/cluster                                                                             |
 | shardList         | Array[number]         | -        | OPTIONAL - On cross-hosting or spawning specific shards you can provide a shardList of internal Shard IDs, which will get spawned |
-| mode              | "worker" or "process" | "worker" | ClusterManager mode for the processes                                                                                            |
+| mode              | "worker" or "process" | "worker" | ClusterManager mode for the processes                                                                                             |
 | token             | string                | -        | OPTIONAL -Bot token is only required totalShards are set to "auto"                                                                |
 
 The Manager.spawn options are the same as for Sharding Manager

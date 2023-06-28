@@ -1,12 +1,5 @@
 import { IPCMessage, BaseMessage, RawMessage } from '../Structures/IPCMessage';
-import {
-    Awaitable,
-    ClusterClientEvents,
-    evalOptions,
-    Events,
-    messageType,
-    Serialized,
-} from '../types/shared';
+import { Awaitable, ClusterClientEvents, evalOptions, Events, messageType, Serialized } from '../types/shared';
 
 import { ClusterManager as Manager } from '../Core/ClusterManager';
 
@@ -168,15 +161,11 @@ export class ClusterClient<DiscordClient> extends EventEmitter {
         options?: evalOptions<P>,
     ): Promise<Serialized<T>>;
     public async broadcastEval<T, P, C extends DiscordClient>(
-        script:
-            | string
-            | ((client: C, context?: Serialized<P>) => Awaitable<T> | Promise<Serialized<T>>),
+        script: string | ((client: C, context?: Serialized<P>) => Awaitable<T> | Promise<Serialized<T>>),
         options?: evalOptions | evalOptions<P>,
     ) {
         if (!script || (typeof script !== 'string' && typeof script !== 'function'))
-            throw new TypeError(
-                'Script for BroadcastEval has not been provided or must be a valid String/Function!',
-            );
+            throw new TypeError('Script for BroadcastEval has not been provided or must be a valid String/Function!');
 
         const broadcastOptions = options || { context: undefined, _type: undefined, timeout: undefined };
         script =
@@ -311,8 +300,14 @@ export class ClusterClient<DiscordClient> extends EventEmitter {
 
 // Credits for EventEmitter typings: https://github.com/discordjs/discord.js/blob/main/packages/rest/src/lib/RequestManager.ts#L159 | See attached license
 export interface ClusterClient<DiscordClient> {
-    emit: (<K extends keyof ClusterClientEvents<DiscordClient>>(event: K, ...args: ClusterClientEvents<DiscordClient>[K]) => boolean) &
-        (<S extends string | symbol>(event: Exclude<S, keyof ClusterClientEvents<DiscordClient>>, ...args: any[]) => boolean);
+    emit: (<K extends keyof ClusterClientEvents<DiscordClient>>(
+        event: K,
+        ...args: ClusterClientEvents<DiscordClient>[K]
+    ) => boolean) &
+        (<S extends string | symbol>(
+            event: Exclude<S, keyof ClusterClientEvents<DiscordClient>>,
+            ...args: any[]
+        ) => boolean);
 
     off: (<K extends keyof ClusterClientEvents<DiscordClient>>(
         event: K,
@@ -323,7 +318,10 @@ export interface ClusterClient<DiscordClient> {
             listener: (...args: any[]) => void,
         ) => this);
 
-    on: (<K extends keyof ClusterClientEvents<DiscordClient>>(event: K, listener: (...args: ClusterClientEvents<DiscordClient>[K]) => void) => this) &
+    on: (<K extends keyof ClusterClientEvents<DiscordClient>>(
+        event: K,
+        listener: (...args: ClusterClientEvents<DiscordClient>[K]) => void,
+    ) => this) &
         (<S extends string | symbol>(
             event: Exclude<S, keyof ClusterClientEvents<DiscordClient>>,
             listener: (...args: any[]) => void,

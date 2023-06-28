@@ -32,4 +32,5 @@
 + interface ClusterManager, Cluster, ClusterClient
   --> Handy Event Emitter Typings from @discordjs/rest
 ```
+
 **Every file, which is not listed above follows the License of the Repo**
