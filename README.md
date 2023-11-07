@@ -40,8 +40,9 @@ Your only solution becomes converting to the sharding manager. That's why this n
 -   `Strings` & `Functions with Context` support on `.broadcastEval()`
 -   Optional timeout feature on `.broadcastEval()` to prevent memory leaks
 -   **[Supports cross-hosting: `Shard/Cluster` managing and cross-host communication (`.broadcastEval()`, `IPC`)](https://npmjs.com/discord-cross-hosting)**
--   **[Supports syncing Discord rate limits globally](https://npmjs.com/discord-cross-ratelimit)**
-    **Scroll down to check our new functions!**
+> Hybrid-Sharding just manages the threading logic, everything else is done by your chosen library, which is the reason that ratelimits will not be synced across clusters. Please use a rest proxy such as (@discordjs/rest, nirn-proxy, ...)
+
+**Scroll down to check our new functions!**
 
 ## How does it work?
 
