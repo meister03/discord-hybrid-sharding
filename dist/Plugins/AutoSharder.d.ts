@@ -6,7 +6,7 @@ export interface AutoResharderSendData {
         guildCount: number;
     }[];
 }
-interface AutoResharderClientOptions {
+interface AutoResharderClusterClientOptions {
     /**
      * How often to send the data (the faster the bot grows, the more often you should send the data)
      * @default 60e3
@@ -46,7 +46,7 @@ interface AutoResharderManagerOptions {
 }
 export declare class AutoResharderClusterClient {
     private clusterClient;
-    /** The Options of the CLIENT_AutoResharder */
+    /** The Options of the AutoResharderClusterClient */
     private options;
     /** The Stored Interval */
     private interval;
@@ -55,12 +55,12 @@ export declare class AutoResharderClusterClient {
     /**
      * The Cluster client and what it shold contain
      * @param {ClusterClient<DjsDiscordClient>} clusterClient
-     * @param {Partial<AutoResharderClientOptions>} [options] the Optional options
+     * @param {Partial<AutoResharderClusterClientOptions>} [options] the Optional options
      * @param {(cluster:ClusterClient<DjsDiscordClient>) => Promise<AutoResharderSendData> | AutoResharderSendData} options.sendDataFunction Get the relevant data (custom function if you don't use smt like djs, then provide it!)
      * @example
      * ```ts
      * client.cluster = new ClusterManager(client);
-     * new CLIENT_AutoResharder(client.cluster, {
+     * new AutoResharderClusterClient(client.cluster, {
      *   // optional. Default is 60e3 which sends every minute the data / cluster
      *   sendDataIntervalMS: 60e3,
      *   // optional. Default is a valid function for discord.js Client's
@@ -73,7 +73,7 @@ export declare class AutoResharderClusterClient {
      * });
      * ```
      */
-    constructor(clusterClient: ClusterClient<DjsDiscordClient>, options?: Partial<AutoResharderClientOptions>);
+    constructor(clusterClient: ClusterClient<DjsDiscordClient>, options?: Partial<AutoResharderClusterClientOptions>);
     private validate;
     /**
      * Stops the Function and interval
@@ -86,14 +86,14 @@ export declare class AutoResharderClusterClient {
      * @param executeSendData Wether it should send the data immediately or as normal: after the interval is reached.
      * @returns
      */
-    start(newOptions?: Partial<AutoResharderClientOptions>, executeSendData?: boolean): Promise<boolean>;
+    start(newOptions?: Partial<AutoResharderClusterClientOptions>, executeSendData?: boolean): Promise<boolean>;
     /**
      * Restart the function and interval, if needed
      * @param newOptions Optinally change the options to your new options
      * @param executeSendData Wether it should send the data immediately or as normal: after the interval is reached.
      * @returns
      */
-    reStart(newOptions?: Partial<AutoResharderClientOptions>, executeSendData?: boolean): Promise<boolean>;
+    reStart(newOptions?: Partial<AutoResharderClusterClientOptions>, executeSendData?: boolean): Promise<boolean>;
     /**
      * Initializes the interval
      * @param executeSendData Wether it should send the data immediately or as normal: after the interval is reached.
@@ -105,21 +105,34 @@ export declare class AutoResharderClusterClient {
 export declare class AutoResharderManager {
     name: 'autoresharder';
     onProgress: Boolean;
-    private manager;
+    private manager?;
     private clusterDatas;
     private options;
     private clustersListening;
     private isReClustering;
     /**
-     *
-     * @param clusterManager the clusterManager
      * @param options The options when to reshard etc.
+     * @example
+     *
+     * ```ts
+     * manager.extend(new AutoResharderManager({
+     *    ShardsPerCluster: 'useManagerOption',
+     *    MinGuildsPerShard: 1500,
+     *    MaxGuildsPerShard: 2400,
+     *    restartOptions: {
+     *        restartMode: 'gracefulSwitch',
+     *        delay: 7e3,
+     *        timeout: -1,
+     *    },
+     *    debug: true,
+     *  }))
+     * ```
      */
-    constructor(clusterManager: ClusterManager, options?: Partial<AutoResharderManagerOptions>);
+    constructor(options?: Partial<AutoResharderManagerOptions>);
+    build(manager: ClusterManager): this;
     private initialize;
     private checkReCluster;
     private validate;
-    build(manager: ClusterManager): this;
 }
 export {};
 //# sourceMappingURL=AutoSharder.d.ts.map

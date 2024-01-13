@@ -4,7 +4,7 @@ exports.AutoResharderManager = exports.AutoResharderClusterClient = void 0;
 const __1 = require("../");
 class AutoResharderClusterClient {
     clusterClient;
-    /** The Options of the CLIENT_AutoResharder */
+    /** The Options of the AutoResharderClusterClient */
     options = {
         sendDataIntervalMS: 60e3,
         debug: false,
@@ -25,12 +25,12 @@ class AutoResharderClusterClient {
     /**
      * The Cluster client and what it shold contain
      * @param {ClusterClient<DjsDiscordClient>} clusterClient
-     * @param {Partial<AutoResharderClientOptions>} [options] the Optional options
+     * @param {Partial<AutoResharderClusterClientOptions>} [options] the Optional options
      * @param {(cluster:ClusterClient<DjsDiscordClient>) => Promise<AutoResharderSendData> | AutoResharderSendData} options.sendDataFunction Get the relevant data (custom function if you don't use smt like djs, then provide it!)
      * @example
      * ```ts
      * client.cluster = new ClusterManager(client);
-     * new CLIENT_AutoResharder(client.cluster, {
+     * new AutoResharderClusterClient(client.cluster, {
      *   // optional. Default is 60e3 which sends every minute the data / cluster
      *   sendDataIntervalMS: 60e3,
      *   // optional. Default is a valid function for discord.js Client's
@@ -156,25 +156,37 @@ class AutoResharderManager {
     clusterDatas = [];
     options = {
         ShardsPerCluster: 'useManagerOption',
-        MinGuildsPerShard: 800,
-        MaxGuildsPerShard: 1750,
+        MinGuildsPerShard: 1500,
+        MaxGuildsPerShard: 2400,
         restartOptions: {
             restartMode: 'gracefulSwitch',
             delay: 7e3,
             timeout: -1,
         },
-        debug: true,
+        debug: false,
     };
     clustersListening = new Set();
     isReClustering = false;
     /**
-     *
-     * @param clusterManager the clusterManager
      * @param options The options when to reshard etc.
+     * @example
+     *
+     * ```ts
+     * manager.extend(new AutoResharderManager({
+     *    ShardsPerCluster: 'useManagerOption',
+     *    MinGuildsPerShard: 1500,
+     *    MaxGuildsPerShard: 2400,
+     *    restartOptions: {
+     *        restartMode: 'gracefulSwitch',
+     *        delay: 7e3,
+     *        timeout: -1,
+     *    },
+     *    debug: true,
+     *  }))
+     * ```
      */
-    constructor(clusterManager, options) {
+    constructor(options) {
         this.name = 'autoresharder';
-        this.manager = clusterManager;
         this.options = {
             ...this.options,
             ...(options || {}),
@@ -186,7 +198,14 @@ class AutoResharderManager {
         this.validate();
         this.initialize();
     }
+    build(manager) {
+        manager[this.name] = this;
+        this.manager = manager;
+        return this;
+    }
     initialize() {
+        if (!this.manager)
+            throw new Error('Manager is missing on AutoResharderManager');
         try {
             this.manager.on('clusterCreate', cluster => {
                 if (this.clustersListening.has(cluster.id)) {
@@ -215,6 +234,8 @@ class AutoResharderManager {
         }
     }
     async checkReCluster() {
+        if (!this.manager)
+            throw new Error('Manager is missing on AutoResharderManager');
         // check for cross-hosting max cluster amount
         if (this.clusterDatas.length <= this.manager.clusterList.length) {
             if (this.options.debug === true)
@@ -225,7 +246,7 @@ class AutoResharderManager {
             if (this.options.debug === true)
                 console.debug('MANAGER-AUTORESHARDER :: Already re-sharding');
         }
-        if (Array.from(Array(this.manager.totalShards).keys()) != this.manager.shardList) {
+        if (!(0, __1.arraysAreTheSame)(Array.from(Array(this.manager.totalShards).keys()), this.manager.shardList)) {
             // TODO make it work for discord-cross-hosting too
             /*
             to make it work following things must happen:
@@ -236,7 +257,7 @@ class AutoResharderManager {
              - AutoReshardingManager must then broadcast to both bridge, machinemanager and clusters to make them work.
              - Option 2 implement a manager just for the bridge
             */
-            throw new RangeError("It seems you are using discord-cross-hosting or custom shardList Spezification, with that you can't run this plugin (yet)");
+            throw new RangeError("It seems that you are using 'discord-cross-hosting' or a custom shardList specification. With either of those you can't run this plugin (yet)");
         }
         const reachedCluster = this.clusterDatas.find(v => v.shardData.some(x => x.guildCount >= this.options.MaxGuildsPerShard));
         if (reachedCluster) {
@@ -282,30 +303,27 @@ class AutoResharderManager {
         }
     }
     validate() {
+        if (!this.manager)
+            throw new Error('Manager is missing on AutoResharderManager');
         if (typeof this.options.ShardsPerCluster === 'string' && this.options.ShardsPerCluster !== 'useManagerOption')
-            throw new SyntaxError("MANAGER_AutoResharderOptions.ShardsPerCluster must be 'useManagerOption' or a number >= 1");
+            throw new SyntaxError("AutoResharderManagerOptions.ShardsPerCluster must be 'useManagerOption' or a number >= 1");
         else if (typeof this.options.ShardsPerCluster !== 'number' || this.options.ShardsPerCluster < 1)
-            throw new SyntaxError("MANAGER_AutoResharderOptions.ShardsPerCluster must be 'useManagerOption' or a number >= 1");
+            throw new SyntaxError("AutoResharderManagerOptions.ShardsPerCluster must be 'useManagerOption' or a number >= 1");
         if (typeof this.options.MinGuildsPerShard === 'string' && this.options.MinGuildsPerShard !== 'auto')
-            throw new SyntaxError("MANAGER_AutoResharderOptions.MinGuildsPerShard must be 'auto' or a number >= 500");
+            throw new SyntaxError("AutoResharderManagerOptions.MinGuildsPerShard must be 'auto' or a number >= 500");
         else if (typeof this.options.MinGuildsPerShard !== 'number' || this.options.MinGuildsPerShard < 500)
-            throw new SyntaxError("MANAGER_AutoResharderOptions.MinGuildsPerShard must be 'auto' or a number >= 500");
+            throw new SyntaxError("AutoResharderManagerOptions.MinGuildsPerShard must be 'auto' or a number >= 500");
         if (typeof this.options.MaxGuildsPerShard !== 'number' ||
             (typeof this.options.MinGuildsPerShard === 'number' &&
                 this.options.MaxGuildsPerShard <= this.options.MinGuildsPerShard) ||
             this.options.MaxGuildsPerShard > 2500)
-            throw new SyntaxError('MANAGER_AutoResharderOptions.MinGuildsPerShard must be higher (if not auto) than MANAGER_AutoResharderOptions.MaxGuildsPerShard and lower than 2500');
+            throw new SyntaxError('AutoResharderManagerOptions.MinGuildsPerShard must be higher (if not auto) than AutoResharderManagerOptions.MaxGuildsPerShard and lower than 2500');
         if (typeof this.manager.recluster === 'undefined')
             throw new RangeError('ClusterManager must be extended with the ReCluster Plugin!');
         if (typeof this.options.MinGuildsPerShard === 'string' &&
             this.options.MinGuildsPerShard === 'auto' &&
             this.options.MaxGuildsPerShard <= 2000)
-            throw new RangeError("If MANAGER_AutoResharderOptions.MinGuildsPerShard is set to 'auto' than MANAGER_AutoResharderOptions.MaxGuildsPerShard must be a number > 2000");
-    }
-    build(manager) {
-        manager[this.name] = this;
-        this.manager = manager;
-        return this;
+            throw new RangeError("If AutoResharderManagerOptions.MinGuildsPerShard is set to 'auto' than AutoResharderManagerOptions.MaxGuildsPerShard must be a number > 2000");
     }
 }
 exports.AutoResharderManager = AutoResharderManager;

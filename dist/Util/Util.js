@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.fetchRecommendedShards = exports.shardIdForGuildId = exports.makePlainError = exports.delayFor = exports.chunkArray = exports.generateNonce = void 0;
+exports.fetchRecommendedShards = exports.shardIdForGuildId = exports.makePlainError = exports.delayFor = exports.arraysAreTheSame = exports.chunkArray = exports.generateNonce = void 0;
 const node_fetch_1 = __importDefault(require("node-fetch"));
 const shared_1 = require("../types/shared");
 function generateNonce() {
@@ -17,6 +17,10 @@ function chunkArray(array, chunkSize) {
     return R;
 }
 exports.chunkArray = chunkArray;
+function arraysAreTheSame(firstArray, secondArray) {
+    return firstArray.length === secondArray.length && firstArray.every((element, index) => element === secondArray[index]);
+}
+exports.arraysAreTheSame = arraysAreTheSame;
 function delayFor(ms) {
     return new Promise(resolve => {
         setTimeout(resolve, ms);
