@@ -63,7 +63,7 @@ export class ReClusterManager {
             shardClusterList,
             shardList,
             restartMode,
-        } = { restartMode: 'gracefulSwitch', ...this.options }; // declare defaults that way
+        } = { restartMode: 'gracefulSwitch', shardList: this.manager?.shardList, ...this.options }; // declare defaults that way
         if (this.onProgress) throw new Error('Zero Downtime Reclustering is already in progress');
         if (!this.manager) throw new Error('Manager is missing on ReClusterManager');
         if (totalShards) {
@@ -81,6 +81,7 @@ export class ReClusterManager {
 
         if (shardList) this.manager.shardList = shardList;
         else this.manager.shardList = Array.from(Array(this.manager.totalShards).keys());
+
         if (shardClusterList) this.manager.shardClusterList = shardClusterList;
         else
             this.manager.shardClusterList = chunkArray(

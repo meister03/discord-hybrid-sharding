@@ -24,6 +24,7 @@ import { WorkerThreadOptions } from '../Structures/Worker';
 import { BaseMessage } from '../Structures/IPCMessage';
 import { HeartbeatManager } from '../Plugins/HeartbeatSystem';
 import { ReClusterManager } from '../Plugins/ReCluster';
+import { AutoResharderManager } from '../Plugins/AutoSharder';
 import { ClusterManagerHooks } from '../Structures/ManagerHooks';
 
 export class ClusterManager extends EventEmitter {
@@ -107,6 +108,8 @@ export class ClusterManager extends EventEmitter {
     heartbeat?: HeartbeatManager;
     /** Reclustering Plugin */
     recluster?: ReClusterManager;
+    /** AutoResharding Plugin */
+    autoresharder?: AutoResharderManager;
     
     /** Containing some useful hook funtions */
     hooks: ClusterManagerHooks;
