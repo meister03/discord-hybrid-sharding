@@ -309,6 +309,15 @@ export class AutoResharderManager {
 
         if (Array.from(Array(this.manager.totalShards).keys()) != this.manager.shardList) {
             // TODO make it work for discord-cross-hosting too
+            /*
+            to make it work following things must happen:
+             - Calculating totalShards stays the same
+             - Option 1 without a bridgeManager
+             - AutoReshardingManager must retrieve the amount of machines from the bridge and their configuration
+             - AutoReshardingManager must then calculate the shardList for every machine based on that
+             - AutoReshardingManager must then broadcast to both bridge, machinemanager and clusters to make them work.
+             - Option 2 implement a manager just for the bridge
+            */
             throw new RangeError(
                 "It seems you are using discord-cross-hosting or custom shardList Spezification, with that you can't run this plugin (yet)",
             );
