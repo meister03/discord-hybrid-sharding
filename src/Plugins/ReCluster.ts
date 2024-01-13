@@ -34,6 +34,7 @@ export class ReClusterManager {
         this.name = 'recluster';
         this.onProgress = false;
     }
+
     build(manager: ClusterManager) {
         manager[this.name] = this;
         this.manager = manager;
@@ -53,8 +54,8 @@ export class ReClusterManager {
      * @param options.restartMode
      */
     public async start(options?: ReClusterOptions) {
-        this.options = { ...this.options, ...(options||{}) }; // update the options of the class
-        let {
+        this.options = { ...this.options, ...(options || {}) }; // update the options of the class
+        const {
             delay,
             timeout,
             totalClusters,
@@ -69,9 +70,10 @@ export class ReClusterManager {
         if (totalShards) {
             if (!this.manager?.token)
                 throw new Error('Token must be defined on manager, when totalShards is set on auto');
-            if (totalShards === 'auto' || totalShards === -1)
-                totalShards = await fetchRecommendedShards(this.manager.token);
-            this.manager.totalShards = totalShards as number;
+            this.manager.totalShards =
+                totalShards === 'auto' || totalShards === -1
+                    ? await fetchRecommendedShards(this.manager.token)
+                    : totalShards;
         }
         if (totalClusters) this.manager.totalClusters = totalClusters;
         if (shardsPerClusters) {
@@ -125,7 +127,8 @@ export class ReClusterManager {
         const oldClusters: Map<number, Cluster> = new Map([...this.manager.clusters.entries()]); // shorten the map creation clone - syntax: new Map([id, value][])
 
         for (let i = 0; i < this.manager.totalClusters; i++) {
-            const length = this.manager.shardClusterList[i]?.length || this.manager.totalShards / this.manager.totalClusters;
+            const length =
+                this.manager.shardClusterList[i]?.length || this.manager.totalShards / this.manager.totalClusters;
             const clusterId = this.manager.clusterList[i] || i;
             const readyTimeout = timeout !== -1 ? timeout + delay * length : timeout;
             const spawnDelay = delay * length;

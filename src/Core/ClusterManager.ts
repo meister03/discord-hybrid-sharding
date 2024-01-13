@@ -1,12 +1,17 @@
-import fs from 'fs';
-import path from 'path';
-import os from 'os';
 import EventEmitter from 'events';
+import fs from 'fs';
+import os from 'os';
+import path from 'path';
 
-import { chunkArray, delayFor, fetchRecommendedShards, makePlainError, shardIdForGuildId } from '../Util/Util';
-import { Queue } from '../Structures/Queue';
-import { Cluster } from './Cluster';
+import { AutoResharderManager } from '../Plugins/AutoSharder';
+import { HeartbeatManager } from '../Plugins/HeartbeatSystem';
+import { ReClusterManager } from '../Plugins/ReCluster';
+import { ChildProcessOptions } from '../Structures/Child';
+import { BaseMessage } from '../Structures/IPCMessage';
+import { ClusterManagerHooks } from '../Structures/ManagerHooks';
 import { PromiseHandler } from '../Structures/PromiseHandler';
+import { Queue } from '../Structures/Queue';
+import { WorkerThreadOptions } from '../Structures/Worker';
 import {
     Awaitable,
     ClusterManagerEvents,
@@ -19,13 +24,8 @@ import {
     QueueOptions,
     Serialized,
 } from '../types/shared';
-import { ChildProcessOptions } from '../Structures/Child';
-import { WorkerThreadOptions } from '../Structures/Worker';
-import { BaseMessage } from '../Structures/IPCMessage';
-import { HeartbeatManager } from '../Plugins/HeartbeatSystem';
-import { ReClusterManager } from '../Plugins/ReCluster';
-import { AutoResharderManager } from '../Plugins/AutoSharder';
-import { ClusterManagerHooks } from '../Structures/ManagerHooks';
+import { chunkArray, delayFor, fetchRecommendedShards, makePlainError, shardIdForGuildId } from '../Util/Util';
+import { Cluster } from './Cluster';
 
 export class ClusterManager extends EventEmitter {
     /**
@@ -110,7 +110,7 @@ export class ClusterManager extends EventEmitter {
     recluster?: ReClusterManager;
     /** AutoResharding Plugin */
     autoresharder?: AutoResharderManager;
-    
+
     /** Containing some useful hook funtions */
     hooks: ClusterManagerHooks;
     constructor(file: string, options: ClusterManagerOptions) {
@@ -283,7 +283,9 @@ export class ClusterManager extends EventEmitter {
 
         this.shardClusterList = chunkArray(
             this.shardList,
-            (!isNaN(this.shardsPerClusters as any) ? this.shardsPerClusters as number : Math.ceil(this.shardList.length / (this.totalClusters as number))),
+            !isNaN(this.shardsPerClusters as any)
+                ? (this.shardsPerClusters as number)
+                : Math.ceil(this.shardList.length / (this.totalClusters as number)),
         );
 
         if (this.shardClusterList.length !== this.totalClusters) {
@@ -295,8 +297,6 @@ export class ClusterManager extends EventEmitter {
 
         // Update spawn options
         this.spawnOptions = { delay, timeout };
-
-
 
         this._debug(`[Spawning Clusters]
     ClusterCount: ${this.totalClusters}
@@ -373,9 +373,7 @@ export class ClusterManager extends EventEmitter {
         options?: evalOptions<P>,
     ): Promise<Serialized<T>>;
     public async broadcastEval<T, P>(
-        script:
-            | string
-            | ((client: DjsDiscordClient, context?: Serialized<P>) => Awaitable<T> | Promise<Serialized<T>>),
+        script: string | ((client: DjsDiscordClient, context?: Serialized<P>) => Awaitable<T> | Promise<Serialized<T>>),
         evalOptions?: evalOptions | evalOptions<P>,
     ) {
         const options = evalOptions ?? {};
@@ -461,7 +459,11 @@ export class ClusterManager extends EventEmitter {
      * Kills all running clusters and respawns them.
      * @param options Options for respawning shards
      */
-    public async respawnAll({ clusterDelay = this.spawnOptions.delay = 5500, respawnDelay = this.spawnOptions.delay = 5500, timeout = -1 } = {}) {
+    public async respawnAll({
+        clusterDelay = (this.spawnOptions.delay = 5500),
+        respawnDelay = (this.spawnOptions.delay = 5500),
+        timeout = -1,
+    } = {}) {
         this.promise.nonce.clear();
         let s = 0;
         let i = 0;
@@ -546,35 +548,35 @@ export class ClusterManager extends EventEmitter {
 // Credits for EventEmitter typings: https://github.com/discordjs/discord.js/blob/main/packages/rest/src/lib/RequestManager.ts#L159 | See attached license
 export interface ClusterManager {
     emit: (<K extends keyof ClusterManagerEvents>(event: K, ...args: ClusterManagerEvents[K]) => boolean) &
-    (<S extends string | symbol>(event: Exclude<S, keyof ClusterManagerEvents>, ...args: any[]) => boolean);
+        (<S extends string | symbol>(event: Exclude<S, keyof ClusterManagerEvents>, ...args: any[]) => boolean);
 
     off: (<K extends keyof ClusterManagerEvents>(
         event: K,
         listener: (...args: ClusterManagerEvents[K]) => void,
     ) => this) &
-    (<S extends string | symbol>(
-        event: Exclude<S, keyof ClusterManagerEvents>,
-        listener: (...args: any[]) => void,
-    ) => this);
+        (<S extends string | symbol>(
+            event: Exclude<S, keyof ClusterManagerEvents>,
+            listener: (...args: any[]) => void,
+        ) => this);
 
     on: (<K extends keyof ClusterManagerEvents>(
         event: K,
         listener: (...args: ClusterManagerEvents[K]) => void,
     ) => this) &
-    (<S extends string | symbol>(
-        event: Exclude<S, keyof ClusterManagerEvents>,
-        listener: (...args: any[]) => void,
-    ) => this);
+        (<S extends string | symbol>(
+            event: Exclude<S, keyof ClusterManagerEvents>,
+            listener: (...args: any[]) => void,
+        ) => this);
 
     once: (<K extends keyof ClusterManagerEvents>(
         event: K,
         listener: (...args: ClusterManagerEvents[K]) => void,
     ) => this) &
-    (<S extends string | symbol>(
-        event: Exclude<S, keyof ClusterManagerEvents>,
-        listener: (...args: any[]) => void,
-    ) => this);
+        (<S extends string | symbol>(
+            event: Exclude<S, keyof ClusterManagerEvents>,
+            listener: (...args: any[]) => void,
+        ) => this);
 
     removeAllListeners: (<K extends keyof ClusterManagerEvents>(event?: K) => this) &
-    (<S extends string | symbol>(event?: Exclude<S, keyof ClusterManagerEvents>) => this);
+        (<S extends string | symbol>(event?: Exclude<S, keyof ClusterManagerEvents>) => this);
 }
