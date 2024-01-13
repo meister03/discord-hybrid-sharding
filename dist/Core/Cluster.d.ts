@@ -2,12 +2,12 @@
 /// <reference types="node" />
 /// <reference types="node" />
 /// <reference types="node" />
-import { ClusterManager } from './ClusterManager';
-import EventEmitter from 'events';
-import { ClusterEvents, ClusterKillOptions } from '../types/shared';
-import { RawMessage } from '../Structures/IPCMessage.js';
-import { Worker } from '../Structures/Worker.js';
-import { Child } from '../Structures/Child.js';
+import EventEmitter from "events";
+import { Child } from "../Structures/Child.js";
+import { RawMessage } from "../Structures/IPCMessage.js";
+import { Worker } from "../Structures/Worker.js";
+import { ClusterEvents, ClusterKillOptions } from "../types/shared";
+import { ClusterManager } from "./ClusterManager";
 /**
  * A self-contained cluster created by the {@link ClusterManager}. Each one has a {@link Child} that contains
  * an instance of the bot and its {@link Client}. When its child process/worker exits for any reason, the cluster will
@@ -82,7 +82,7 @@ export declare class Cluster extends EventEmitter {
      * @param spawnTimeout The amount in milliseconds to wait until the {@link Client} has become ready
      * before resolving. (-1 or Infinity for no wait)
      */
-    spawn(spawnTimeout?: number): Promise<import("worker_threads").Worker | import("child_process").ChildProcess | null>;
+    spawn(spawnTimeout?: number): Promise<import("child_process").ChildProcess | import("worker_threads").Worker | null>;
     /**
      * Immediately kills the clusters process/worker and does not restart it.
      * @param options Some Options for managing the Kill
@@ -93,7 +93,7 @@ export declare class Cluster extends EventEmitter {
      * Kills and restarts the cluster's process/worker.
      * @param options Options for respawning the cluster
      */
-    respawn({ delay, timeout }?: import("../types/shared").ClusterManagerSpawnOptions): Promise<import("worker_threads").Worker | import("child_process").ChildProcess | null>;
+    respawn({ delay, timeout }?: import("../types/shared").ClusterManagerSpawnOptions): Promise<import("child_process").ChildProcess | import("worker_threads").Worker | null>;
     /**
      * Sends a message to the cluster's process/worker.
      * @param  message Message to send to the cluster

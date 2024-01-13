@@ -80,7 +80,8 @@ class Heartbeat {
     }
     stop() {
         this.heartbeats.clear();
-        clearInterval(this.interval);
+        if (this.interval)
+            clearInterval(this.interval);
     }
     resume() {
         this.start();

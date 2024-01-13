@@ -6,12 +6,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Cluster = void 0;
 const events_1 = __importDefault(require("events"));
 const path_1 = __importDefault(require("path"));
-const Util_1 = require("../Util/Util");
-const shared_1 = require("../types/shared");
-const IPCMessage_js_1 = require("../Structures/IPCMessage.js");
-const IPCHandler_js_1 = require("../Structures/IPCHandler.js");
-const Worker_js_1 = require("../Structures/Worker.js");
 const Child_js_1 = require("../Structures/Child.js");
+const IPCHandler_js_1 = require("../Structures/IPCHandler.js");
+const IPCMessage_js_1 = require("../Structures/IPCMessage.js");
+const Worker_js_1 = require("../Structures/Worker.js");
+const shared_1 = require("../types/shared");
+const Util_1 = require("../Util/Util");
 /**
  * A self-contained cluster created by the {@link ClusterManager}. Each one has a {@link Child} that contains
  * an instance of the bot and its {@link Client}. When its child process/worker exits for any reason, the cluster will

@@ -4,14 +4,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ClusterClient = void 0;
-const IPCMessage_1 = require("../Structures/IPCMessage");
-const shared_1 = require("../types/shared");
-const Data_1 = require("../Structures/Data");
-const Worker_1 = require("../Structures/Worker");
-const Child_1 = require("../Structures/Child");
-const IPCHandler_1 = require("../Structures/IPCHandler");
-const PromiseHandler_1 = require("../Structures/PromiseHandler");
 const events_1 = __importDefault(require("events"));
+const Child_1 = require("../Structures/Child");
+const Data_1 = require("../Structures/Data");
+const IPCHandler_1 = require("../Structures/IPCHandler");
+const IPCMessage_1 = require("../Structures/IPCMessage");
+const PromiseHandler_1 = require("../Structures/PromiseHandler");
+const Worker_1 = require("../Structures/Worker");
+const shared_1 = require("../types/shared");
 const Util_1 = require("../Util/Util");
 ///communicates between the master workers and the process
 class ClusterClient extends events_1.default {

@@ -33,7 +33,8 @@ class ReClusterManager {
      * @param options.restartMode
      */
     async start(options) {
-        let { delay, timeout, totalClusters, totalShards, shardsPerClusters, shardClusterList, shardList = this.manager?.shardList, restartMode = 'gracefulSwitch', } = options || { restartMode: 'gracefulSwitch' };
+        this.options = { ...this.options, ...(options || {}) }; // update the options of the class
+        const { delay, timeout, totalClusters, totalShards, shardsPerClusters, shardClusterList, shardList, restartMode, } = { restartMode: 'gracefulSwitch', shardList: this.manager?.shardList, ...this.options }; // declare defaults that way
         if (this.onProgress)
             throw new Error('Zero Downtime Reclustering is already in progress');
         if (!this.manager)
@@ -41,9 +42,10 @@ class ReClusterManager {
         if (totalShards) {
             if (!this.manager?.token)
                 throw new Error('Token must be defined on manager, when totalShards is set on auto');
-            if (totalShards === 'auto' || totalShards === -1)
-                totalShards = await (0, Util_1.fetchRecommendedShards)(this.manager.token);
-            this.manager.totalShards = totalShards;
+            this.manager.totalShards =
+                totalShards === 'auto' || totalShards === -1
+                    ? await (0, Util_1.fetchRecommendedShards)(this.manager.token)
+                    : totalShards;
         }
         if (totalClusters)
             this.manager.totalClusters = totalClusters;
@@ -85,14 +87,10 @@ class ReClusterManager {
         process.env.MAINTENANCE = 'recluster';
         this.manager.triggerMaintenance('recluster');
         this.manager._debug('[↻][ReClustering] Enabling Maintenance Mode on all clusters');
-        let switchClusterAfterReady = false;
         // when no shard settings have been updated
-        switchClusterAfterReady = restartMode === 'rolling'; //gracefulSwitch, spawn all clusters and kill all old clusters, when new clusters are ready
+        const switchClusterAfterReady = restartMode === 'rolling'; //gracefulSwitch, spawn all clusters and kill all old clusters, when new clusters are ready
         const newClusters = new Map();
-        const oldClusters = new Map();
-        Array.from(this.manager.clusters.values()).forEach(cluster => {
-            oldClusters.set(cluster.id, cluster);
-        });
+        const oldClusters = new Map([...this.manager.clusters.entries()]); // shorten the map creation clone - syntax: new Map([id, value][])
         for (let i = 0; i < this.manager.totalClusters; i++) {
             const length = this.manager.shardClusterList[i]?.length || this.manager.totalShards / this.manager.totalClusters;
             const clusterId = this.manager.clusterList[i] || i;

@@ -86,6 +86,10 @@ class ClusterHandler {
             this.cluster.manager.heartbeat?.ack(this.cluster.id, message.date);
             return;
         }
+        if (message._type === shared_1.messageType.AUTO_RESHARDER_DATA) {
+            this.cluster.manager.autoresharder?.data(this.cluster.id, message.data);
+            return;
+        }
         if (message._type === shared_1.messageType.CUSTOM_REPLY) {
             this.cluster.manager.promise.resolve(message);
             return;
