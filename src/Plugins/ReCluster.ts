@@ -53,6 +53,7 @@ export class ReClusterManager {
      * @param options.restartMode
      */
     public async start(options?: ReClusterOptions) {
+        this.options = { ...this.options, ...(options||{}) }; // update the options of the class
         let {
             delay,
             timeout,
@@ -60,9 +61,9 @@ export class ReClusterManager {
             totalShards,
             shardsPerClusters,
             shardClusterList,
-            shardList = this.manager?.shardList,
-            restartMode = 'gracefulSwitch',
-        } = options || { restartMode: 'gracefulSwitch' };
+            shardList,
+            restartMode,
+        } = { restartMode: 'gracefulSwitch', ...this.options }; // declare defaults that way
         if (this.onProgress) throw new Error('Zero Downtime Reclustering is already in progress');
         if (!this.manager) throw new Error('Manager is missing on ReClusterManager');
         if (totalShards) {
@@ -116,18 +117,14 @@ export class ReClusterManager {
         this.manager.triggerMaintenance('recluster');
         this.manager._debug('[↻][ReClustering] Enabling Maintenance Mode on all clusters');
 
-        let switchClusterAfterReady = false;
         // when no shard settings have been updated
-        switchClusterAfterReady = restartMode === 'rolling'; //gracefulSwitch, spawn all clusters and kill all old clusters, when new clusters are ready
+        const switchClusterAfterReady = restartMode === 'rolling'; //gracefulSwitch, spawn all clusters and kill all old clusters, when new clusters are ready
 
         const newClusters: Map<number, Cluster> = new Map();
-        const oldClusters: Map<number, Cluster> = new Map();
-        Array.from(this.manager.clusters.values()).forEach(cluster => {
-            oldClusters.set(cluster.id, cluster);
-        });
+        const oldClusters: Map<number, Cluster> = new Map([...this.manager.clusters.entries()]); // shorten the map creation clone - syntax: new Map([id, value][])
+
         for (let i = 0; i < this.manager.totalClusters; i++) {
-            const length =
-                this.manager.shardClusterList[i]?.length || this.manager.totalShards / this.manager.totalClusters;
+            const length = this.manager.shardClusterList[i]?.length || this.manager.totalShards / this.manager.totalClusters;
             const clusterId = this.manager.clusterList[i] || i;
             const readyTimeout = timeout !== -1 ? timeout + delay * length : timeout;
             const spawnDelay = delay * length;
