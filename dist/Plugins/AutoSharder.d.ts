@@ -31,9 +31,20 @@ interface AutoResharderClusterClientOptions {
     debug?: boolean;
 }
 interface AutoResharderManagerOptions {
+    /**
+     * How many shards to be set per cluster
+     */
     ShardsPerCluster: number | 'useManagerOption';
+    /**
+     * This Number declares how many new shards should spawn.
+     * if set to 1500 it aims to create as many shards that on avg. per shard 1500 guilds are set
+     * If set to "auto" it uses the recommendation amount of discord-gateway.
+     * If set to "auto" then MaxGuildsPerShard must be at least 2000
+    */
     MinGuildsPerShard: 'auto' | number;
+    /** If this number is reached, autoresharding starts */
     MaxGuildsPerShard: number;
+    /** Restart Options for reclustering */
     restartOptions?: {
         /** The restartMode of the clusterManager, gracefulSwitch = waits until all new clusters have spawned with maintenance mode, rolling = Once the Cluster is Ready, the old cluster will be killed  */
         restartMode?: 'gracefulSwitch' | 'rolling';
@@ -104,12 +115,11 @@ export declare class AutoResharderClusterClient {
 }
 export declare class AutoResharderManager {
     name: 'autoresharder';
-    onProgress: Boolean;
     private manager?;
-    private clusterDatas;
-    private options;
     private clustersListening;
-    private isReClustering;
+    clusterDatas: AutoResharderSendData[];
+    options: AutoResharderManagerOptions;
+    isReClustering: boolean;
     /**
      * @param options The options when to reshard etc.
      * @example
@@ -130,8 +140,8 @@ export declare class AutoResharderManager {
      */
     constructor(options?: Partial<AutoResharderManagerOptions>);
     build(manager: ClusterManager): this;
+    checkReCluster(): Promise<void>;
     private initialize;
-    private checkReCluster;
     private validate;
 }
 export {};

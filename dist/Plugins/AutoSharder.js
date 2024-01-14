@@ -151,8 +151,8 @@ class AutoResharderClusterClient {
 exports.AutoResharderClusterClient = AutoResharderClusterClient;
 class AutoResharderManager {
     name;
-    onProgress = false;
     manager;
+    clustersListening = new Set();
     clusterDatas = [];
     options = {
         ShardsPerCluster: 'useManagerOption',
@@ -165,7 +165,6 @@ class AutoResharderManager {
         },
         debug: false,
     };
-    clustersListening = new Set();
     isReClustering = false;
     /**
      * @param options The options when to reshard etc.
@@ -195,43 +194,13 @@ class AutoResharderManager {
                 ...(options?.restartOptions || {}),
             },
         };
-        this.validate();
-        this.initialize();
     }
     build(manager) {
         manager[this.name] = this;
         this.manager = manager;
+        this.validate();
+        this.initialize();
         return this;
-    }
-    initialize() {
-        if (!this.manager)
-            throw new Error('Manager is missing on AutoResharderManager');
-        try {
-            this.manager.on('clusterCreate', cluster => {
-                if (this.clustersListening.has(cluster.id)) {
-                    return;
-                }
-                this.clustersListening.add(cluster.id);
-                cluster.on('message', message => {
-                    if (typeof message !== 'object')
-                        return;
-                    const msg = ('raw' in message ? message.raw : message);
-                    if (msg._type !== __1.messageType.CLIENT_AUTORESHARDER_SENDDATA)
-                        return;
-                    const index = this.clusterDatas.findIndex(v => v.clusterId === msg.data.clusterId);
-                    if (index < 0)
-                        this.clusterDatas.push(msg.data);
-                    else
-                        this.clusterDatas[index] = msg.data;
-                    if (this.options.debug === true)
-                        console.debug(`MANAGER-AUTORESHARDER :: Reached sendData of Cluster #${cluster.id} for:`, msg.data);
-                    this.checkReCluster();
-                });
-            });
-        }
-        catch (e) {
-            console.error(e);
-        }
     }
     async checkReCluster() {
         if (!this.manager)
@@ -258,6 +227,8 @@ class AutoResharderManager {
              - Option 2 implement a manager just for the bridge
             */
             throw new RangeError("It seems that you are using 'discord-cross-hosting' or a custom shardList specification. With either of those you can't run this plugin (yet)");
+            // it must also set the new shardList, totalShards etc. variables on the machine
+            // to do that there must be access to the bridge
         }
         const reachedCluster = this.clusterDatas.find(v => v.shardData.some(x => x.guildCount >= this.options.MaxGuildsPerShard));
         if (reachedCluster) {
@@ -300,6 +271,36 @@ class AutoResharderManager {
             this.isReClustering = false;
             if (this.options.debug === true)
                 console.debug(`MANAGER-AUTORESHARDER :: Finished Autoresharding with following data from Manager.Reclustering:`, data);
+        }
+    }
+    initialize() {
+        if (!this.manager)
+            throw new Error('Manager is missing on AutoResharderManager');
+        try {
+            this.manager.on('clusterCreate', cluster => {
+                if (this.clustersListening.has(cluster.id)) {
+                    return;
+                }
+                this.clustersListening.add(cluster.id);
+                cluster.on('message', message => {
+                    if (typeof message !== 'object')
+                        return;
+                    const msg = ('raw' in message ? message.raw : message);
+                    if (msg._type !== __1.messageType.CLIENT_AUTORESHARDER_SENDDATA)
+                        return;
+                    const index = this.clusterDatas.findIndex(v => v.clusterId === msg.data.clusterId);
+                    if (index < 0)
+                        this.clusterDatas.push(msg.data);
+                    else
+                        this.clusterDatas[index] = msg.data;
+                    if (this.options.debug === true)
+                        console.debug(`MANAGER-AUTORESHARDER :: Reached sendData of Cluster #${cluster.id} for:`, msg.data);
+                    this.checkReCluster();
+                });
+            });
+        }
+        catch (e) {
+            console.error(e);
         }
     }
     validate() {
