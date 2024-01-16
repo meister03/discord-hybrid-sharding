@@ -307,12 +307,12 @@ class AutoResharderManager {
         if (!this.manager)
             throw new Error('Manager is missing on AutoResharderManager');
         if (typeof this.options.ShardsPerCluster === 'string' && this.options.ShardsPerCluster !== 'useManagerOption')
-            throw new SyntaxError("AutoResharderManagerOptions.ShardsPerCluster must be 'useManagerOption' or a number >= 1");
-        else if (typeof this.options.ShardsPerCluster !== 'number' || this.options.ShardsPerCluster < 1)
-            throw new SyntaxError("AutoResharderManagerOptions.ShardsPerCluster must be 'useManagerOption' or a number >= 1");
+            throw new SyntaxError("AutoResharderManagerOptions.ShardsPerCluster must be 'useManagerOption' or a number >= 1",);
+        else if (this.options.ShardsPerCluster !== 'useManagerOption' && (typeof this.options.ShardsPerCluster !== 'number' || this.options.ShardsPerCluster < 1))
+            throw new SyntaxError("AutoResharderManagerOptions.ShardsPerCluster must be 'useManagerOption' or a number >= 1",);
         if (typeof this.options.MinGuildsPerShard === 'string' && this.options.MinGuildsPerShard !== 'auto')
             throw new SyntaxError("AutoResharderManagerOptions.MinGuildsPerShard must be 'auto' or a number >= 500");
-        else if (typeof this.options.MinGuildsPerShard !== 'number' || this.options.MinGuildsPerShard < 500)
+        else if (this.options.MinGuildsPerShard !== 'auto' && (typeof this.options.MinGuildsPerShard !== 'number' || this.options.MinGuildsPerShard < 500))
             throw new SyntaxError("AutoResharderManagerOptions.MinGuildsPerShard must be 'auto' or a number >= 500");
         if (typeof this.options.MaxGuildsPerShard !== 'number' ||
             (typeof this.options.MinGuildsPerShard === 'number' &&
