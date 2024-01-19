@@ -245,7 +245,7 @@ export class AutoResharderClusterClient {
 export class AutoResharderManager {
     public name: 'autoresharder';
     private manager?: ClusterManager;
-    private clustersListening = new Set<number>();
+    // private clustersListening = new Set<number>();
     public clusterDatas: AutoResharderSendData[] = [];
     public options: AutoResharderManagerOptions = {
         ShardsPerCluster: 'useManagerOption',
@@ -391,49 +391,59 @@ export class AutoResharderManager {
                 );
         }
     }
+    public getData(clusterData: AutoResharderSendData) {
+        console.log(clusterData);
+        const index = this.clusterDatas.findIndex(v => v.clusterId === clusterData.clusterId);
+        if (index < 0) this.clusterDatas.push(clusterData);
+        else this.clusterDatas[index] = clusterData;
+
+        if (this.options.debug === true)
+            console.debug(
+                `MANAGER-AUTORESHARDER :: Reached sendData of Cluster #${clusterData.clusterId} for:`,
+                clusterData,
+            );
+        this.checkReCluster();
+        return;
+    }
     private initialize() {
         if (!this.manager) throw new Error('Manager is missing on AutoResharderManager');
-        try {
-            this.manager.on('clusterCreate', cluster => {
-                if (this.clustersListening.has(cluster.id)) {
-                    return;
-                }
-                this.clustersListening.add(cluster.id);
-                cluster.on('message', message => {
-                    if (typeof message !== 'object') return;
+        // try {
+        //     this.manager.on('clusterCreate', cluster => {
+        //         if (this.clustersListening.has(cluster.id)) {
+        //             return;
+        //         }
+        //         this.clustersListening.add(cluster.id);
+        //         cluster.on('message', message => {
+        //             if (typeof message !== 'object') return;
 
-                    const msg = ('raw' in message ? message.raw : message) as sendDataMessage;
-                    if (msg._type !== messageType.CLIENT_AUTORESHARDER_SENDDATA) return;
+        //             const msg = ('raw' in message ? message.raw : message) as sendDataMessage;
+        //             if (msg._type !== messageType.CLIENT_AUTORESHARDER_SENDDATA) return;
 
-                    const index = this.clusterDatas.findIndex(v => v.clusterId === msg.data.clusterId);
-                    if (index < 0) this.clusterDatas.push(msg.data);
-                    else this.clusterDatas[index] = msg.data;
+        //             const index = this.clusterDatas.findIndex(v => v.clusterId === msg.data.clusterId);
+        //             if (index < 0) this.clusterDatas.push(msg.data);
+        //             else this.clusterDatas[index] = msg.data;
 
-                    if (this.options.debug === true)
-                        console.debug(
-                            `MANAGER-AUTORESHARDER :: Reached sendData of Cluster #${cluster.id} for:`,
-                            msg.data,
-                        );
-                    this.checkReCluster();
-                });
-            });
-        } catch (e) {
-            console.error(e);
-        }
+        //             if (this.options.debug === true)
+        //                 console.debug(
+        //                     `MANAGER-AUTORESHARDER :: Reached sendData of Cluster #${cluster.id} for:`,
+        //                     msg.data,
+        //                 );
+        //             this.checkReCluster();
+        //         });
+        //     });
+        // } catch (e) {
+        //     console.error(e);
+        // }
     }
     private validate() {
         if (!this.manager) throw new Error('Manager is missing on AutoResharderManager');
         if (typeof this.options.ShardsPerCluster === 'string' && this.options.ShardsPerCluster !== 'useManagerOption')
-            throw new SyntaxError(
-                "AutoResharderManagerOptions.ShardsPerCluster must be 'useManagerOption' or a number >= 1",
-            );
-        else if (typeof this.options.ShardsPerCluster !== 'number' || this.options.ShardsPerCluster < 1)
-            throw new SyntaxError(
-                "AutoResharderManagerOptions.ShardsPerCluster must be 'useManagerOption' or a number >= 1",
-            );
+            throw new SyntaxError("AutoResharderManagerOptions.ShardsPerCluster must be 'useManagerOption' or a number >= 1",);
+        else if (this.options.ShardsPerCluster !== 'useManagerOption' && (typeof this.options.ShardsPerCluster !== 'number' || this.options.ShardsPerCluster < 1))
+            throw new SyntaxError("AutoResharderManagerOptions.ShardsPerCluster must be 'useManagerOption' or a number >= 1",);
         if (typeof this.options.MinGuildsPerShard === 'string' && this.options.MinGuildsPerShard !== 'auto')
             throw new SyntaxError("AutoResharderManagerOptions.MinGuildsPerShard must be 'auto' or a number >= 500");
-        else if (typeof this.options.MinGuildsPerShard !== 'number' || this.options.MinGuildsPerShard < 500)
+        else if (this.options.MinGuildsPerShard !== 'auto' && (typeof this.options.MinGuildsPerShard !== 'number' || this.options.MinGuildsPerShard < 500))
             throw new SyntaxError("AutoResharderManagerOptions.MinGuildsPerShard must be 'auto' or a number >= 500");
         if (
             typeof this.options.MaxGuildsPerShard !== 'number' ||

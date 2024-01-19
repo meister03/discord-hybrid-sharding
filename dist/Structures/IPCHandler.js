@@ -86,8 +86,8 @@ class ClusterHandler {
             this.cluster.manager.heartbeat?.ack(this.cluster.id, message.date);
             return;
         }
-        if (message._type === shared_1.messageType.AUTO_RESHARDER_DATA) {
-            this.cluster.manager.autoresharder?.data(this.cluster.id, message.data);
+        if (message._type === shared_1.messageType.CLIENT_AUTORESHARDER_SENDDATA) {
+            this.cluster.manager.autoresharder?.getData(message.data);
             return;
         }
         if (message._type === shared_1.messageType.CUSTOM_REPLY) {

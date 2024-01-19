@@ -116,7 +116,6 @@ export declare class AutoResharderClusterClient {
 export declare class AutoResharderManager {
     name: 'autoresharder';
     private manager?;
-    private clustersListening;
     clusterDatas: AutoResharderSendData[];
     options: AutoResharderManagerOptions;
     isReClustering: boolean;
@@ -141,6 +140,7 @@ export declare class AutoResharderManager {
     constructor(options?: Partial<AutoResharderManagerOptions>);
     build(manager: ClusterManager): this;
     checkReCluster(): Promise<void>;
+    getData(clusterData: AutoResharderSendData): void;
     private initialize;
     private validate;
 }
