@@ -1,12 +1,12 @@
 /// <reference types="node" />
-import { RawMessage } from '../Structures/IPCMessage';
-import { Awaitable, ClusterClientEvents, evalOptions, Serialized } from '../types/shared';
-import { ClusterManager as Manager } from '../Core/ClusterManager';
-import { WorkerClient } from '../Structures/Worker';
-import { ChildClient } from '../Structures/Child';
-import { PromiseHandler } from '../Structures/PromiseHandler';
-import EventEmitter from 'events';
 import { Serializable } from 'child_process';
+import EventEmitter from 'events';
+import { ClusterManager as Manager } from '../Core/ClusterManager';
+import { ChildClient } from '../Structures/Child';
+import { RawMessage } from '../Structures/IPCMessage';
+import { PromiseHandler } from '../Structures/PromiseHandler';
+import { WorkerClient } from '../Structures/Worker';
+import { Awaitable, ClusterClientEvents, evalOptions, Serialized } from '../types/shared';
 export declare class ClusterClient<DiscordClient> extends EventEmitter {
     client: DiscordClient;
     mode: 'process' | 'worker';

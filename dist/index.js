@@ -17,6 +17,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 __exportStar(require("./Core/Cluster"), exports);
 __exportStar(require("./Core/ClusterClient"), exports);
 __exportStar(require("./Core/ClusterManager"), exports);
+__exportStar(require("./Plugins/AutoSharder"), exports);
 __exportStar(require("./Plugins/HeartbeatSystem"), exports);
 __exportStar(require("./Plugins/ReCluster"), exports);
 __exportStar(require("./Structures/Child"), exports);

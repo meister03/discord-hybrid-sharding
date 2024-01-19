@@ -1,6 +1,6 @@
 /// <reference types="node" />
-import { Cluster } from '../Core/Cluster';
-import { ClusterManager } from '../Core/ClusterManager';
+import { Cluster } from "../Core/Cluster";
+import { ClusterManager } from "../Core/ClusterManager";
 export type keepAliveOptions = {
     /** Default interval is 20000 */
     interval?: number;
@@ -26,7 +26,7 @@ export declare class Heartbeat {
     instance: Cluster;
     constructor(manager: HeartbeatManager, instance: Cluster, options: Required<keepAliveOptions>);
     ack(date: number): boolean;
-    start(): NodeJS.Timer;
+    start(): NodeJS.Timeout;
     stop(): void;
     resume(): void;
 }

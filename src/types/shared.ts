@@ -1,12 +1,13 @@
 import { ChildProcess, Serializable } from 'child_process';
+import { Client } from 'discord.js';
 import { Worker } from 'worker_threads';
+
 import { Cluster } from '../Core/Cluster';
 import { ClusterClient } from '../Core/ClusterClient';
 import { ClusterManager } from '../Core/ClusterManager';
 import { ChildProcessOptions } from '../Structures/Child';
 import { BaseMessage, IPCMessage } from '../Structures/IPCMessage';
 import { WorkerThreadOptions } from '../Structures/Worker';
-import { Client } from 'discord.js';
 
 export const Events = {
     ERROR: 'warn',
@@ -47,6 +48,7 @@ export enum messageType {
     'CLIENT_MANAGER_EVAL_RESPONSE',
     'MANAGER_BROADCAST_REQUEST',
     'MANAGER_BROADCAST_RESPONSE',
+    'CLIENT_AUTORESHARDER_SENDDATA',
 }
 
 export interface evalOptions<T = object> {
@@ -161,7 +163,5 @@ export interface ClusterClientEvents<DiscordClient> {
     ready: [clusterClient: ClusterClient<DiscordClient>];
 }
 
-
-export interface DjsDiscordClient extends Client {
-
-}
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface DjsDiscordClient extends Client {}

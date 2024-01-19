@@ -1,12 +1,12 @@
-import { Cluster } from '../Core/Cluster';
-import { ClusterClient } from '../Core/ClusterClient';
-import { ClusterManager } from '../Core/ClusterManager';
-import { messageType } from '../types/shared';
-import { makePlainError } from '../Util/Util';
-import { Child, ChildClient } from './Child';
-import { RawMessage } from './IPCMessage';
-import { ResolveMessage } from './PromiseHandler';
-import { Worker, WorkerClient } from './Worker';
+import { Cluster } from "../Core/Cluster";
+import { ClusterClient } from "../Core/ClusterClient";
+import { ClusterManager } from "../Core/ClusterManager";
+import { messageType } from "../types/shared";
+import { makePlainError } from "../Util/Util";
+import { Child, ChildClient } from "./Child";
+import { RawMessage } from "./IPCMessage";
+import { ResolveMessage } from "./PromiseHandler";
+import { Worker, WorkerClient } from "./Worker";
 
 export class ClusterHandler {
     manager: ClusterManager;
@@ -90,6 +90,10 @@ export class ClusterHandler {
         }
         if (message._type === messageType.HEARTBEAT_ACK) {
             this.cluster.manager.heartbeat?.ack(this.cluster.id, message.date);
+            return;
+        }
+        if (message._type === messageType.CLIENT_AUTORESHARDER_SENDDATA) {
+            this.cluster.manager.autoresharder?.getData(message.data);
             return;
         }
         if (message._type === messageType.CUSTOM_REPLY) {

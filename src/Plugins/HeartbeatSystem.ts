@@ -1,6 +1,6 @@
-import { Cluster } from '../Core/Cluster';
-import { ClusterManager } from '../Core/ClusterManager';
-import { messageType } from '../types/shared';
+import { Cluster } from "../Core/Cluster";
+import { ClusterManager } from "../Core/ClusterManager";
+import { messageType } from "../types/shared";
 
 export type keepAliveOptions = {
     /** Default interval is 20000 */
@@ -84,7 +84,7 @@ export class Heartbeat {
 
     public stop() {
         this.heartbeats.clear();
-        clearInterval(this.interval);
+        if (this.interval) clearInterval(this.interval);
     }
 
     public resume() {

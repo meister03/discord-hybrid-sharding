@@ -34,6 +34,7 @@ export class ReClusterManager {
         this.name = 'recluster';
         this.onProgress = false;
     }
+
     build(manager: ClusterManager) {
         manager[this.name] = this;
         this.manager = manager;
@@ -53,24 +54,26 @@ export class ReClusterManager {
      * @param options.restartMode
      */
     public async start(options?: ReClusterOptions) {
-        let {
+        this.options = { ...this.options, ...(options || {}) }; // update the options of the class
+        const {
             delay,
             timeout,
             totalClusters,
             totalShards,
             shardsPerClusters,
             shardClusterList,
-            shardList = this.manager?.shardList,
-            restartMode = 'gracefulSwitch',
-        } = options || { restartMode: 'gracefulSwitch' };
+            shardList,
+            restartMode,
+        } = { restartMode: 'gracefulSwitch', shardList: this.manager?.shardList, ...this.options }; // declare defaults that way
         if (this.onProgress) throw new Error('Zero Downtime Reclustering is already in progress');
         if (!this.manager) throw new Error('Manager is missing on ReClusterManager');
         if (totalShards) {
             if (!this.manager?.token)
                 throw new Error('Token must be defined on manager, when totalShards is set on auto');
-            if (totalShards === 'auto' || totalShards === -1)
-                totalShards = await fetchRecommendedShards(this.manager.token);
-            this.manager.totalShards = totalShards as number;
+            this.manager.totalShards =
+                totalShards === 'auto' || totalShards === -1
+                    ? await fetchRecommendedShards(this.manager.token)
+                    : totalShards;
         }
         if (totalClusters) this.manager.totalClusters = totalClusters;
         if (shardsPerClusters) {
@@ -80,6 +83,7 @@ export class ReClusterManager {
 
         if (shardList) this.manager.shardList = shardList;
         else this.manager.shardList = Array.from(Array(this.manager.totalShards).keys());
+
         if (shardClusterList) this.manager.shardClusterList = shardClusterList;
         else
             this.manager.shardClusterList = chunkArray(
@@ -116,15 +120,12 @@ export class ReClusterManager {
         this.manager.triggerMaintenance('recluster');
         this.manager._debug('[↻][ReClustering] Enabling Maintenance Mode on all clusters');
 
-        let switchClusterAfterReady = false;
         // when no shard settings have been updated
-        switchClusterAfterReady = restartMode === 'rolling'; //gracefulSwitch, spawn all clusters and kill all old clusters, when new clusters are ready
+        const switchClusterAfterReady = restartMode === 'rolling'; //gracefulSwitch, spawn all clusters and kill all old clusters, when new clusters are ready
 
         const newClusters: Map<number, Cluster> = new Map();
-        const oldClusters: Map<number, Cluster> = new Map();
-        Array.from(this.manager.clusters.values()).forEach(cluster => {
-            oldClusters.set(cluster.id, cluster);
-        });
+        const oldClusters: Map<number, Cluster> = new Map([...this.manager.clusters.entries()]); // shorten the map creation clone - syntax: new Map([id, value][])
+
         for (let i = 0; i < this.manager.totalClusters; i++) {
             const length =
                 this.manager.shardClusterList[i]?.length || this.manager.totalShards / this.manager.totalClusters;

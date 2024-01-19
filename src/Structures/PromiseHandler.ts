@@ -1,11 +1,11 @@
-import { generateNonce } from '../Util/Util';
-import { RawMessage } from './IPCMessage';
+import { generateNonce } from "../Util/Util";
+import { RawMessage } from "./IPCMessage";
 
 export interface StoredPromise {
     resolve(value: any): void;
     reject(error: Error): void;
     options: PromiseCreateOptions;
-    timeout?: NodeJS.Timeout;
+    timeout?: NodeJS.Timer;
 }
 
 export interface ResolveMessage {

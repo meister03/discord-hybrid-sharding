@@ -1,6 +1,7 @@
 export * from './Core/Cluster';
 export * from './Core/ClusterClient';
 export * from './Core/ClusterManager';
+export * from './Plugins/AutoSharder';
 export * from './Plugins/HeartbeatSystem';
 export * from './Plugins/ReCluster';
 export * from './Structures/Child';

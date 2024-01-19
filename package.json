@@ -12,7 +12,8 @@
         "lint:fix": "eslint src/**/**.ts --fix",
         "format": "prettier --check .",
         "format:fix": "prettier --write .",
-        "generate-docs": "jsdoc -c ./.jsdoc.conf.json"
+        "generate-docs": "jsdoc -c ./.jsdoc.conf.json",
+        "build": "tsc"
     },
     "repository": {
         "type": "git",
@@ -43,7 +44,7 @@
     "homepage": "https://github.com/meister03/discord-hybrid-sharding#readme",
     "devDependencies": {
         "@types/jest": "^29.5.0",
-        "@types/node": "^18.11.18",
+        "@types/node": "^18.19.6",
         "@types/node-fetch": "^2.6.2",
         "@typescript-eslint/eslint-plugin": "^5.47.1",
         "@typescript-eslint/parser": "^5.47.1",

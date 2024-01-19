@@ -1,16 +1,14 @@
-import { ClusterManager } from './ClusterManager';
+import { Serializable } from "child_process";
+import EventEmitter from "events";
+import path from "path";
 
-import EventEmitter from 'events';
-import path from 'path';
-import { delayFor, generateNonce } from '../Util/Util';
-
-import { ClusterEvents, ClusterKillOptions, messageType } from '../types/shared';
-import { IPCMessage, BaseMessage, RawMessage } from '../Structures/IPCMessage.js';
-import { ClusterHandler } from '../Structures/IPCHandler.js';
-
-import { Worker } from '../Structures/Worker.js';
-import { Child } from '../Structures/Child.js';
-import { Serializable } from 'child_process';
+import { Child } from "../Structures/Child.js";
+import { ClusterHandler } from "../Structures/IPCHandler.js";
+import { BaseMessage, IPCMessage, RawMessage } from "../Structures/IPCMessage.js";
+import { Worker } from "../Structures/Worker.js";
+import { ClusterEvents, ClusterKillOptions, messageType } from "../types/shared";
+import { delayFor, generateNonce } from "../Util/Util";
+import { ClusterManager } from "./ClusterManager";
 
 /**
  * A self-contained cluster created by the {@link ClusterManager}. Each one has a {@link Child} that contains
@@ -360,26 +358,26 @@ export class Cluster extends EventEmitter {
 // Credits for EventEmitter typings: https://github.com/discordjs/discord.js/blob/main/packages/rest/src/lib/RequestManager.ts#L159 | See attached license
 export interface Cluster {
     emit: (<K extends keyof ClusterEvents>(event: K, ...args: ClusterEvents[K]) => boolean) &
-    (<S extends string | symbol>(event: Exclude<S, keyof ClusterEvents>, ...args: any[]) => boolean);
+        (<S extends string | symbol>(event: Exclude<S, keyof ClusterEvents>, ...args: any[]) => boolean);
 
     off: (<K extends keyof ClusterEvents>(event: K, listener: (...args: ClusterEvents[K]) => void) => this) &
-    (<S extends string | symbol>(
-        event: Exclude<S, keyof ClusterEvents>,
-        listener: (...args: any[]) => void,
-    ) => this);
+        (<S extends string | symbol>(
+            event: Exclude<S, keyof ClusterEvents>,
+            listener: (...args: any[]) => void,
+        ) => this);
 
     on: (<K extends keyof ClusterEvents>(event: K, listener: (...args: ClusterEvents[K]) => void) => this) &
-    (<S extends string | symbol>(
-        event: Exclude<S, keyof ClusterEvents>,
-        listener: (...args: any[]) => void,
-    ) => this);
+        (<S extends string | symbol>(
+            event: Exclude<S, keyof ClusterEvents>,
+            listener: (...args: any[]) => void,
+        ) => this);
 
     once: (<K extends keyof ClusterEvents>(event: K, listener: (...args: ClusterEvents[K]) => void) => this) &
-    (<S extends string | symbol>(
-        event: Exclude<S, keyof ClusterEvents>,
-        listener: (...args: any[]) => void,
-    ) => this);
+        (<S extends string | symbol>(
+            event: Exclude<S, keyof ClusterEvents>,
+            listener: (...args: any[]) => void,
+        ) => this);
 
     removeAllListeners: (<K extends keyof ClusterEvents>(event?: K) => this) &
-    (<S extends string | symbol>(event?: Exclude<S, keyof ClusterEvents>) => this);
+        (<S extends string | symbol>(event?: Exclude<S, keyof ClusterEvents>) => this);
 }

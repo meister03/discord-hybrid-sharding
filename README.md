@@ -269,6 +269,71 @@ manager.extend(
 )
 ```
 
+## `Automatic Re-Sharding System`
+
+-   Sends from Cluster guildCount data per shard
+-   When a MaxGuildsPerShardAmount is reached, it will start re-sharding the bot automatically
+-   The Amount of the new shards can be declared by a minimum Guilds Amount or automatically
+-   All Clusters will get respawned and if needed new clusters will be spawned
+
+Cluster.js
+
+```js
+// Typescript: import { ClusterManager, AutoResharderManager  } from 'discord-hybrid-sharding'
+const { ClusterManager, AutoResharderManager } = require('discord-hybrid-sharding');
+const manager = new ClusterManager(`${__dirname}/bot.js`, {...});
+
+manager.extend(
+    new AutoResharderManager({ 
+            // "useManagerOption" will use the shardsPerCluster amount of the ClusterManager, else specify it!
+            ShardsPerCluster: "useManagerOption", // or a number
+            // This declares how many shards will spawn, if a number it will try to make all new shards with that amount of guilds
+            MinGuildsPerShard: 1500, // or "auto"
+            // if this number is reached, it will automatically re-shard
+            MaxGuildsPerShard: 2400,
+            debug: false,
+            // restarting options
+            restartOptions: {
+                restartMode: "rolling", // or "gracefulSwitch"
+                timeout: -1,
+                delay: 7e3
+            }
+    })
+)
+```
+
+Bot.js
+
+```js
+// Typescript: import { ClusterClient, getInfo, AutoResharderClusterClient } from 'discord-hybrid-sharding'
+const { ClusterClient, getInfo, AutoResharderClusterClient } = require('discord-hybrid-sharding');
+const client = new Discord.Client(...)
+client.cluster = new Cluster.Client(client);
+
+new AutoResharderClusterClient(client.cluster, {
+    // optional. Default is 60e3 which sends every minute the data / cluster
+    sendDataIntervalMS: 15e3,
+    debug: false,
+    // optional. Default is a valid function for discord.js Client's
+    /*sendDataFunction: (cluster:ClusterClient<DjsDiscordClient>) => {
+       return {
+           clusterId: cluster.id,
+           shardData: cluster.info.SHARD_LIST.map(shardId => ({ shardId, guildCount: cluster.client.guilds.cache.filter(g => g.shardId === shardId).size }))
+       } // should return this: { clusterId: number, shardData: { shardId:number, guildCount:number }[] }
+    }*/
+})
+
+if (client.cluster.maintenance) console.log(`Bot on maintenance mode with ${client.cluster.maintenance}`);
+
+client.cluster.on('ready', () => {
+    // Load Events
+    // Handle Database stuff, to not process outdated data
+});
+
+client.login(token);
+```
+
+
 ## `Control Restarts`
 
 -   Cap the amount of restarts per cluster to a given amount on a given interval
