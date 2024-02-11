@@ -238,7 +238,7 @@ Bot.js
 // Typescript: import { ClusterClient, getInfo } from 'discord-hybrid-sharding'
 const { ClusterClient, getInfo } = require('discord-hybrid-sharding');
 const client = new Discord.Client(...)
-client.cluster = new Cluster.Client(client);
+client.cluster = new ClusterClient(client);
 
 if (client.cluster.maintenance) console.log(`Bot on maintenance mode with ${client.cluster.maintenance}`);
 
