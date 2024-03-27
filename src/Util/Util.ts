@@ -1,4 +1,3 @@
-import fetch from 'node-fetch';
 import { DefaultOptions, Endpoints } from '../types/shared';
 
 export function generateNonce() {
