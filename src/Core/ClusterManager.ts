@@ -389,7 +389,7 @@ export class ClusterManager extends EventEmitter {
         if (options.guildId) {
             options.shard = shardIdForGuildId(options.guildId, this.totalShards);
         }
-        if (options.shard) {
+        if (options.shard !== undefined && options.shard !== null) {
             if (typeof options.shard === 'number') {
                 if (options.shard < 0) throw new RangeError('SHARD_ID_OUT_OF_RANGE');
             }
