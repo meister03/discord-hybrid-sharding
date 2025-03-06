@@ -91,4 +91,11 @@ export class IPCMessage extends BaseMessage {
         });
         return this.instance.send(baseMessage.toJSON());
     }
+
+    /**
+     * Gets the type of the Message from the raw properties
+     */
+    public getType() {
+        return this.raw._type ?? messageType.CUSTOM_MESSAGE
+    }
 }

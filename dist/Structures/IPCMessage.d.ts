@@ -32,5 +32,9 @@ export declare class IPCMessage extends BaseMessage {
      * Sends a Reply to Message from the cluster's process/worker or the ParentCluster.
      */
     reply(message: object): Promise<unknown>;
+    /**
+     * Gets the type of the Message from the raw properties
+     */
+    getType(): number;
 }
 //# sourceMappingURL=IPCMessage.d.ts.map

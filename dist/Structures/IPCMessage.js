@@ -80,5 +80,11 @@ class IPCMessage extends BaseMessage {
         });
         return this.instance.send(baseMessage.toJSON());
     }
+    /**
+     * Gets the type of the Message from the raw properties
+     */
+    getType() {
+        return this.raw._type ?? shared_1.messageType.CUSTOM_MESSAGE;
+    }
 }
 exports.IPCMessage = IPCMessage;
