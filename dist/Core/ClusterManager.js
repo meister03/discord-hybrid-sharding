@@ -169,9 +169,13 @@ class ClusterManager extends events_1.default {
         else
             process.env.CLUSTER_QUEUE_MODE = 'manual';
         this.clusterList = options.clusterList || [];
-        this.spawnOptions = options.spawnOptions || { delay: 7000, timeout: -1 };
+        this.spawnOptions = options.spawnOptions || {};
         if (!this.spawnOptions.delay)
             this.spawnOptions.delay = 7000;
+        if (!this.spawnOptions.amount)
+            this.spawnOptions.amount = this.totalShards;
+        if (!this.spawnOptions.timeout)
+            this.spawnOptions.timeout = -1;
         if (!options.queue)
             options.queue = { auto: true };
         if (!options.queue.timeout)
@@ -184,7 +188,7 @@ class ClusterManager extends events_1.default {
     /**
      * Spawns multiple internal shards.
      */
-    async spawn({ amount = this.totalShards, delay = 7000, timeout = -1 } = this.spawnOptions) {
+    async spawn({ amount = this.spawnOptions.amount = this.totalShards, delay = this.spawnOptions.delay = 7000, timeout = this.spawnOptions.timeout = -1 } = this.spawnOptions) {
         if (delay < 7000) {
             process.emitWarning(`Spawn Delay (delay: ${delay}) is smaller than 7s, this can cause global rate limits on /gateway/bot`, {
                 code: 'CLUSTER_MANAGER',
@@ -237,7 +241,7 @@ class ClusterManager extends events_1.default {
             throw new RangeError('CLIENT_INVALID_OPTION | Shard IDs must be smaller than the amount of shards.');
         }
         // Update spawn options
-        this.spawnOptions = { delay, timeout };
+        this.spawnOptions = { delay, timeout, amount };
         this._debug(`[Spawning Clusters]
     ClusterCount: ${this.totalClusters}
     ShardCount: ${amount}

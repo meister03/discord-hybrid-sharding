@@ -216,8 +216,10 @@ export class ClusterManager extends EventEmitter {
 
         this.clusterList = options.clusterList || [];
 
-        this.spawnOptions = options.spawnOptions || { delay: 7000, timeout: -1 };
+        this.spawnOptions = options.spawnOptions || {};
         if (!this.spawnOptions.delay) this.spawnOptions.delay = 7000;
+        if (!this.spawnOptions.amount) this.spawnOptions.amount = this.totalShards;
+        if (!this.spawnOptions.timeout) this.spawnOptions.timeout = -1;
 
         if (!options.queue) options.queue = { auto: true };
         if (!options.queue.timeout) options.queue.timeout = this.spawnOptions.delay;
@@ -233,7 +235,12 @@ export class ClusterManager extends EventEmitter {
     /**
      * Spawns multiple internal shards.
      */
-    public async spawn({ amount = this.totalShards, delay = 7000, timeout = -1 } = this.spawnOptions) {
+    public async spawn({ 
+            amount = this.spawnOptions.amount = this.totalShards,
+            delay = this.spawnOptions.delay = 7000,
+            timeout = this.spawnOptions.timeout = -1 
+        } = this.spawnOptions
+    ) {
         if (delay < 7000) {
             process.emitWarning(
                 `Spawn Delay (delay: ${delay}) is smaller than 7s, this can cause global rate limits on /gateway/bot`,
@@ -293,7 +300,7 @@ export class ClusterManager extends EventEmitter {
         }
 
         // Update spawn options
-        this.spawnOptions = { delay, timeout };
+        this.spawnOptions = { delay, timeout, amount };
 
         this._debug(`[Spawning Clusters]
     ClusterCount: ${this.totalClusters}
