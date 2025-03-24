@@ -64,9 +64,9 @@ export default defineConfig([globalIgnores([".git", "node_modules", "docs"]), {
         "class-methods-use-this": 0,
         "@typescript-eslint/no-shadow": 0,
         "@typescript-eslint/prefer-nullish-coalescing": 0,
-        "@typescript-eslint/no-unsafe-declaration-merging": 0, // Add this rule to disable the error
-        "@typescript-eslint/no-wrapper-object-types": 0, // Add this rule to disable the error
-        "prefer-const": "error", // Add this rule to enforce the use of const
+        "@typescript-eslint/no-unsafe-declaration-merging": 0, 
+        "@typescript-eslint/no-wrapper-object-types": 0, 
+        "prefer-const": "error", 
         "@typescript-eslint/no-empty-object-type": "error"
     },
 }]);
