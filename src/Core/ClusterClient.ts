@@ -81,7 +81,7 @@ export class ClusterClient<DiscordClient = DjsDiscordClient> extends EventEmitte
         this.process?.ipc?.on('message', this._handleMessage.bind(this));
 
         // @ts-ignore
-        client.on?.('ready', () => {
+        client.on?.('clientReady', () => {
             this.triggerReady();
         });
     }
