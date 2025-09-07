@@ -1,23 +1,22 @@
 {
-    "name": "discord-hybrid-sharding",
+    "name": "discord-hybrid-sharding-monorepo",
     "version": "2.2.6",
-    "description": "The first package which combines sharding manager & internal sharding to save a lot of resources, which allows clustering!",
-    "main": "./dist/index.js",
-    "types": "./dist/index.d.ts",
+    "description": "Monorepo for Discord hybrid sharding with core process management",
+    "private": true,
     "scripts": {
-        "build": "npx tsc",
-        "lint": "eslint src/**/**.ts",
-        "lint:fix": "eslint src/**/**.ts --fix",
+        "build": "pnpm -r build",
+        "test": "pnpm -r test",
+        "lint": "pnpm -r lint",
+        "lint:fix": "pnpm -r lint:fix",
         "format": "prettier --check .",
         "format:fix": "prettier --write .",
-        "generate-docs": "jsdoc -c ./.jsdoc.conf.json"
+        "generate-docs": "jsdoc -c ./.jsdoc.conf.json",
+        "clean": "pnpm -r exec rm -rf dist coverage",
+        "dev": "pnpm -r --parallel dev"
     },
     "repository": {
         "type": "git",
         "url": "git+https://github.com/meister03/discord-hybrid-sharding.git"
-    },
-    "publishConfig": {
-        "access": "public"
     },
     "keywords": [
         "discord",
@@ -32,7 +31,12 @@
         "bot",
         "bots",
         "cluster",
-        "framework"
+        "framework",
+        "monorepo",
+        "process-management",
+        "worker-threads",
+        "child-process",
+        "ipc"
     ],
     "author": "meister03",
     "license": "MIT",
@@ -56,5 +60,9 @@
         "prettier": "^3.2.5",
         "ts-jest": "^29.1.2",
         "typescript": "^5.4.3"
-    }
+    },
+    "workspaces": [
+        "packages/*"
+    ],
+    "packageManager": "pnpm@10.15.1"
 }
