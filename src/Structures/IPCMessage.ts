@@ -5,7 +5,7 @@ import { Cluster } from '../Core/Cluster';
 
 export interface RawMessage {
     nonce?: string;
-    _type?: number;
+    _type?: number | messageType;
     [x: string]: any;
 }
 

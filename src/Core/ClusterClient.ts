@@ -79,11 +79,6 @@ export class ClusterClient<DiscordClient = DjsDiscordClient> extends EventEmitte
         this.promise = new PromiseHandler();
 
         this.process?.ipc?.on('message', this._handleMessage.bind(this));
-
-        // @ts-ignore
-        client.on?.('ready', () => {
-            this.triggerReady();
-        });
     }
     /**
      * cluster's id

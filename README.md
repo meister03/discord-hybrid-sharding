@@ -86,6 +86,12 @@ const client = new Discord.Client({
 });
 
 client.cluster = new ClusterClient(client); // initialize the Client, so we access the .broadcastEval()
+
+// Can also be in a separate event handler. The triggerReady must be called.
+client.on("clientReady", (readyClient) => {
+    readyClient.cluster.triggerReady();
+})
+
 client.login('YOUR_TOKEN');
 ```
 
@@ -142,6 +148,13 @@ Other properties:
 | client.cluster.shards | Returns the client.ws.shards collection |
 
 # Changes | Migrating to Discord-Hybrid-Sharding
+
+Add a cluster ready trigger (not handled by the library, to remain library-agnostic)
+```diff
++ client.on("clientReady", (readyClient) => {
++    readyClient.cluster.triggerReady();
++ })
+```
 
 Options are now labeled as `cluster` instead of `shard`:
 
@@ -233,6 +246,12 @@ client.cluster.on('ready', () => {
     // Load Events
     // Handle Database stuff, to not process outdated data
 });
+
+// Can also be in a separate event handler. The triggerReady must be called.
+client.on("clientReady", (readyClient) => {
+    readyClient.cluster.triggerReady();
+})
+
 
 client.login(token);
 ```

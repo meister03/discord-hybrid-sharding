@@ -64,10 +64,6 @@ class ClusterClient extends events_1.default {
         this.messageHandler = new IPCHandler_1.ClusterClientHandler(this, this.process);
         this.promise = new PromiseHandler_1.PromiseHandler();
         this.process?.ipc?.on('message', this._handleMessage.bind(this));
-        // @ts-ignore
-        client.on?.('ready', () => {
-            this.triggerReady();
-        });
     }
     /**
      * cluster's id

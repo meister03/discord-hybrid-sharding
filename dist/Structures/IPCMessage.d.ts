@@ -1,8 +1,9 @@
+import { messageType } from '../types/shared';
 import { ClusterClient } from '../Core/ClusterClient';
 import { Cluster } from '../Core/Cluster';
 export interface RawMessage {
     nonce?: string;
-    _type?: number;
+    _type?: number | messageType;
     [x: string]: any;
 }
 export declare class BaseMessage {
