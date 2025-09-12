@@ -1,4 +1,4 @@
-import { ClusterManager } from '../Core/ClusterManager';
+import { ClusterManager } from "../Core/ClusterManager";
 export type ReClusterRestartMode = 'gracefulSwitch' | 'rolling';
 export interface ReClusterOptions {
     /** The delay to wait between each cluster spawn */
@@ -21,7 +21,7 @@ export interface ReClusterOptions {
 export declare class ReClusterManager {
     options: ReClusterOptions;
     name: 'recluster';
-    onProgress: Boolean;
+    onProgress: boolean;
     manager?: ClusterManager;
     constructor(options?: ReClusterOptions);
     build(manager: ClusterManager): this;

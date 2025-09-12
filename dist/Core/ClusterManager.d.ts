@@ -98,7 +98,7 @@ export declare class ClusterManager extends EventEmitter {
      */
     createCluster(id: number, shardsToSpawn: number[], totalShards: number, recluster?: boolean): Cluster;
     /**
-     * Evaluates a script on all clusters, or a given cluster, in the context of the {@link Client}s.
+     * Evaluates a script on all clusters, or a given cluster, in the context of the {@link DjsDiscordClient}s.
      * @returns Results of the script execution
      */
     broadcastEval(script: string): Promise<any[]>;

@@ -22,6 +22,8 @@ function arraysAreTheSame(firstArray, secondArray) {
     return firstArray.length === secondArray.length && firstArray.every((element, index) => element === secondArray[index]);
 }
 function delayFor(ms) {
+    if (ms < 0)
+        return;
     return new Promise(resolve => {
         setTimeout(resolve, ms);
     });
