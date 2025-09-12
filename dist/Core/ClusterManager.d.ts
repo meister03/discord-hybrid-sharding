@@ -1,14 +1,15 @@
-import EventEmitter from 'events';
-import { Queue } from '../Structures/Queue';
-import { Cluster } from './Cluster';
-import { PromiseHandler } from '../Structures/PromiseHandler';
-import { Awaitable, ClusterManagerEvents, ClusterManagerOptions, ClusterManagerSpawnOptions, ClusterRestartOptions, DjsDiscordClient, evalOptions, Plugin, Serialized } from '../types/shared';
-import { ChildProcessOptions } from '../Structures/Child';
-import { WorkerThreadOptions } from '../Structures/Worker';
-import { BaseMessage } from '../Structures/IPCMessage';
-import { HeartbeatManager } from '../Plugins/HeartbeatSystem';
-import { ReClusterManager } from '../Plugins/ReCluster';
-import { ClusterManagerHooks } from '../Structures/ManagerHooks';
+import EventEmitter from "events";
+import { AutoResharderManager } from "../Plugins/AutoResharderSystem";
+import { HeartbeatManager } from "../Plugins/HeartbeatSystem";
+import { ReClusterManager } from "../Plugins/ReCluster";
+import { ChildProcessOptions } from "../Structures/Child";
+import { BaseMessage } from "../Structures/IPCMessage";
+import { ClusterManagerHooks } from "../Structures/ManagerHooks";
+import { PromiseHandler } from "../Structures/PromiseHandler";
+import { Queue } from "../Structures/Queue";
+import { WorkerThreadOptions } from "../Structures/Worker";
+import { Awaitable, ClusterManagerEvents, ClusterManagerOptions, ClusterManagerSpawnOptions, ClusterRestartOptions, DjsDiscordClient, evalOptions, Plugin, Serialized } from "../types/shared";
+import { Cluster } from "./Cluster";
 export declare class ClusterManager extends EventEmitter {
     /**
      * Whether clusters should automatically respawn upon exiting
@@ -76,6 +77,8 @@ export declare class ClusterManager extends EventEmitter {
     heartbeat?: HeartbeatManager;
     /** Reclustering Plugin */
     recluster?: ReClusterManager;
+    /** AutoResharder Plugin */
+    autoresharder?: AutoResharderManager;
     /** Containing some useful hook funtions */
     hooks: ClusterManagerHooks;
     constructor(file: string, options: ClusterManagerOptions);

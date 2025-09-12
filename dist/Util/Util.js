@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.generateNonce = generateNonce;
 exports.chunkArray = chunkArray;
+exports.arraysAreTheSame = arraysAreTheSame;
 exports.delayFor = delayFor;
 exports.makePlainError = makePlainError;
 exports.shardIdForGuildId = shardIdForGuildId;
@@ -16,6 +17,9 @@ function chunkArray(array, chunkSize) {
     for (let i = 0; i < array.length; i += chunkSize)
         R.push(array.slice(i, i + chunkSize));
     return R;
+}
+function arraysAreTheSame(firstArray, secondArray) {
+    return firstArray.length === secondArray.length && firstArray.every((element, index) => element === secondArray[index]);
 }
 function delayFor(ms) {
     return new Promise(resolve => {

@@ -1,12 +1,12 @@
-import { ChildProcess, Serializable } from 'child_process';
-import { Worker } from 'worker_threads';
-import { Cluster } from '../Core/Cluster';
-import { ClusterClient } from '../Core/ClusterClient';
-import { ClusterManager } from '../Core/ClusterManager';
-import { ChildProcessOptions } from '../Structures/Child';
-import { BaseMessage, IPCMessage } from '../Structures/IPCMessage';
-import { WorkerThreadOptions } from '../Structures/Worker';
-import { Client } from 'discord.js';
+import { ChildProcess, Serializable } from "child_process";
+import { Client } from "discord.js";
+import { Worker } from "worker_threads";
+import { Cluster } from "../Core/Cluster";
+import { ClusterClient } from "../Core/ClusterClient";
+import { ClusterManager } from "../Core/ClusterManager";
+import { ChildProcessOptions } from "../Structures/Child";
+import { BaseMessage, IPCMessage } from "../Structures/IPCMessage";
+import { WorkerThreadOptions } from "../Structures/Worker";
 export declare const Events: {
     ERROR: string;
     WARN: string;
@@ -37,12 +37,13 @@ export declare enum messageType {
     'CLIENT_MAINTENANCE_ALL' = 13,
     'CLIENT_SPAWN_NEXT_CLUSTER' = 14,
     'CLIENT_READY' = 15,
-    'CLIENT_EVAL_REQUEST' = 16,
-    'CLIENT_EVAL_RESPONSE' = 17,
-    'CLIENT_MANAGER_EVAL_REQUEST' = 18,
-    'CLIENT_MANAGER_EVAL_RESPONSE' = 19,
-    'MANAGER_BROADCAST_REQUEST' = 20,
-    'MANAGER_BROADCAST_RESPONSE' = 21
+    'CLIENT_AUTORESHARDER_SENDDATA' = 16,
+    'CLIENT_EVAL_REQUEST' = 17,
+    'CLIENT_EVAL_RESPONSE' = 18,
+    'CLIENT_MANAGER_EVAL_REQUEST' = 19,
+    'CLIENT_MANAGER_EVAL_RESPONSE' = 20,
+    'MANAGER_BROADCAST_REQUEST' = 21,
+    'MANAGER_BROADCAST_RESPONSE' = 22
 }
 export interface evalOptions<T = object> {
     cluster?: number | number[];

@@ -1,5 +1,6 @@
 export declare function generateNonce(): string;
 export declare function chunkArray(array: any[], chunkSize: number): any[][];
+export declare function arraysAreTheSame(firstArray: any[], secondArray: any[]): boolean;
 export declare function delayFor(ms: number): Promise<unknown>;
 export declare function makePlainError(err: Error): {
     name: string;
