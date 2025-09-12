@@ -354,7 +354,7 @@ export class ClusterManager extends EventEmitter {
         return cluster;
     }
     /**
-     * Evaluates a script on all clusters, or a given cluster, in the context of the {@link Client}s.
+     * Evaluates a script on all clusters, or a given cluster, in the context of the {@link DjsDiscordClient}s.
      * @returns Results of the script execution
      */
     public broadcastEval(script: string): Promise<any[]>;

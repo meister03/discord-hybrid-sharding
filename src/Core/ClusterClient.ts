@@ -1,26 +1,18 @@
-import { IPCMessage, BaseMessage, RawMessage } from '../Structures/IPCMessage';
+import { Serializable } from "child_process";
+import EventEmitter from "events";
+
+import { ClusterManager as Manager } from "../Core/ClusterManager";
+import { ChildClient } from "../Structures/Child";
+import { getInfo } from "../Structures/Data";
+import { ClusterClientHandler } from "../Structures/IPCHandler";
+import { BaseMessage, IPCMessage, RawMessage } from "../Structures/IPCMessage";
+import { PromiseHandler } from "../Structures/PromiseHandler";
+import { WorkerClient } from "../Structures/Worker";
 import {
-    Awaitable,
-    ClusterClientEvents,
-    DjsDiscordClient,
-    evalOptions,
-    Events,
-    messageType,
-    Serialized,
-} from '../types/shared';
+	Awaitable, ClusterClientEvents, DjsDiscordClient, evalOptions, Events, messageType, Serialized
+} from "../types/shared";
+import { generateNonce } from "../Util/Util";
 
-import { ClusterManager as Manager } from '../Core/ClusterManager';
-
-import { getInfo } from '../Structures/Data';
-
-import { WorkerClient } from '../Structures/Worker';
-import { ChildClient } from '../Structures/Child';
-import { ClusterClientHandler } from '../Structures/IPCHandler';
-import { PromiseHandler } from '../Structures/PromiseHandler';
-
-import EventEmitter from 'events';
-import { Serializable } from 'child_process';
-import { generateNonce } from '../Util/Util';
 ///communicates between the master workers and the process
 export class ClusterClient<DiscordClient = DjsDiscordClient> extends EventEmitter {
     client: DiscordClient;
@@ -165,7 +157,7 @@ export class ClusterClient<DiscordClient = DjsDiscordClient> extends EventEmitte
     }
 
     /**
-     * Evaluates a script or function on all clusters, or a given cluster, in the context of the {@link Client}s.
+     * Evaluates a script or function on all clusters, or a given cluster, in the context of the {@link DjsDiscordClient}s.
      * @example
      * client.cluster.broadcastEval('this.guilds.cache.size')
      *   .then(results => console.log(`${results.reduce((prev, val) => prev + val, 0)} total guilds`))
@@ -260,7 +252,7 @@ export class ClusterClient<DiscordClient = DjsDiscordClient> extends EventEmitte
         }
         // @ts-ignore
         this.client._eval = function (_: string) {
-            return eval(_);
+            return eval(_); // eslint-disable-line no-eval
         }.bind(this.client);
         // @ts-ignore
         return await this.client._eval(script);
