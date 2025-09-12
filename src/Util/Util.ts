@@ -1,5 +1,6 @@
-import { request } from 'https';
-import { DefaultOptions, Endpoints } from '../types/shared';
+import { request } from "https";
+
+import { DefaultOptions, Endpoints } from "../types/shared";
 
 export function generateNonce() {
     return Date.now().toString(36) + Math.random().toString(36);
@@ -9,6 +10,10 @@ export function chunkArray(array: any[], chunkSize: number) {
     const R = [];
     for (let i = 0; i < array.length; i += chunkSize) R.push(array.slice(i, i + chunkSize));
     return R;
+}
+
+export function arraysAreTheSame(firstArray: any[], secondArray: any[]) {
+    return firstArray.length === secondArray.length && firstArray.every((element, index) => element === secondArray[index]);
 }
 
 export function delayFor(ms: number) {

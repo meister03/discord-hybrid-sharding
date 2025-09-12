@@ -1,12 +1,13 @@
-import { ChildProcess, Serializable } from 'child_process';
-import { Worker } from 'worker_threads';
-import { Cluster } from '../Core/Cluster';
-import { ClusterClient } from '../Core/ClusterClient';
-import { ClusterManager } from '../Core/ClusterManager';
-import { ChildProcessOptions } from '../Structures/Child';
-import { BaseMessage, IPCMessage } from '../Structures/IPCMessage';
-import { WorkerThreadOptions } from '../Structures/Worker';
-import { Client } from 'discord.js';
+import { ChildProcess, Serializable } from "child_process";
+import { Client } from "discord.js";
+import { Worker } from "worker_threads";
+
+import { Cluster } from "../Core/Cluster";
+import { ClusterClient } from "../Core/ClusterClient";
+import { ClusterManager } from "../Core/ClusterManager";
+import { ChildProcessOptions } from "../Structures/Child";
+import { BaseMessage, IPCMessage } from "../Structures/IPCMessage";
+import { WorkerThreadOptions } from "../Structures/Worker";
 
 export const Events = {
     ERROR: 'warn',
@@ -41,6 +42,7 @@ export enum messageType {
     'CLIENT_MAINTENANCE_ALL',
     'CLIENT_SPAWN_NEXT_CLUSTER',
     'CLIENT_READY',
+    'CLIENT_AUTORESHARDER_SENDDATA',
     'CLIENT_EVAL_REQUEST',
     'CLIENT_EVAL_RESPONSE',
     'CLIENT_MANAGER_EVAL_REQUEST',

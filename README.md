@@ -275,6 +275,78 @@ manager.extend(
 )
 ```
 
+## `AutoResharder Plugin System`
+
+- Based on an interval it checks for guildAmounts per shard, and if (configureable) one guildAmount is exceeded, then this plugin will re-shard automatically (add more shards)
+  - Sends from Cluster guildCount data per shard
+  - When a MaxGuildsPerShardAmount is reached, it will start re-sharding the bot automatically
+  - The Amount of the new shards can be declared by a minimum Guilds Amount or automatically
+  - All Clusters will get respawned and if needed new clusters will be spawned
+- (COMMUNITY MADE by @Tomato6966)
+- **NOTE:** *currently __not__ compatible with [discord-cross-hosting](https://npmjs.org/discord-cross-hosting)*
+
+```js
+// Typescript: import { ClusterManager, AutoResharderManager  } from 'discord-hybrid-sharding'
+const { ClusterManager, AutoResharderManager } = require('discord-hybrid-sharding');
+const manager = new ClusterManager(`${__dirname}/bot.js`, {...});
+
+manager.extend(
+    new AutoResharderManager(this.cluster, {
+        /* If you need a debug information*/
+        debug: true,
+        /* how many shards per cluster should be spawned */
+        ShardsPerCluster: 'useManagerOption', // or a specific number
+
+        /* minimum amount of guilds each shard should contain */
+        MinGuildsPerShard: 1400, // or auto
+
+        /* maximum amount of guilds each shard should contain -> if exceeded it auto. "re-shards" the bot */
+        MaxGuildsPerShard: 2400,
+
+        /* OPTIONAL: RestartOptions which should be used for the ClusterManager */
+        // restartOptions: {
+        //     /** The restartMode of the clusterManager, gracefulSwitch = waits until all new clusters have spawned with maintenance mode, rolling = Once the Cluster is Ready, the old cluster will be killed  */
+        //     restartMode?: 'rolling', // or 'gracefulSwitch
+        //     /** The delay to wait between each cluster spawn */
+        //     delay?: 7e3, // any number > 0 | above 7 prevents api ratelimit
+        //     /** The readyTimeout to wait until the cluster spawn promise is rejected */
+        //     timeout?: -1,
+        // }
+    });
+)
+```
+
+And then on "every client" you need to add the Client:
+```ts
+client.cluster = new ClusterManager(client);
+// you can bind it, but you don't have to bind it
+new AutoResharderClusterClient(client.cluster, {
+    // OPTIONAL: Default is 60e3 which sends every minute the data / cluster
+    sendDataIntervalMS: 60e3,
+    // OPTIONAL: Default is a valid function for discord.js Client's
+    sendDataFunction: (cluster:ClusterClient<DjsDiscordClient>) => {
+        return {
+            clusterId: cluster.id,
+            shardData: cluster.info.SHARD_LIST.map(shardId => ({
+                shardId,
+                guildCount: cluster.client.guildsche.filter(g => g.shardId === shardId).size
+            }))
+        }
+    }
+});
+```
+
+You can also change the settings while the bot is running:
+
+```ts
+// you need to eval On the manager and change the autoresharder options
+cluster.evalOnManager(manager => {
+    manager.autoresharder.options.MinGuildsPerShard = 1;
+    manager.autoresharder.options.MaxGuildsPerShard = 10;
+    return true;
+})
+```
+
 ## `Control Restarts`
 
 -   Cap the amount of restarts per cluster to a given amount on a given interval
