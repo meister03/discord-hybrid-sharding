@@ -276,14 +276,13 @@ manager.extend(
 ```
 
 ## `AutoResharder Plugin System`
-
-- Based on an interval it checks for guildAmounts per shard, and if (configureable) one guildAmount is exceeded, then this plugin will re-shard automatically (add more shards)
-  - Sends from Cluster guildCount data per shard
-  - When a MaxGuildsPerShardAmount is reached, it will start re-sharding the bot automatically
-  - The Amount of the new shards can be declared by a minimum Guilds Amount or automatically
-  - All Clusters will get respawned and if needed new clusters will be spawned
-- (COMMUNITY MADE by @Tomato6966)
-- **NOTE:** *currently __not__ compatible with [discord-cross-hosting](https://npmjs.org/discord-cross-hosting)*
+- Periodically checks the number of guilds per shard based on a configurable interval. If any shard exceeds the configured maximum guild count, the plugin will automatically re-shard (add more shards).
+    - Each cluster sends guild count data per shard.
+    - When the maximum guilds per shard is reached, automatic re-sharding is triggered.
+    - The number of new shards can be set by specifying a minimum guilds per shard value or determined automatically.
+    - All clusters will be respawned, and new clusters will be spawned as needed.
+> **Note:** This is a community-made feature by @Tomato6966.  
+> *Currently __not__ compatible with [discord-cross-hosting](https://npmjs.org/discord-cross-hosting).*
 
 ```js
 // Typescript: import { ClusterManager, AutoResharderManager  } from 'discord-hybrid-sharding'
