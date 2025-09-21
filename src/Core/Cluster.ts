@@ -1,20 +1,18 @@
-import { ClusterManager } from './ClusterManager';
+import { Serializable } from "child_process";
+import EventEmitter from "events";
+import path from "path";
 
-import EventEmitter from 'events';
-import path from 'path';
-import { delayFor, generateNonce } from '../Util/Util';
-
-import { ClusterEvents, ClusterKillOptions, messageType } from '../types/shared';
-import { IPCMessage, BaseMessage, RawMessage } from '../Structures/IPCMessage.js';
-import { ClusterHandler } from '../Structures/IPCHandler.js';
-
-import { Worker } from '../Structures/Worker.js';
-import { Child } from '../Structures/Child.js';
-import { Serializable } from 'child_process';
+import { Child } from "../Structures/Child.js";
+import { ClusterHandler } from "../Structures/IPCHandler.js";
+import { BaseMessage, IPCMessage, RawMessage } from "../Structures/IPCMessage.js";
+import { Worker } from "../Structures/Worker.js";
+import { ClusterEvents, ClusterKillOptions, DjsDiscordClient, messageType } from "../types/shared"; // eslint-disable-line @typescript-eslint/no-unused-vars
+import { delayFor, generateNonce } from "../Util/Util";
+import { ClusterManager } from "./ClusterManager";
 
 /**
- * A self-contained cluster created by the {@link ClusterManager}. Each one has a {@link Child} that contains
- * an instance of the bot and its {@link Client}. When its child process/worker exits for any reason, the cluster will
+ * A self-contained cluster created by the {@link ClusterManager}. Each one has a {@link DjsDiscordClient} that contains
+ * an instance of the bot and its {@link DjsDiscordClient}. When its child process/worker exits for any reason, the cluster will
  * spawn a new one to replace it as necessary.
  * @augments EventEmitter
  */
@@ -81,7 +79,7 @@ export class Cluster extends EventEmitter {
     messageHandler: any;
 
     /**
-     * Whether the cluster's {@link Client} is ready
+     * Whether the cluster's {@link DjsDiscordClient} is ready
      */
     ready: boolean;
 
@@ -142,7 +140,7 @@ export class Cluster extends EventEmitter {
     /**
      * Forks a child process or creates a worker thread for the cluster.
      * <warn>You should not need to call this manually.</warn>
-     * @param spawnTimeout The amount in milliseconds to wait until the {@link Client} has become ready
+     * @param spawnTimeout The amount in milliseconds to wait until the {@link DjsDiscordClient} has become ready
      * before resolving. (-1 or Infinity for no wait)
      */
     public async spawn(spawnTimeout = -1) {
@@ -263,7 +261,7 @@ export class Cluster extends EventEmitter {
         return this.manager.promise.create(message, message.options);
     }
     /**
-     * Evaluates a script or function on the cluster, in the context of the {@link Client}.
+     * Evaluates a script or function on the cluster, in the context of the {@link DjsDiscordClient}.
      * @param script JavaScript to run on the cluster
      * @param context
      * @param timeout
@@ -317,7 +315,7 @@ export class Cluster extends EventEmitter {
      * @private
      * @param {Number} exitCode
      */
-    private _handleExit(exitCode: number) {
+    private _handleExit(exitCode: number) { // eslint-disable-line @typescript-eslint/no-unused-vars
         /**
          * Emitted upon the cluster's child process/worker exiting.
          * @event Cluster#death

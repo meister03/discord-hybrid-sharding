@@ -1,30 +1,25 @@
-import fs from 'fs';
-import path from 'path';
-import os from 'os';
-import EventEmitter from 'events';
+import EventEmitter from "events";
+import fs from "fs";
+import os from "os";
+import path from "path";
 
-import { chunkArray, delayFor, fetchRecommendedShards, makePlainError, shardIdForGuildId } from '../Util/Util';
-import { Queue } from '../Structures/Queue';
-import { Cluster } from './Cluster';
-import { PromiseHandler } from '../Structures/PromiseHandler';
+import { AutoResharderManager } from "../Plugins/AutoResharderSystem";
+import { HeartbeatManager } from "../Plugins/HeartbeatSystem";
+import { ReClusterManager } from "../Plugins/ReCluster";
+import { ChildProcessOptions } from "../Structures/Child";
+import { BaseMessage } from "../Structures/IPCMessage";
+import { ClusterManagerHooks } from "../Structures/ManagerHooks";
+import { PromiseHandler } from "../Structures/PromiseHandler";
+import { Queue } from "../Structures/Queue";
+import { WorkerThreadOptions } from "../Structures/Worker";
 import {
-    Awaitable,
-    ClusterManagerEvents,
-    ClusterManagerOptions,
-    ClusterManagerSpawnOptions,
-    ClusterRestartOptions,
-    DjsDiscordClient,
-    evalOptions,
-    Plugin,
-    QueueOptions,
-    Serialized,
-} from '../types/shared';
-import { ChildProcessOptions } from '../Structures/Child';
-import { WorkerThreadOptions } from '../Structures/Worker';
-import { BaseMessage } from '../Structures/IPCMessage';
-import { HeartbeatManager } from '../Plugins/HeartbeatSystem';
-import { ReClusterManager } from '../Plugins/ReCluster';
-import { ClusterManagerHooks } from '../Structures/ManagerHooks';
+	Awaitable, ClusterManagerEvents, ClusterManagerOptions, ClusterManagerSpawnOptions,
+	ClusterRestartOptions, DjsDiscordClient, evalOptions, Plugin, QueueOptions, Serialized
+} from "../types/shared";
+import {
+	chunkArray, delayFor, fetchRecommendedShards, makePlainError, shardIdForGuildId
+} from "../Util/Util";
+import { Cluster } from "./Cluster";
 
 export class ClusterManager extends EventEmitter {
     /**
@@ -107,7 +102,8 @@ export class ClusterManager extends EventEmitter {
     heartbeat?: HeartbeatManager;
     /** Reclustering Plugin */
     recluster?: ReClusterManager;
-
+    /** AutoResharder Plugin */
+    autoresharder?: AutoResharderManager;
     /** Containing some useful hook funtions */
     hooks: ClusterManagerHooks;
     constructor(file: string, options: ClusterManagerOptions) {
@@ -235,10 +231,10 @@ export class ClusterManager extends EventEmitter {
     /**
      * Spawns multiple internal shards.
      */
-    public async spawn({ 
+    public async spawn({
             amount = this.spawnOptions.amount = this.totalShards,
             delay = this.spawnOptions.delay = 7000,
-            timeout = this.spawnOptions.timeout = -1 
+            timeout = this.spawnOptions.timeout = -1
         } = this.spawnOptions
     ) {
         if (delay < 7000) {
@@ -358,7 +354,7 @@ export class ClusterManager extends EventEmitter {
         return cluster;
     }
     /**
-     * Evaluates a script on all clusters, or a given cluster, in the context of the {@link Client}s.
+     * Evaluates a script on all clusters, or a given cluster, in the context of the {@link DjsDiscordClient}s.
      * @returns Results of the script execution
      */
     public broadcastEval(script: string): Promise<any[]>;

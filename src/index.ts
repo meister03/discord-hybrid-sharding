@@ -3,6 +3,7 @@ export * from './Core/ClusterClient';
 export * from './Core/ClusterManager';
 export * from './Plugins/HeartbeatSystem';
 export * from './Plugins/ReCluster';
+export * from './Plugins/AutoResharderSystem';
 export * from './Structures/Child';
 export * from './Structures/Data';
 export * from './Structures/IPCHandler';

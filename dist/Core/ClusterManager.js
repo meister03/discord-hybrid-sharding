@@ -4,15 +4,15 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ClusterManager = void 0;
-const fs_1 = __importDefault(require("fs"));
-const path_1 = __importDefault(require("path"));
-const os_1 = __importDefault(require("os"));
 const events_1 = __importDefault(require("events"));
-const Util_1 = require("../Util/Util");
-const Queue_1 = require("../Structures/Queue");
-const Cluster_1 = require("./Cluster");
-const PromiseHandler_1 = require("../Structures/PromiseHandler");
+const fs_1 = __importDefault(require("fs"));
+const os_1 = __importDefault(require("os"));
+const path_1 = __importDefault(require("path"));
 const ManagerHooks_1 = require("../Structures/ManagerHooks");
+const PromiseHandler_1 = require("../Structures/PromiseHandler");
+const Queue_1 = require("../Structures/Queue");
+const Util_1 = require("../Util/Util");
+const Cluster_1 = require("./Cluster");
 class ClusterManager extends events_1.default {
     /**
      * Whether clusters should automatically respawn upon exiting
@@ -80,6 +80,8 @@ class ClusterManager extends events_1.default {
     heartbeat;
     /** Reclustering Plugin */
     recluster;
+    /** AutoResharder Plugin */
+    autoresharder;
     /** Containing some useful hook funtions */
     hooks;
     constructor(file, options) {

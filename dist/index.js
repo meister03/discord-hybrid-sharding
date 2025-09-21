@@ -19,6 +19,7 @@ __exportStar(require("./Core/ClusterClient"), exports);
 __exportStar(require("./Core/ClusterManager"), exports);
 __exportStar(require("./Plugins/HeartbeatSystem"), exports);
 __exportStar(require("./Plugins/ReCluster"), exports);
+__exportStar(require("./Plugins/AutoResharderSystem"), exports);
 __exportStar(require("./Structures/Child"), exports);
 __exportStar(require("./Structures/Data"), exports);
 __exportStar(require("./Structures/IPCHandler"), exports);

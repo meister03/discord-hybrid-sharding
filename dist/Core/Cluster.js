@@ -6,15 +6,15 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Cluster = void 0;
 const events_1 = __importDefault(require("events"));
 const path_1 = __importDefault(require("path"));
-const Util_1 = require("../Util/Util");
-const shared_1 = require("../types/shared");
-const IPCMessage_js_1 = require("../Structures/IPCMessage.js");
-const IPCHandler_js_1 = require("../Structures/IPCHandler.js");
-const Worker_js_1 = require("../Structures/Worker.js");
 const Child_js_1 = require("../Structures/Child.js");
+const IPCHandler_js_1 = require("../Structures/IPCHandler.js");
+const IPCMessage_js_1 = require("../Structures/IPCMessage.js");
+const Worker_js_1 = require("../Structures/Worker.js");
+const shared_1 = require("../types/shared"); // eslint-disable-line @typescript-eslint/no-unused-vars
+const Util_1 = require("../Util/Util");
 /**
- * A self-contained cluster created by the {@link ClusterManager}. Each one has a {@link Child} that contains
- * an instance of the bot and its {@link Client}. When its child process/worker exits for any reason, the cluster will
+ * A self-contained cluster created by the {@link ClusterManager}. Each one has a {@link DjsDiscordClient} that contains
+ * an instance of the bot and its {@link DjsDiscordClient}. When its child process/worker exits for any reason, the cluster will
  * spawn a new one to replace it as necessary.
  * @augments EventEmitter
  */
@@ -55,7 +55,7 @@ class Cluster extends events_1.default {
     restarts;
     messageHandler;
     /**
-     * Whether the cluster's {@link Client} is ready
+     * Whether the cluster's {@link DjsDiscordClient} is ready
      */
     ready;
     /**
@@ -105,7 +105,7 @@ class Cluster extends events_1.default {
     /**
      * Forks a child process or creates a worker thread for the cluster.
      * <warn>You should not need to call this manually.</warn>
-     * @param spawnTimeout The amount in milliseconds to wait until the {@link Client} has become ready
+     * @param spawnTimeout The amount in milliseconds to wait until the {@link DjsDiscordClient} has become ready
      * before resolving. (-1 or Infinity for no wait)
      */
     async spawn(spawnTimeout = -1) {
@@ -221,7 +221,7 @@ class Cluster extends events_1.default {
         return this.manager.promise.create(message, message.options);
     }
     /**
-     * Evaluates a script or function on the cluster, in the context of the {@link Client}.
+     * Evaluates a script or function on the cluster, in the context of the {@link DjsDiscordClient}.
      * @param script JavaScript to run on the cluster
      * @param context
      * @param timeout

@@ -1,11 +1,11 @@
-import { RawMessage } from '../Structures/IPCMessage';
-import { Awaitable, ClusterClientEvents, DjsDiscordClient, evalOptions, Serialized } from '../types/shared';
-import { ClusterManager as Manager } from '../Core/ClusterManager';
-import { WorkerClient } from '../Structures/Worker';
-import { ChildClient } from '../Structures/Child';
-import { PromiseHandler } from '../Structures/PromiseHandler';
-import EventEmitter from 'events';
-import { Serializable } from 'child_process';
+import { Serializable } from "child_process";
+import EventEmitter from "events";
+import { ClusterManager as Manager } from "../Core/ClusterManager";
+import { ChildClient } from "../Structures/Child";
+import { RawMessage } from "../Structures/IPCMessage";
+import { PromiseHandler } from "../Structures/PromiseHandler";
+import { WorkerClient } from "../Structures/Worker";
+import { Awaitable, ClusterClientEvents, DjsDiscordClient, evalOptions, Serialized } from "../types/shared";
 export declare class ClusterClient<DiscordClient = DjsDiscordClient> extends EventEmitter {
     client: DiscordClient;
     mode: 'process' | 'worker';
@@ -67,7 +67,7 @@ export declare class ClusterClient<DiscordClient = DjsDiscordClient> extends Eve
     evalOnManager<T>(fn: (manager: Manager) => T, options?: evalOptions): Promise<T>;
     evalOnManager<T>(fn: (manager: Manager) => T, options?: evalOptions): Promise<any[]>;
     /**
-     * Evaluates a script or function on all clusters, or a given cluster, in the context of the {@link Client}s.
+     * Evaluates a script or function on all clusters, or a given cluster, in the context of the {@link DjsDiscordClient}s.
      * @example
      * client.cluster.broadcastEval('this.guilds.cache.size')
      *   .then(results => console.log(`${results.reduce((prev, val) => prev + val, 0)} total guilds`))

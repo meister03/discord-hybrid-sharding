@@ -1,6 +1,6 @@
-import { Cluster } from '../Core/Cluster';
-import { ClusterManager } from '../Core/ClusterManager';
-import { chunkArray, fetchRecommendedShards } from '../Util/Util';
+import { Cluster } from "../Core/Cluster";
+import { ClusterManager } from "../Core/ClusterManager";
+import { chunkArray, fetchRecommendedShards } from "../Util/Util";
 
 export type ReClusterRestartMode = 'gracefulSwitch' | 'rolling';
 
@@ -26,7 +26,7 @@ export interface ReClusterOptions {
 export class ReClusterManager {
     options: ReClusterOptions;
     name: 'recluster';
-    onProgress: Boolean;
+    onProgress: boolean;
     manager?: ClusterManager;
     constructor(options?: ReClusterOptions) {
         if (!options) this.options = {};
@@ -53,16 +53,17 @@ export class ReClusterManager {
      * @param options.restartMode
      */
     public async start(options?: ReClusterOptions) {
-        let {
+        const {
             delay,
             timeout,
             totalClusters,
-            totalShards,
             shardsPerClusters,
             shardClusterList,
             shardList = this.manager?.shardList,
             restartMode = 'gracefulSwitch',
         } = options || { restartMode: 'gracefulSwitch' };
+        let totalShards = options?.totalShards;
+
         if (this.onProgress) throw new Error('Zero Downtime Reclustering is already in progress');
         if (!this.manager) throw new Error('Manager is missing on ReClusterManager');
         if (totalShards) {

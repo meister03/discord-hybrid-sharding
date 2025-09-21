@@ -1,12 +1,12 @@
-import { ClusterManager } from './ClusterManager';
-import EventEmitter from 'events';
-import { ClusterEvents, ClusterKillOptions } from '../types/shared';
-import { RawMessage } from '../Structures/IPCMessage.js';
-import { Worker } from '../Structures/Worker.js';
-import { Child } from '../Structures/Child.js';
+import EventEmitter from "events";
+import { Child } from "../Structures/Child.js";
+import { RawMessage } from "../Structures/IPCMessage.js";
+import { Worker } from "../Structures/Worker.js";
+import { ClusterEvents, ClusterKillOptions } from "../types/shared";
+import { ClusterManager } from "./ClusterManager";
 /**
- * A self-contained cluster created by the {@link ClusterManager}. Each one has a {@link Child} that contains
- * an instance of the bot and its {@link Client}. When its child process/worker exits for any reason, the cluster will
+ * A self-contained cluster created by the {@link ClusterManager}. Each one has a {@link DjsDiscordClient} that contains
+ * an instance of the bot and its {@link DjsDiscordClient}. When its child process/worker exits for any reason, the cluster will
  * spawn a new one to replace it as necessary.
  * @augments EventEmitter
  */
@@ -62,7 +62,7 @@ export declare class Cluster extends EventEmitter {
     };
     messageHandler: any;
     /**
-     * Whether the cluster's {@link Client} is ready
+     * Whether the cluster's {@link DjsDiscordClient} is ready
      */
     ready: boolean;
     /**
@@ -75,10 +75,10 @@ export declare class Cluster extends EventEmitter {
     /**
      * Forks a child process or creates a worker thread for the cluster.
      * <warn>You should not need to call this manually.</warn>
-     * @param spawnTimeout The amount in milliseconds to wait until the {@link Client} has become ready
+     * @param spawnTimeout The amount in milliseconds to wait until the {@link DjsDiscordClient} has become ready
      * before resolving. (-1 or Infinity for no wait)
      */
-    spawn(spawnTimeout?: number): Promise<import("worker_threads").Worker | import("child_process").ChildProcess | null>;
+    spawn(spawnTimeout?: number): Promise<import("child_process").ChildProcess | import("worker_threads").Worker | null>;
     /**
      * Immediately kills the clusters process/worker and does not restart it.
      * @param options Some Options for managing the Kill
@@ -89,7 +89,7 @@ export declare class Cluster extends EventEmitter {
      * Kills and restarts the cluster's process/worker.
      * @param options Options for respawning the cluster
      */
-    respawn({ delay, timeout }?: import("../types/shared").ClusterManagerSpawnOptions): Promise<import("worker_threads").Worker | import("child_process").ChildProcess | null>;
+    respawn({ delay, timeout }?: import("../types/shared").ClusterManagerSpawnOptions): Promise<import("child_process").ChildProcess | import("worker_threads").Worker | null>;
     /**
      * Sends a message to the cluster's process/worker.
      * @param  message Message to send to the cluster
@@ -107,7 +107,7 @@ export declare class Cluster extends EventEmitter {
      */
     request(message: RawMessage): Promise<unknown>;
     /**
-     * Evaluates a script or function on the cluster, in the context of the {@link Client}.
+     * Evaluates a script or function on the cluster, in the context of the {@link DjsDiscordClient}.
      * @param script JavaScript to run on the cluster
      * @param context
      * @param timeout

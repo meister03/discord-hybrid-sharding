@@ -1,5 +1,6 @@
-import { request } from 'https';
-import { DefaultOptions, Endpoints } from '../types/shared';
+import { request } from "https";
+
+import { DefaultOptions, Endpoints } from "../types/shared";
 
 export function generateNonce() {
     return Date.now().toString(36) + Math.random().toString(36);
@@ -11,7 +12,12 @@ export function chunkArray(array: any[], chunkSize: number) {
     return R;
 }
 
+export function arraysAreTheSame(firstArray: any[], secondArray: any[]) {
+    return firstArray.length === secondArray.length && firstArray.every((element, index) => element === secondArray[index]);
+}
+
 export function delayFor(ms: number) {
+    if(ms < 0) return;
     return new Promise(resolve => {
         setTimeout(resolve, ms);
     });
