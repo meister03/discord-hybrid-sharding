@@ -198,7 +198,15 @@ export class ReClusterManager {
 
         newClusters.clear();
         this.onProgress = false;
-        process.env.MAINTENANCE = undefined;
+        // [fork fix] Original `process.env.MAINTENANCE = undefined` coerces to the string
+        // "undefined" and leaves MAINTENANCE='recluster' baked into every Cluster.env
+        // (snapshotted at construction, reused on every respawn). A later death/heartbeat
+        // respawn then boots the child in maintenance mode, so its `ready` event never fires
+        // and handlers never load. Clear the flag on the manager and every live cluster.
+        for (const cluster of this.manager.clusters.values()) {
+            delete cluster.env.MAINTENANCE;
+        }
+        delete process.env.MAINTENANCE;
         this.manager._debug('[↻][ReClustering] Finished ReClustering');
         return { success: true };
     }
